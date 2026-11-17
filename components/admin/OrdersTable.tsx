@@ -1,7 +1,7 @@
 "use client";
 import { StatusTag } from "@/components/app/status-badge";
 import { formatMoney, tableLabel } from "@/lib/format";
-import { useLang } from "@/lib/i18n";
+import { useLang, type Key } from "@/lib/i18n";
 import { VENUE_TZ } from "@/lib/stats";
 import type { Order } from "@/lib/types";
 
@@ -10,9 +10,9 @@ const td = "border-b py-3 pe-5 align-middle last:pe-0";
 // Guest, items and placed drop out below 900px.
 const opt = "max-[900px]:hidden";
 
-export function OrdersTable({ orders }: { orders: Order[] }) {
+export function OrdersTable({ orders, empty = "noOrders" }: { orders: Order[]; empty?: Key }) {
   const { lang, t } = useLang();
-  if (!orders.length) return <p className="py-12 text-center text-text-2">{t("noOrders")}</p>;
+  if (!orders.length) return <p className="py-12 text-center text-sm text-text-2">{t(empty)}</p>;
   const clock = new Intl.DateTimeFormat(lang === "ar" ? "ar-AE-u-nu-latn" : "en-AE", { hour: "numeric", minute: "2-digit", timeZone: VENUE_TZ });
   return (
     <div className="overflow-x-auto">

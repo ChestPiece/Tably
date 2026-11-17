@@ -51,7 +51,9 @@ export function Welcome({
       {featured?.image_url ? (
         <Arch src={featured.image_url} alt={pick(lang, featured.name, featured.name_ar)} width={248} height={304} className="bg-brand-field" />
       ) : (
-        <span aria-hidden className="block h-[304px] w-[248px] rounded-arch bg-brand-field" />
+        <span aria-hidden className="grid h-[304px] w-[248px] place-items-center rounded-arch bg-brand-field">
+          <BrandMark className="size-24 text-ochre" />
+        </span>
       )}
       <span aria-hidden className="h-0.5 w-[296px] max-w-full rounded-full bg-brand-rule" />
       <h1 className="mt-6 font-display text-[40px] leading-[1.1] font-semibold [overflow-wrap:anywhere]">{venue}</h1>

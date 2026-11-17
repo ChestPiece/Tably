@@ -11,6 +11,7 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 - Supabase cloud project ref `xyptwnbukercpptbleei` (project-scoped MCP in `.mcp.json`). No Docker on this machine: no `supabase start`.
 - Production: https://qr-restauratn-app.vercel.app (Vercel, deploys from `main`). The GitHub repo is **public**: never commit passwords, keys or `.env*` (only `.env.example`).
 - Logins are real emails only. The owner is the account linked in `staff_members` (see the note at the top of `seed.sql`). Staff join through an invite on the Team page. There are no seed accounts.
+- Invites: the app never emails them. The owner shares `/login?invite=<email>` from the Team page dialog; sign-up still needs the Supabase confirmation email, so custom SMTP must be set up first.
 
 ## Gotchas
 - PowerShell blocks `npm.ps1`: use `npm.cmd run dev` (or `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`).
@@ -27,6 +28,7 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 - Owner admin below `lg` uses a bottom tab bar (`components/admin/BottomNav.tsx`: Home, Board, Orders, Menu, More sheet), not the sidebar sheet. Sidebar footer and More sheet share `useOwnerActions()` in `AdminSidebar.tsx`. Cards use `PANEL` from `OwnerHome.tsx`.
 - Global element styles in `app/globals.css` go in `@layer base`. An unlayered `p { text-wrap: … }` beat `truncate` / `whitespace-nowrap` everywhere.
 - `sr-only` spans are absolutely positioned: give every scroll container `relative`, or they leak page scroll.
+- `IBM_Plex_Sans` uses `adjustFontFallback: false`: the generated Arial fallback has Arabic glyphs and beat `--nf-arabic`.
 
 ## Target stack and commands
 - Next.js latest, TypeScript, Tailwind v4, shadcn/ui, `@supabase/ssr`.

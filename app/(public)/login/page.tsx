@@ -42,6 +42,16 @@ export default function Login() {
     router.refresh();
   }
 
+  // Invite link from the owner (?invite=email): open sign-up with the email filled in.
+  useEffect(() => {
+    const invited = new URLSearchParams(location.search).get("invite");
+    if (!invited) return;
+    /* eslint-disable react-hooks/set-state-in-effect -- URL is only readable after hydration */
+    setMode("up");
+    setEmail(invited);
+    /* eslint-enable react-hooks/set-state-in-effect */
+  }, []);
+
   // Back from the sign-up confirmation email (?code=…): finish signing in.
   useEffect(() => {
     if (!new URLSearchParams(location.search).get("code")) return;

@@ -168,12 +168,12 @@ export function AdminApp(props: {
             </div>
           )}
           {page !== "home" && page !== "board" && (
-            <div className={PANEL}>
+            <div className={`${PANEL} ${page === "team" || page === "settings" ? "max-w-3xl" : ""}`}>
               {page === "orders" && <OwnerOrders orders={props.today.orders} filter={filter} onFilter={(f) => go({ filter: f === "all" ? null : f })} />}
               {page === "menu" && <MenuAdmin {...common} restaurant={r} categories={props.categories} menu={props.menu} editing={editing} onEdit={setEditing} />}
               {page === "tables" && <TablesAdmin {...common} restaurant={r} tables={props.tables} />}
               {page === "settings" && <SettingsForm {...common} restaurant={r} email={props.email} />}
-              {page === "team" && <TeamAdmin {...common} me={props.me} rid={r.id} team={props.team} invites={props.invites} />}
+              {page === "team" && <TeamAdmin {...common} me={props.me} rid={r.id} venue={venue} team={props.team} invites={props.invites} />}
             </div>
           )}
         </main>

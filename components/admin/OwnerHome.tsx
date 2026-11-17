@@ -51,12 +51,17 @@ export function OwnerHome({ today, menu, tables, onOrders }: { today: TodayData;
         <div className={`${PANEL} col-span-2 max-[1100px]:col-span-1`}>
           <HourChart today={ordersByHour(today.orders)} lastWeek={ordersByHour(today.lastWeek)} />
         </div>
-        <div className={PANEL}>
-          <StatusDonut orders={today.orders} />
+        <div className="flex flex-col gap-5 max-sm:gap-3">
+          <div className={PANEL}>
+            <StatusDonut orders={today.orders} />
+          </div>
+          <div className={`${PANEL} flex-1`}>
+            <FloorPlan tables={tables} visits={today.openVisits} />
+          </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-3 items-start gap-5 max-[1100px]:grid-cols-1 max-sm:gap-3">
+      <div className="grid grid-cols-3 gap-5 max-[1100px]:grid-cols-1 max-sm:gap-3">
         <section aria-labelledby="latest-h" className={`${PANEL} col-span-2 max-[1100px]:col-span-1`}>
           <div className="mb-4 flex items-baseline justify-between gap-3">
             <h2 id="latest-h" className="text-[15px] font-semibold">
@@ -66,10 +71,9 @@ export function OwnerHome({ today, menu, tables, onOrders }: { today: TodayData;
               {t("navOrders")}
             </Button>
           </div>
-          <OrdersTable orders={today.orders.slice(0, 6)} />
+          <OrdersTable orders={today.orders.slice(0, 6)} empty="noOrdersToday" />
         </section>
-        <div className="flex flex-col gap-5 max-sm:gap-3">
-          <section aria-labelledby="top-h" className={PANEL}>
+        <section aria-labelledby="top-h" className={PANEL}>
             <h2 id="top-h" className="mb-4 text-[15px] font-semibold">
               {t("topDishes")}
             </h2>
@@ -95,10 +99,6 @@ export function OwnerHome({ today, menu, tables, onOrders }: { today: TodayData;
               </ul>
             )}
           </section>
-          <div className={PANEL}>
-            <FloorPlan tables={tables} visits={today.openVisits} />
-          </div>
-        </div>
       </div>
     </div>
   );
@@ -125,8 +125,8 @@ function StatusDonut({ orders }: { orders: Order[] }) {
       <h2 id="mix-h" className="mb-4 text-[15px] font-semibold">
         {t("statusMix")}
       </h2>
-      <div className="flex flex-col items-center gap-6 max-[1100px]:flex-row max-sm:gap-5">
-        <div className="relative size-40 shrink-0 max-sm:size-32">
+      <div className="flex items-center gap-5">
+        <div className="relative size-28 shrink-0">
           <ChartContainer config={config} className="aspect-square size-full">
             <PieChart>
               {total > 0 && <ChartTooltip content={<ChartTooltipContent nameKey="id" hideLabel />} />}
@@ -142,7 +142,7 @@ function StatusDonut({ orders }: { orders: Order[] }) {
             <span className="mt-1 text-xs text-muted-foreground">{t("totalOrders")}</span>
           </p>
         </div>
-        <ul className="flex w-full min-w-0 flex-1 flex-col gap-2.5 text-sm">
+        <ul className="flex min-w-0 flex-1 flex-col gap-2 text-sm">
           {data.map((d) => (
             <li key={d.id} className="flex items-center gap-2">
               <span aria-hidden className="size-2.5 shrink-0 rounded-[3px]" style={{ background: d.color }} />

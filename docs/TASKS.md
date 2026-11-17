@@ -31,7 +31,7 @@ Updated 2026-11-17. Tick items here as they land. Plan: `docs/superpowers/specs/
 - [x] Remove the featured card on the menu (repeats first list item and the welcome photo)
 - [x] Remove uppercase "BESTSELLER" eyebrow over the featured title (banned pattern)
 - [ ] Replace the cola photo (shows real Coca-Cola branding)
-- [ ] Arabic language toggle on welcome is not using the Arabic font
+- [x] Arabic language toggle on welcome is not using the Arabic font (IBM Plex Sans `adjustFontFallback: false`)
 
 ## 3. Design pass (per screen group: guest, staff, owner)
 Skills: `web-design-engineer` (lead), `no-ai-design-slop` (gate), `localization-design`, `better-typography`, `dark-mode-design` (staff), `number-details`, `form-design`, `loading-states`, `error-handling-ux`, `interfaces-that-feel`. Inspo MCP: one `recommend` + 1–2 `search_screens` + 3–5 `get_screen` per group.
@@ -58,6 +58,7 @@ Skills: `web-design-engineer` (lead), `no-ai-design-slop` (gate), `localization-
 - [x] Owner dashboard card layout (Reztro feel, Sufra colors) + phone bottom tab bar (2026-11-17)
 - [ ] Apply `supabase/migrations/20261118000002_accept_invites_confirmed.sql` (SQL editor; MCP apply was blocked) and keep "Confirm email" on
 - [ ] Custom SMTP (e.g. Resend) before inviting staff: built-in email only reaches project team members, ~2/hour
+- [x] Invites send no email from the app: Team page shows a share link (`/login?invite=<email>`, copy / email / WhatsApp) that opens sign-up with the email filled in
 - [ ] Before real guests: home page back to "scan your table" (drop `HOME_TABLE_SLUG`), scheduled cleanup of old anonymous users
 - [ ] Optional: Turnstile captcha on anonymous sign-in
 

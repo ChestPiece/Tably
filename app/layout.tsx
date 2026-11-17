@@ -7,7 +7,8 @@ import type { Lang } from "@/lib/types";
 import "./globals.css";
 
 const display = Beiruti({ subsets: ["arabic", "latin"], weight: ["500", "700"], variable: "--nf-display" });
-const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--nf-sans" });
+// No adjusted fallback: its local Arial face has Arabic glyphs and would beat --nf-arabic for Arabic text.
+const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--nf-sans", adjustFontFallback: false });
 const arabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic", "latin"], weight: ["400", "500", "600", "700"], variable: "--nf-arabic" });
 
 export const metadata: Metadata = {

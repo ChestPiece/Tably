@@ -17,6 +17,7 @@ export function HourChart({ today, lastWeek }: { today: number[]; lastWeek: numb
   const to = active.length ? Math.min(23, active.at(-1)! + 1) : 23;
   const data = Array.from({ length: to - from + 1 }, (_, i) => ({ hour: from + i, today: today[from + i], lastWeek: lastWeek[from + i] }));
   const empty = !today.some(Boolean);
+  const hasLastWeek = lastWeek.some(Boolean);
 
   return (
     <section aria-labelledby="hour-h">
@@ -42,8 +43,8 @@ export function HourChart({ today, lastWeek }: { today: number[]; lastWeek: numb
             <XAxis dataKey="hour" tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(h: number) => String(h).padStart(2, "0")} />
             <YAxis allowDecimals={false} tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} width={44} />
             <ChartTooltip cursor content={<ChartTooltipContent labelFormatter={(_, p) => `${String(p?.[0]?.payload?.hour ?? "").padStart(2, "0")}:00`} />} />
-            <Area dataKey="lastWeek" type="monotone" stroke="var(--color-lastWeek)" strokeWidth={2} strokeDasharray="4 4" fill="none" dot={false} isAnimationActive={false} />
-            <Area dataKey="today" type="monotone" stroke="var(--color-today)" strokeWidth={2.5} fill="var(--color-today)" fillOpacity={0.08} dot={false} activeDot={{ r: 4 }} isAnimationActive={false} />
+            {hasLastWeek && <Area dataKey="lastWeek" type="monotone" stroke="var(--color-lastWeek)" strokeWidth={2} strokeDasharray="4 4" fill="none" dot={false} isAnimationActive={false} />}
+            {!empty && <Area dataKey="today" type="monotone" stroke="var(--color-today)" strokeWidth={2.5} fill="var(--color-today)" fillOpacity={0.08} dot={false} activeDot={{ r: 4 }} isAnimationActive={false} />}
           </AreaChart>
         </ChartContainer>
         {empty && <p className="absolute inset-0 grid place-items-center text-sm text-text-2">{t("noOrdersToday")}</p>}
