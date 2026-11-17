@@ -10,6 +10,7 @@
     "cssVariables": true,
     "prefix": ""
   },
+  "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
@@ -17,5 +18,9 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
-  "registries": {}
+  "registries": {
+    "@kokonutui": "https://kokonutui.com/r/{name}.json",
+    "@reui": "https://reui.io/r/{name}.json",
+    "@originui": "https://coss.com/origin/r/{name}.json"
+  }
 }

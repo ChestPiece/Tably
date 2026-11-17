@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Covers — Direction B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f2f0eb;
+    --ink: #111111;
+    --grey: #6e6c67;
+    --rule: #cfccc4;
+    --signal: #e2321b;  /* the pass light */
+    --steel: #26282b;
+    --sans: "Archivo", "IBM Plex Sans Arabic", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, monospace;
+    --ar: "IBM Plex Sans Arabic", sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body { background: var(--paper); color: var(--ink); font: 400 16px/1.55 var(--sans); font-variation-settings: "wdth" 100; text-wrap: pretty; }
+  .back { position: fixed; top: 16px; inset-inline-start: 16px; z-index: 5; font: 500 13px var(--mono); background: var(--paper); border: 1px solid var(--ink); padding: 7px 12px; text-decoration: none; color: var(--ink); }
+  .back:hover { background: var(--ink); color: var(--paper); }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+  .row { display: grid; grid-template-columns: 200px minmax(0, 1fr); gap: 24px; border-top: 2px solid var(--ink); padding: 28px 0 88px; }
+  .row > .label { font: 500 13px/1.4 var(--mono); }
+  .row > .label span { color: var(--grey); display: block; }
+  h2 { font: 800 clamp(40px, 6vw, 84px)/0.92 var(--sans); font-variation-settings: "wdth" 70; letter-spacing: -0.01em; }
+  .lede { max-width: 60ch; margin-top: 18px; color: var(--grey); font-size: 17px; }
+  .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+  /* cover */
+  .cover { min-height: 100vh; display: grid; grid-template-rows: auto 1fr auto; padding: 72px 24px 24px; max-width: 1240px; margin: 0 auto; }
+  .cover-top { display: flex; justify-content: space-between; font: 500 13px var(--mono); border-bottom: 1px solid var(--ink); padding-bottom: 10px; }
+  .word { align-self: center; font: 900 clamp(110px, 24vw, 340px)/0.78 var(--sans); font-variation-settings: "wdth" 62; letter-spacing: -0.03em; display: flex; align-items: flex-start; gap: 0.06em; }
+  .word .dot { width: 0.17em; height: 0.17em; border-radius: 50%; background: var(--signal); margin-top: 0.04em; flex: none; }
+  .cover-bot { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; border-top: 1px solid var(--ink); padding-top: 12px; font-size: 15px; }
+  .cover-bot b { display: block; font-weight: 700; }
+  .cover-bot .ar { font-family: var(--ar); direction: rtl; text-align: right; font-size: 22px; font-weight: 700; }
+
+  /* idea */
+  .big-line { font: 700 clamp(28px, 3.6vw, 46px)/1.1 var(--sans); font-variation-settings: "wdth" 85; max-width: 24ch; }
+  .big-line em { font-style: normal; color: var(--signal); }
+  .three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-top: 48px; }
+  .three div { border-top: 1px solid var(--ink); padding-top: 12px; }
+  .three b { font: 500 13px var(--mono); display: block; margin-bottom: 8px; }
+  .three p { color: var(--grey); }
+
+  /* logo */
+  .logos { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1px; background: var(--ink); border: 1px solid var(--ink); }
+  .logos > div { background: var(--paper); min-height: 280px; display: grid; place-items: center; position: relative; }
+  .logos small { position: absolute; top: 10px; inset-inline-start: 12px; font: 400 12px var(--mono); color: var(--grey); }
+  .inv { background: var(--ink) !important; color: var(--paper); }
+  .wm { font: 900 76px/0.8 var(--sans); font-variation-settings: "wdth" 62; letter-spacing: -0.02em; display: inline-flex; gap: 4px; align-items: flex-start; }
+  .wm i { width: 13px; height: 13px; border-radius: 50%; background: var(--signal); margin-top: 2px; }
+  .glyph { width: 96px; height: 96px; background: var(--ink); color: var(--paper); display: grid; place-items: center; font: 900 72px/1 var(--sans); font-variation-settings: "wdth" 62; position: relative; }
+  .glyph::after { content: ""; position: absolute; top: 14px; right: 14px; width: 14px; height: 14px; border-radius: 50%; background: var(--signal); }
+  .construct { margin-top: 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; font-size: 15px; color: var(--grey); }
+
+  /* colour */
+  .chips { display: grid; grid-template-columns: 3fr 3fr 1fr 1fr 0.5fr; height: 300px; border: 1px solid var(--ink); }
+  .chip { padding: 12px; display: flex; flex-direction: column; justify-content: space-between; font: 400 12px/1.4 var(--mono); border-inline-end: 1px solid var(--ink); }
+  .chip:last-child { border: 0; }
+  .chip b { font: 700 18px var(--sans); }
+
+  /* type */
+  .specs { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--ink); border: 1px solid var(--ink); }
+  .specs > div { background: var(--paper); padding: 24px; }
+  .specs .a { font: 900 120px/0.85 var(--sans); font-variation-settings: "wdth" 62; }
+  .specs .b { font: 700 104px/1.1 var(--ar); direction: rtl; text-align: right; }
+  .specs .c { font: 500 64px/1 var(--mono); letter-spacing: -0.02em; }
+  .specs p { font: 400 12px var(--mono); color: var(--grey); margin-top: 14px; }
+  .axis { display: flex; align-items: baseline; gap: 18px; flex-wrap: wrap; }
+  .axis span { font-weight: 800; font-size: 44px; line-height: 1; }
+
+  /* touchpoints */
+  .tp { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 24px; align-items: start; }
+  .tp > .wide { grid-column: 1 / -1; }
+  .tp h3 { font: 500 13px var(--mono); margin-bottom: 12px; }
+  .card { background: #fff; border: 1px solid var(--ink); padding: 20px; }
+  .card .top { display: flex; justify-content: space-between; font: 500 12px var(--mono); border-bottom: 1px solid var(--ink); padding-bottom: 8px; }
+  .card .n { font: 900 150px/0.8 var(--sans); font-variation-settings: "wdth" 62; margin: 22px 0 10px; }
+  .card .qr { width: 100%; aspect-ratio: 1; }
+  .card .qr svg { width: 100%; height: 100%; display: block; }
+  .card .how { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 13px; margin-top: 14px; border-top: 1px solid var(--rule); padding-top: 10px; }
+  .card .how .ar { font-family: var(--ar); direction: rtl; text-align: right; }
+  .card .wmini { font: 900 18px var(--sans); font-variation-settings: "wdth" 62; display: inline-flex; gap: 2px; align-items: flex-start; margin-top: 14px; }
+  .card .wmini i { width: 4px; height: 4px; border-radius: 50%; background: var(--signal); }
+
+  .tp { grid-template-columns: 340px 380px; justify-content: start; }
+  .phone { border: 1px solid var(--ink); background: #fff; height: 620px; display: flex; flex-direction: column; }
+  .p-head { padding: 16px; border-bottom: 2px solid var(--ink); }
+  .p-head .v { font: 800 30px/0.95 var(--sans); font-variation-settings: "wdth" 70; }
+  .p-head .m { font: 400 12px var(--mono); color: var(--grey); margin-top: 6px; display: flex; justify-content: space-between; }
+  .p-cat { font: 500 12px var(--mono); padding: 14px 16px 6px; display: flex; justify-content: space-between; }
+  .line { display: grid; grid-template-columns: 28px 1fr auto; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--rule); align-items: start; }
+  .line .i { font: 400 12px var(--mono); color: var(--grey); padding-top: 3px; }
+  .line b { font-weight: 700; font-size: 16px; display: block; }
+  .line small { color: var(--grey); font-size: 13px; }
+  .line .pr { font: 500 14px var(--mono); }
+  .line.sel { background: var(--paper); }
+  .line.sel .i { color: var(--signal); }
+  .p-foot { margin-top: auto; background: var(--ink); color: var(--paper); display: grid; grid-template-columns: 1fr auto; padding: 16px; font: 500 14px var(--mono); }
+  .p-foot b { font: 800 18px var(--sans); font-variation-settings: "wdth" 80; }
+
+  .board { background: var(--steel); color: #f2f0eb; padding: 16px; min-height: 360px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-content: start; }
+  .col-h { font: 500 12px var(--mono); color: #a7a59f; display: flex; justify-content: space-between; border-bottom: 1px solid #45484c; padding-bottom: 6px; }
+  .tk { background: #f2f0eb; color: var(--ink); padding: 12px; margin-top: 10px; }
+  .tk .h { display: flex; justify-content: space-between; align-items: baseline; }
+  .tk .t { font: 900 34px/0.9 var(--sans); font-variation-settings: "wdth" 62; }
+  .tk .tm { font: 500 13px var(--mono); }
+  .tk .late { color: var(--signal); }
+  .tk ul { list-style: none; padding: 0; margin-top: 8px; font: 400 13px/1.6 var(--mono); border-top: 1px solid var(--rule); padding-top: 6px; }
+  .tk.new { outline: 3px solid var(--signal); outline-offset: -3px; }
+  .tk button { margin-top: 10px; width: 100%; min-height: 40px; background: var(--ink); color: var(--paper); border: 0; font: 500 13px var(--mono); cursor: pointer; }
+  .tk button:hover, .tk button:focus-visible { background: var(--signal); outline: none; }
+
+  /* voice */
+  .voice { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--ink); }
+  .voice > div { padding: 24px; }
+  .voice > div + div { border-inline-start: 1px solid var(--ink); }
+  .voice h3 { font: 500 13px var(--mono); margin-bottom: 14px; }
+  .voice p { font: 700 22px/1.3 var(--sans); font-variation-settings: "wdth" 85; margin-bottom: 12px; }
+  .voice .no p { color: var(--grey); font-weight: 400; text-decoration: line-through; text-decoration-color: var(--signal); }
+
+  .end { background: var(--ink); color: var(--paper); padding: 96px 24px; }
+  .end h2 { max-width: 16ch; }
+  .end p { color: #a7a59f; margin-top: 16px; font-family: var(--mono); font-size: 14px; }
+
+  @media (max-width: 980px) {
+    .row { grid-template-columns: minmax(0, 1fr); padding-bottom: 64px; }
+    .word { font-size: 27vw; }
+    .tp, .three, .construct, .specs, .voice { grid-template-columns: 1fr; }
+    .logos { grid-template-columns: 1fr; }
+    .chips { grid-template-columns: 1fr 1fr; height: auto; }
+    .chip { min-height: 120px; border-bottom: 1px solid var(--ink); }
+    .cover-bot { grid-template-columns: 1fr 1fr; }
+    .voice > div + div { border-inline-start: 0; border-top: 1px solid var(--ink); }
+    .board { grid-template-columns: 1fr; height: auto; }
+  }
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← All directions</a>
+
+<header class="cover">
+  <div class="cover-top"><span>Brand guidelines · v0.1</span><span>Direction B</span></div>
+  <div class="word" aria-label="Covers">Covers<span class="dot"></span></div>
+  <div class="cover-bot">
+    <div><b>Covers</b>n. the guests served in one service.</div>
+    <div><b>Promise</b>Every table, accounted for.</div>
+    <div><b>For</b>Kitchens that run on discipline.</div>
+    <div class="ar" lang="ar">كل طاولة في الحسبان</div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="row">
+    <div class="label">01<span>Idea</span></div>
+    <div>
+      <p class="big-line">Premium is precision. A great restaurant never loses a ticket, never guesses a table, never makes a guest wave twice. <em>We are the pass, made visible.</em></p>
+      <div class="three">
+        <div><b>Exact</b><p>Real times, real counts. Minutes in mono. No vague "soon".</p></div>
+        <div><b>Calm under load</b><p>Saturday at 9pm looks as ordered as Tuesday at 6.</p></div>
+        <div><b>Out of the way</b><p>The venue's food is the hero. We are the grid it sits on.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="label">02<span>Wordmark</span></div>
+    <div>
+      <h2>A word and a light</h2>
+      <p class="lede">Condensed Archivo Black at its narrowest. The red dot is the pass light: an order is ready. It is the only red in the system and it always means "now".</p>
+      <div class="logos" style="margin-top:36px">
+        <div><small>Primary</small><span class="wm">Covers<i></i></span></div>
+        <div class="inv"><small style="color:#a7a59f">Reversed</small><span class="wm">Covers<i></i></span></div>
+        <div><small>App mark</small><span class="glyph">C</span></div>
+      </div>
+      <div class="construct">
+        <p>Dot diameter = stem width. Sits on the cap line, one stem away from the s.</p>
+        <p>Minimum: 64px wide on screen, 18mm in print.</p>
+        <p>Never widen the font, never colour the letters, never use the dot as decoration.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="label">03<span>Colour</span></div>
+    <div>
+      <h2>Paper, ink, signal</h2>
+      <p class="lede">A docket printer's palette. Red covers under 5% of any surface and only marks state: new, late, ready.</p>
+      <div class="chips" style="margin-top:36px">
+        <div class="chip" style="background:var(--paper)"><b>Docket</b>#F2F0EB<br>Page, guest app</div>
+        <div class="chip" style="background:var(--ink);color:var(--paper)"><b>Ink</b>#111111<br>Type, actions</div>
+        <div class="chip" style="background:var(--steel);color:var(--paper)"><b>Steel</b>#26282B<br>Staff screens</div>
+        <div class="chip" style="background:var(--grey);color:#fff"><b>Grey</b>#6E6C67</div>
+        <div class="chip" style="background:var(--signal);color:#fff"><b>Signal</b>#E2321B</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="label">04<span>Type</span></div>
+    <div>
+      <h2>One family, every width</h2>
+      <div class="specs" style="margin-top:36px">
+        <div><div class="a">Table 12</div><p>Archivo · wdth 62 · 900 — headlines, table numbers</p></div>
+        <div><div class="b" lang="ar">طاولة ١٢</div><p>IBM Plex Sans Arabic · 700 — same cap height, never squeezed</p></div>
+        <div><div class="c">04:32</div><p>IBM Plex Mono · 500 — every time, price and count</p></div>
+        <div><div class="axis"><span style="font-variation-settings:'wdth' 62">Aa</span><span style="font-variation-settings:'wdth' 80">Aa</span><span style="font-variation-settings:'wdth' 100">Aa</span><span style="font-variation-settings:'wdth' 125">Aa</span></div><p>Width axis does the hierarchy work, so the system needs no second typeface.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="label">05<span>Touchpoints</span></div>
+    <div>
+      <h2>Table, guest, kitchen</h2>
+      <p class="lede">The same grid from table card to kitchen board. Guests see the venue first; the kitchen sees time first.</p>
+      <div class="tp" style="margin-top:36px">
+        <div>
+          <h3>Table card · 100 × 150mm</h3>
+          <div class="card">
+            <div class="top"><span>Sample venue</span><span>Dine-in</span></div>
+            <div class="n">12</div>
+            <div class="qr"><svg viewBox="0 0 29 29" shape-rendering="crispEdges"><g fill="#111" id="qrB"></g></svg></div>
+            <div class="how"><span>Scan. Order. We bring it.</span><span class="ar" lang="ar">امسح. اطلب. نحضره لك.</span></div>
+            <span class="wmini">Covers<i></i></span>
+          </div>
+        </div>
+        <div>
+          <h3>Guest · menu</h3>
+          <div class="phone">
+            <div class="p-head"><div class="v">Gridiron Grill House</div><div class="m"><span>Table 12</span><span>Kitchen open · 23:00</span></div></div>
+            <div class="p-cat"><span>Burgers</span><span>06</span></div>
+            <div class="line"><span class="i">01</span><div><b>Double smash</b><small>Two patties, aged cheddar, pickles</small></div><span class="pr">42.00</span></div>
+            <div class="line sel"><span class="i">02 ×1</span><div><b>Wagyu brisket</b><small>8oz, onion jam, brioche</small></div><span class="pr">68.00</span></div>
+            <div class="line"><span class="i">03</span><div><b>Hot chicken</b><small>Nashville heat, slaw, honey</small></div><span class="pr">39.00</span></div>
+            <div class="line"><span class="i">04</span><div><b>Mushroom melt</b><small>Portobello, gruyère, truffle mayo</small></div><span class="pr">36.00</span></div>
+            <div class="p-foot"><span>1 item · AED</span><b>68.00 →</b></div>
+          </div>
+        </div>
+        <div class="wide">
+          <h3>Kitchen board · tablet</h3>
+          <div class="board">
+            <div>
+              <div class="col-h"><span>New</span><span>2</span></div>
+              <div class="tk new"><div class="h"><span class="t">T12</span><span class="tm">00:41</span></div><ul><li>1 Wagyu brisket</li><li>1 Fries, large</li></ul><button>Start →</button></div>
+              <div class="tk"><div class="h"><span class="t">T03</span><span class="tm">02:10</span></div><ul><li>2 Double smash</li></ul><button>Start →</button></div>
+            </div>
+            <div>
+              <div class="col-h"><span>Cooking</span><span>1</span></div>
+              <div class="tk"><div class="h"><span class="t">T07</span><span class="tm late">14:05</span></div><ul><li>3 Hot chicken</li><li>1 Mushroom melt</li></ul><button>Ready →</button></div>
+            </div>
+            <div>
+              <div class="col-h"><span>Ready</span><span>1</span></div>
+              <div class="tk"><div class="h"><span class="t">T09</span><span class="tm">18:22</span></div><ul><li>2 Double smash</li></ul><button>Served ✓</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="row">
+    <div class="label">06<span>Voice</span></div>
+    <div>
+      <h2>Say less. Say it exactly.</h2>
+      <div class="voice" style="margin-top:36px">
+        <div><h3>Write</h3><p>Order sent to kitchen. 12 min.</p><p>Waiter called. On the way.</p><p>Bill ready at table 12.</p></div>
+        <div class="no"><h3>Not</h3><p>Yay! Your yummy order is on its way!</p><p>Experience the future of dining.</p><p>Something went wrong :(</p></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="end"><div class="wrap"><h2>Best for venues that compete on running a tight ship.</h2><p>Busy grills, chains, steakhouses, high-volume casual.</p></div></section>
+
+<script src="qr.js"></script>
+<script>drawQR(document.getElementById('qrB'), 'covers-t12');</script>
+</body>
+</html>

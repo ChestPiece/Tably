@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-pal="majlis" data-theme="light" data-type="a">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sufra v2 Options</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 48 48%27%3E%3Cpath d=%27M8 41V22a16 16 0 0 1 32 0v19%27 fill=%27none%27 stroke=%27%233B2418%27 stroke-width=%274%27/%3E%3Cpath d=%27M16 39a8 8 0 0 1 16 0z%27 fill=%27%233B2418%27/%3E%3Cpath d=%27M3 41h42%27 stroke=%27%233B2418%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com">
+<link href="https://fonts.googleapis.com/css2?family=Markazi+Text:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Beiruti:wght@400;500;600;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+<!--
+  Photo credits (Unsplash License, free to use; credited here as thanks, never on the page):
+  kabsa and machboos spreads, Arabic coffee, dates and mezze from Unsplash search results for
+  "kabsa", "arabic coffee", "dates fruit", "arabic restaurant". IDs are in the src URLs below.
+  Production: replace with the venue's own photography.
+-->
+<style>
+/* Sufra v2 · options board · direction: the Gulf evening table.
+   Signature: the arch, used only for the mark, photo frames and floor-plan table markers.
+   Every text pair is measured >= 4.5:1. Accent is decorative on light themes; text uses --accent-text. */
+
+[data-pal="majlis"][data-theme="light"] { --bg:#F7F4EE; --surface:#FDFBF7; --surface-2:#EFEAE1; --line:#E2DBCF; --text:#261A12; --text-2:#5E5047; --text-3:#6E6058; --primary:#3B2418; --on-primary:#F7F4EE; --brand:#1F2C4C; --on-brand:#EFE6D6; --accent:#C98A2B; --accent-text:#8A5A12; }
+[data-pal="majlis"][data-theme="dark"]  { --bg:#14161D; --surface:#1B1E27; --surface-2:#232734; --line:#2F3443; --text:#EEE8DD; --text-2:#B5AEA3; --text-3:#9A948A; --primary:#EFE6D6; --on-primary:#1F1A15; --brand:#1F2C4C; --on-brand:#EFE6D6; --accent:#D9A04A; --accent-text:#D9A04A; }
+[data-pal="qahwa"][data-theme="light"]  { --bg:#F6F5F1; --surface:#FFFFFF; --surface-2:#ECEAE4; --line:#DEDBD3; --text:#1E1A17; --text-2:#57514B; --text-3:#68625B; --primary:#2B1D15; --on-primary:#F6F5F1; --brand:#3F5A3A; --on-brand:#F1EFE6; --accent:#B08A3E; --accent-text:#7A5D22; }
+[data-pal="qahwa"][data-theme="dark"]   { --bg:#121412; --surface:#191C19; --surface-2:#212521; --line:#2D322D; --text:#ECEBE6; --text-2:#B3B1A9; --text-3:#96948C; --primary:#E9E4D8; --on-primary:#1A1714; --brand:#2E4430; --on-brand:#E9E4D8; --accent:#C9A45A; --accent-text:#C9A45A; }
+[data-pal="indigo"][data-theme="light"] { --bg:#F4F4F1; --surface:#FFFFFF; --surface-2:#EAEAEC; --line:#DCDCE1; --text:#161A2A; --text-2:#4F5468; --text-3:#5F6477; --primary:#1E2A5A; --on-primary:#F4F4F1; --brand:#1E2A5A; --on-brand:#F4F4F1; --accent:#B98B2E; --accent-text:#7D5B14; }
+[data-pal="indigo"][data-theme="dark"]  { --bg:#0F1220; --surface:#161A2B; --surface-2:#1E2336; --line:#2A3048; --text:#ECEDF3; --text-2:#AEB2C3; --text-3:#888DA2; --primary:#DCDFF0; --on-primary:#141830; --brand:#1E2A5A; --on-brand:#ECEDF3; --accent:#D2A64C; --accent-text:#D2A64C; }
+
+[data-theme="light"] { --st-new:#2F4B8A; --st-cook:#8A5A0E; --st-ready:#2C6A44; --st-danger:#A3392A; --st-danger-bg:#F6E1DC; --shadow: 0 1px 2px rgb(30 20 10 / .06), 0 12px 32px -12px rgb(30 20 10 / .18); }
+[data-theme="dark"]  { --st-new:#9DB3EA; --st-cook:#E4B567; --st-ready:#86C79C; --st-danger:#F09080; --st-danger-bg:#3D211D; --shadow: 0 1px 0 rgb(255 255 255 / .04), 0 16px 40px -16px rgb(0 0 0 / .6); }
+
+:root { --ui: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, sans-serif; --ease: cubic-bezier(0.2, 0, 0, 1); --brand-field: color-mix(in oklab, var(--on-brand) 12%, var(--brand)); }
+[data-type="a"] { --display: "Markazi Text", serif; --dw: 500; --ds: 1.2; --mark-en: "Markazi Text", serif; --mark-ar: "Markazi Text", serif; --mw: 600; }
+[data-type="b"] { --display: "Beiruti", "IBM Plex Sans Arabic", sans-serif; --dw: 600; --ds: 1; --mark-en: "Beiruti", sans-serif; --mark-ar: "Beiruti", sans-serif; --mw: 700; }
+[data-type="c"] { --display: var(--ui); --dw: 500; --ds: .95; --mark-en: "IBM Plex Sans", sans-serif; --mark-ar: "Aref Ruqaa", serif; --mw: 600; }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: clip; }
+body { background: var(--bg); color: var(--text); font: 400 15px/1.55 var(--ui); text-wrap: pretty; transition: background-color .2s var(--ease), color .2s var(--ease); }
+button, input { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; }
+img { display: block; max-width: 100%; }
+ul { list-style: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.tnum { font-variant-numeric: tabular-nums; }
+.disp { font-family: var(--display); font-weight: var(--dw); }
+.wrap { max-width: 1360px; margin-inline: auto; padding-inline: 32px; }
+svg.i { width: 18px; height: 18px; flex: none; }
+
+/* ---------- control bar ---------- */
+.bar { position: sticky; top: 0; z-index: 20; background: color-mix(in oklab, var(--bg) 92%, transparent); backdrop-filter: blur(8px); border-block-end: 1px solid var(--line); }
+.bar .wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; padding-block: 10px; }
+.bar .id { display: flex; align-items: center; gap: 10px; font-weight: 600; margin-inline-end: auto; }
+.bar .id svg { width: 22px; height: 22px; }
+.ctl { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); }
+.seg { display: inline-flex; flex-wrap: wrap; background: var(--surface-2); border-radius: 8px; padding: 2px; }
+.seg button { padding: 6px 10px; border-radius: 6px; font-size: 13px; font-weight: 500; color: var(--text-2); white-space: nowrap; transition: background-color .15s var(--ease), color .15s var(--ease); }
+.seg button:hover { color: var(--text); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--line); }
+.bar a { font-size: 13px; color: var(--text-2); }
+
+/* ---------- sections ---------- */
+.block { padding-block: 64px 72px; border-block-end: 1px solid var(--line); }
+.bh { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 32px; margin-block-end: 32px; }
+.bh h2 { font: 600 24px/1.2 var(--ui); }
+.bh p { color: var(--text-2); max-width: 60ch; }
+.intro { padding-block: 56px 8px; }
+.intro h1 { font: 600 32px/1.15 var(--ui); max-width: 24ch; }
+.intro p { color: var(--text-2); margin-block-start: 10px; max-width: 64ch; }
+
+/* ---------- guest phones ---------- */
+.phones { display: flex; gap: 32px; overflow-x: auto; padding: 4px 4px 24px; scroll-snap-type: x mandatory; }
+.ph-cap { font-size: 13px; color: var(--text-2); margin-block-end: 10px; }
+.ph { width: 390px; height: 800px; flex: none; border-radius: 32px; overflow: hidden; background: var(--bg); border: 1px solid var(--line); box-shadow: var(--shadow); display: flex; flex-direction: column; scroll-snap-align: start; position: relative; }
+.arch { border-radius: 999px 999px 10px 10px; overflow: hidden; background: var(--surface-2); }
+.arch img { width: 100%; height: 100%; object-fit: cover; }
+
+.welcome { background: var(--brand); color: var(--on-brand); align-items: center; padding: 40px 28px 28px; text-align: center; }
+.welcome .frame { width: 264px; height: 330px; }
+.welcome .tline { width: 316px; height: 2px; background: var(--on-brand); opacity: .55; border-radius: 2px; }
+.welcome .venue { font: var(--dw) calc(40px * var(--ds))/1.05 var(--display); margin-block-start: 28px; }
+.welcome .tbl { font-size: 15px; opacity: .8; margin-block-start: 8px; }
+.welcome form { width: 100%; margin-block-start: auto; display: grid; gap: 10px; text-align: start; }
+.welcome label { font-size: 13px; opacity: .8; }
+.welcome input { width: 100%; height: 52px; border-radius: 12px; border: 1px solid color-mix(in oklab, var(--on-brand) 22%, var(--brand)); background: var(--brand-field); padding-inline: 16px; color: var(--on-brand); }
+.welcome input::placeholder { color: var(--on-brand); opacity: .55; }
+.welcome .go { height: 52px; border-radius: 12px; background: var(--on-brand); color: var(--brand); font-weight: 600; font-size: 16px; }
+.welcome .by { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 12px; opacity: .7; margin-block-start: 14px; }
+.welcome .by svg { width: 14px; height: 14px; }
+
+.m-head { padding: 22px 20px 12px; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.m-head .v { font: var(--dw) calc(24px * var(--ds))/1.1 var(--display); }
+.m-head .t { font-size: 13px; color: var(--text-2); white-space: nowrap; }
+.m-tabs { display: flex; gap: 22px; padding-inline: 20px; border-block-end: 1px solid var(--line); font-size: 15px; overflow-x: auto; }
+.m-tabs span { padding-block: 10px 12px; color: var(--text-2); white-space: nowrap; }
+.m-tabs .on { color: var(--text); font-weight: 500; box-shadow: inset 0 -2px 0 var(--text); }
+.m-body { flex: 1; overflow: hidden; padding: 16px 20px 0; }
+.feat { position: relative; border-radius: 16px; overflow: hidden; height: 196px; }
+.feat img { width: 100%; height: 100%; object-fit: cover; }
+.feat .cap { position: absolute; inset-inline: 0; bottom: 0; padding: 40px 16px 14px; background: linear-gradient(to top, rgb(0 0 0 / .62), transparent); color: #fff; display: flex; justify-content: space-between; align-items: end; }
+.feat .cap b { font: var(--dw) calc(22px * var(--ds))/1.1 var(--display); }
+.feat .cap span { font-size: 14px; font-weight: 500; }
+.dish { display: grid; grid-template-columns: minmax(0, 1fr) 76px; gap: 14px; padding-block: 16px; border-block-end: 1px solid var(--line); }
+.dish:last-child { border: 0; }
+.dish .n { font: var(--dw) calc(19px * var(--ds))/1.2 var(--display); }
+.dish .d { font-size: 13px; color: var(--text-2); line-height: 1.45; margin-block: 4px 10px; }
+.dish .row { display: flex; align-items: center; justify-content: space-between; }
+.dish .p { font-weight: 500; font-variant-numeric: tabular-nums; }
+.dish .arch { width: 76px; height: 92px; }
+.add { height: 32px; padding-inline: 12px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); font-size: 13px; font-weight: 500; display: inline-flex; align-items: center; gap: 4px; transition: background-color .15s var(--ease); }
+.add:hover { background: var(--surface-2); }
+.add svg { width: 14px; height: 14px; }
+.qty { display: inline-flex; align-items: center; gap: 12px; height: 32px; border-radius: 8px; background: var(--primary); color: var(--on-primary); padding-inline: 10px; font-size: 14px; font-weight: 500; }
+.qty svg { width: 14px; height: 14px; }
+.m-bar { margin: 12px; border-radius: 14px; background: var(--primary); color: var(--on-primary); padding: 16px 18px; display: flex; justify-content: space-between; font-weight: 500; }
+
+.tr { padding: 28px 24px 24px; flex: 1; display: flex; flex-direction: column; }
+.tr .eyeless { font-size: 13px; color: var(--text-2); }
+.tr h3 { font: var(--dw) calc(32px * var(--ds))/1.1 var(--display); margin-block: 8px 6px; }
+.steps { margin-block: 28px 24px; display: grid; }
+.step { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 0 14px; position: relative; padding-block-end: 22px; }
+.step:last-child { padding-block-end: 0; }
+.step::before { content: ""; position: absolute; inset-inline-start: 9px; top: 20px; bottom: 0; width: 2px; background: var(--line); }
+.step:last-child::before { display: none; }
+.step.done::before { background: var(--text); }
+.step i { width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); background: var(--bg); position: relative; z-index: 1; display: grid; place-items: center; }
+.step.done i { background: var(--text); border-color: var(--text); color: var(--bg); }
+.step.now i { border-color: var(--accent); background: var(--bg); }
+.step.now i::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.step i svg { width: 12px; height: 12px; }
+.step b { font-weight: 500; }
+.step small { display: block; font-size: 13px; color: var(--text-2); }
+.step time { font-size: 13px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.step.wait b { color: var(--text-3); font-weight: 400; }
+.mini-list { border-block: 1px solid var(--line); padding-block: 14px; display: grid; gap: 10px; font-size: 14px; }
+.mini-list li { display: flex; align-items: center; gap: 12px; }
+.mini-list .arch { width: 32px; height: 38px; border-radius: 99px 99px 4px 4px; flex: none; }
+.mini-list span:last-child { margin-inline-start: auto; font-variant-numeric: tabular-nums; color: var(--text-2); }
+.tr .tot { display: flex; justify-content: space-between; padding-block: 14px; font-weight: 500; }
+.tr .acts { margin-block-start: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn2 { height: 48px; border-radius: 12px; border: 1px solid var(--line); background: var(--surface); font-weight: 500; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background-color .15s var(--ease); }
+.btn2:hover { background: var(--surface-2); }
+
+/* ---------- staff board ---------- */
+.board { border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: var(--bg); box-shadow: var(--shadow); }
+.b-top { display: flex; align-items: center; gap: 24px; padding: 0 20px; height: 60px; background: var(--surface); border-block-end: 1px solid var(--line); }
+.b-top .vn { display: flex; align-items: center; gap: 10px; font-weight: 600; }
+.b-top .vn svg { width: 22px; height: 22px; }
+.b-tabs { display: flex; height: 100%; }
+.b-tabs span { display: flex; align-items: center; gap: 8px; padding-inline: 14px; color: var(--text-2); font-weight: 500; }
+.b-tabs span b { font-weight: 500; font-size: 13px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.b-tabs .on { color: var(--text); box-shadow: inset 0 -2px 0 var(--text); }
+.b-top .rt { margin-inline-start: auto; display: flex; align-items: center; gap: 20px; font-size: 14px; color: var(--text-2); }
+.live { display: inline-flex; align-items: center; gap: 8px; }
+.live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--st-ready); }
+.sw { display: inline-flex; align-items: center; gap: 10px; }
+.sw i { width: 36px; height: 20px; border-radius: 99px; background: var(--primary); position: relative; }
+.sw i::after { content: ""; position: absolute; inset-block: 2px; inset-inline-end: 2px; width: 16px; border-radius: 50%; background: var(--on-primary); }
+.calls { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 20px; border-block-end: 1px solid var(--line); background: var(--surface); }
+.call { display: flex; align-items: center; gap: 14px; padding: 8px 8px 8px 14px; border-radius: 12px; background: var(--bg); border: 1px solid var(--line); font-size: 14px; }
+[dir="rtl"] .call { padding: 8px 14px 8px 8px; }
+.call b { font: 600 calc(20px * var(--ds))/1 var(--display); }
+.call time { color: var(--text-3); font-size: 13px; }
+.call button { height: 36px; padding-inline: 14px; border-radius: 8px; background: var(--primary); color: var(--on-primary); font-weight: 500; font-size: 14px; }
+.cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.col { padding: 18px 16px 24px; border-inline-end: 1px solid var(--line); min-height: 520px; }
+.col:last-child { border: 0; }
+.col-h { display: flex; justify-content: space-between; align-items: baseline; padding: 0 4px 14px; }
+.col-h h4 { font-size: 15px; font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.col-h h4::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+.col-h span { color: var(--text-3); font-size: 14px; font-variant-numeric: tabular-nums; }
+.tk { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-block-end: 12px; }
+.tk-h { display: flex; align-items: baseline; gap: 10px; }
+.tk-h b { font: var(--dw) calc(36px * var(--ds))/.9 var(--display); }
+.tk-h .g { font-size: 14px; color: var(--text-2); }
+.tk-h time { margin-inline-start: auto; font-size: 14px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+.tk.late .tk-h time { color: var(--st-danger); font-weight: 500; }
+.tk ul { margin-block: 14px; display: grid; gap: 6px; font-size: 16px; }
+.tk li { display: grid; grid-template-columns: 26px minmax(0, 1fr); }
+.tk li b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.tk li small { grid-column: 2; font-size: 13px; color: var(--text-2); }
+.tk .nt { font-size: 14px; color: var(--st-danger); background: var(--st-danger-bg); border-radius: 8px; padding: 6px 10px; margin-block-end: 14px; }
+.tk .bt { width: 100%; height: 48px; border-radius: 10px; background: var(--primary); color: var(--on-primary); font-weight: 600; font-size: 15px; }
+.tk .bt.q { background: var(--surface-2); color: var(--text); }
+.tk .ft { display: flex; justify-content: space-between; align-items: center; margin-block-start: 10px; font-size: 13px; color: var(--text-3); }
+.tk .ft button { color: var(--text-2); text-decoration: underline; text-underline-offset: 3px; font-size: 13px; }
+
+/* ---------- owner shell ---------- */
+.shell { display: grid; grid-template-columns: 240px minmax(0, 1fr); border-radius: 20px; overflow: hidden; border: 1px solid var(--line); background: var(--bg); box-shadow: var(--shadow); min-height: 820px; }
+.sb { border-inline-end: 1px solid var(--line); padding: 16px 12px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; background: var(--bg); }
+.vsw { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; margin-block-end: 18px; }
+.vsw svg.m { width: 26px; height: 26px; flex: none; }
+.vsw div { min-width: 0; }
+.vsw b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.vsw small { font-size: 12px; color: var(--text-3); }
+.vsw .i { margin-inline-start: auto; color: var(--text-3); }
+.nv { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 8px; color: var(--text-2); }
+.nv.on { background: var(--surface-2); color: var(--text); font-weight: 500; }
+.nv em { margin-inline-start: auto; font-style: normal; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.grp { font-size: 12px; color: var(--text-3); padding: 20px 10px 6px; }
+.me { margin-block-start: auto; display: flex; align-items: center; gap: 10px; padding: 10px; border-block-start: 1px solid var(--line); }
+.me i { width: 30px; height: 30px; border-radius: 50%; background: var(--surface-2); display: grid; place-items: center; font-style: normal; font-weight: 600; font-size: 13px; }
+.me small { display: block; font-size: 12px; color: var(--text-3); }
+.om { padding: 28px 32px 32px; min-width: 0; background: var(--surface); }
+.om-h { display: flex; flex-wrap: wrap; align-items: end; gap: 12px 24px; }
+.om-h h3 { font: 600 28px/1.1 var(--ui); }
+.om-h p { font-size: 14px; color: var(--text-3); margin-block-start: 4px; }
+.om-h .acts { margin-inline-start: auto; display: flex; align-items: center; gap: 16px; font-size: 14px; color: var(--text-2); }
+.om-h .btn2 { height: 40px; padding-inline: 14px; font-size: 14px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin-block: 28px; border-block: 1px solid var(--line); }
+.kpi { padding: 18px 20px 18px 0; }
+.kpi + .kpi { border-inline-start: 1px solid var(--line); padding-inline-start: 20px; }
+.kpi .l { font-size: 13px; color: var(--text-2); }
+.kpi .v { font: 500 32px/1.15 var(--ui); font-variant-numeric: tabular-nums; margin-block: 6px 4px; white-space: nowrap; }
+.kpi .v small { font-size: 15px; color: var(--text-3); font-weight: 400; }
+.kpi .dl { font-size: 13px; color: var(--text-3); }
+.kpi .dl b { font-weight: 500; color: var(--st-ready); }
+.og { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 32px; }
+.pn h4 { font-size: 15px; font-weight: 600; }
+.pn .ph-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-block-end: 14px; }
+.pn .lg { display: flex; gap: 16px; font-size: 13px; color: var(--text-2); }
+.pn .lg span { display: inline-flex; align-items: center; gap: 6px; }
+.pn .lg i { width: 14px; height: 2px; background: var(--c); }
+.pn .lg i.dash { background: repeating-linear-gradient(90deg, var(--c) 0 3px, transparent 3px 6px); }
+.chart svg { width: 100%; height: auto; display: block; overflow: visible; direction: ltr; }
+.chart text { font: 400 11px var(--ui); fill: var(--text-3); }
+.floor svg { width: 100%; height: auto; display: block; }
+.floor text { font: 500 11px var(--ui); fill: var(--text-2); }
+.og2 { margin-block-start: 36px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: start; font-weight: 500; color: var(--text-3); font-size: 13px; padding-block: 0 10px; padding-inline: 0 20px; border-block-end: 1px solid var(--line); }
+td { padding-block: 12px; padding-inline: 0 20px; border-block-end: 1px solid var(--line); }
+th:last-child, td:last-child { padding-inline-end: 0; }
+td.num, th.num { text-align: end; font-variant-numeric: tabular-nums; }
+td b { font: var(--dw) calc(18px * var(--ds))/1 var(--display); }
+.st { display: inline-flex; align-items: center; gap: 8px; color: var(--text); }
+.st::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+.top-d li { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding-block: 10px; border-block-end: 1px solid var(--line); font-size: 14px; }
+.top-d .arch { width: 40px; height: 48px; border-radius: 99px 99px 6px 6px; }
+.top-d .bar2 { height: 3px; background: var(--surface-2); border-radius: 2px; margin-block-start: 6px; }
+.top-d .bar2 i { display: block; height: 100%; background: var(--text-2); border-radius: 2px; }
+.top-d li:first-child .bar2 i { background: var(--accent); }
+.top-d em { font-style: normal; color: var(--text-2); font-variant-numeric: tabular-nums; }
+
+/* ---------- compare ---------- */
+.trio { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-block: 1px solid var(--line); }
+.opt { padding: 28px 28px 28px 0; display: flex; flex-direction: column; gap: 16px; }
+.opt + .opt { border-inline-start: 1px solid var(--line); padding-inline-start: 28px; }
+.opt h3 { font-size: 15px; font-weight: 600; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.opt h3 button { font-size: 13px; font-weight: 500; border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; background: var(--surface); }
+.opt h3 button:hover { background: var(--surface-2); }
+.opt h3 button[aria-pressed="true"] { background: var(--primary); color: var(--on-primary); border-color: var(--primary); }
+.opt .why { color: var(--text-2); font-size: 14px; }
+.opt dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 14px; font-size: 13px; }
+.opt dt { color: var(--text-3); }
+.spec { display: grid; gap: 6px; padding-block: 8px; }
+.spec .lock { display: flex; align-items: center; gap: 12px; margin-block-end: 12px; }
+.spec .lock svg { width: 36px; height: 36px; }
+.spec .lock .en { font: var(--mw) calc(34px * var(--ds))/1 var(--mark-en); }
+[data-type="c"] .spec .lock .en { font-weight: 500; }
+.spec .lock .ar { font: var(--mw) 34px/1.2 var(--mark-ar); }
+[data-type="c"] .spec .lock .ar { font-size: 40px; }
+.spec .lock .dv { width: 1px; height: 30px; background: var(--line); }
+.spec .big { font: var(--dw) calc(30px * var(--ds))/1.15 var(--display); }
+.spec .big-ar { font: var(--dw) calc(30px * var(--ds))/1.5 var(--display); direction: rtl; text-align: end; }
+[data-type="c"] .spec .big, [data-type="c"] .spec .big-ar { font-family: var(--ui); }
+.spec .ui { font-size: 14px; color: var(--text-2); }
+.ramp { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); height: 40px; border-radius: 8px; overflow: hidden; border: 1px solid var(--line); }
+.ramp-l { font-size: 12px; color: var(--text-3); margin-block: 8px 6px; }
+.pv { border-radius: 14px; overflow: hidden; border: 1px solid var(--line); background: var(--bg); color: var(--text); }
+.pv .h { background: var(--brand); color: var(--on-brand); padding: 14px 16px; display: flex; justify-content: space-between; align-items: baseline; }
+.pv .h b { font: var(--dw) calc(20px * var(--ds))/1 var(--display); }
+.pv .b { padding: 12px 16px 16px; display: grid; gap: 8px; font-size: 14px; }
+.pv .r { display: flex; justify-content: space-between; }
+.pv .r span:last-child { color: var(--text-2); font-variant-numeric: tabular-nums; }
+.pv .k { height: 40px; border-radius: 10px; background: var(--primary); color: var(--on-primary); display: grid; place-items: center; font-weight: 500; margin-block-start: 4px; }
+details { font-size: 13px; color: var(--text-2); }
+summary { cursor: pointer; color: var(--text); font-weight: 500; }
+.cr { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; margin-block-start: 10px; }
+.cr span:nth-child(even) { text-align: end; font-variant-numeric: tabular-nums; }
+.cr .warn { color: var(--text-3); }
+
+/* ---------- mark ---------- */
+.mk { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 48px; align-items: center; }
+.cons { background: var(--surface); border: 1px solid var(--line); border-radius: 20px; padding: 28px; }
+.cons svg { width: 100%; height: auto; display: block; color: var(--text); }
+.sizes { display: flex; align-items: end; gap: 32px; flex-wrap: wrap; }
+.sizes figure { display: grid; gap: 8px; justify-items: center; font-size: 12px; color: var(--text-3); }
+.sizes svg { color: var(--text); }
+.mk ul { margin-block-start: 28px; display: grid; gap: 8px; color: var(--text-2); max-width: 56ch; }
+.mk li { padding-inline-start: 16px; position: relative; }
+.mk li::before { content: ""; position: absolute; inset-inline-start: 0; top: .7em; width: 6px; height: 2px; background: var(--text-3); }
+
+@media (max-width: 1100px) {
+  .og, .mk { grid-template-columns: minmax(0, 1fr); }
+  .shell { grid-template-columns: minmax(0, 1fr); }
+  .sb { display: none; }
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kpi:nth-child(3) { border-inline-start: 0; padding-inline-start: 0; }
+  .kpi:nth-child(n+3) { border-block-start: 1px solid var(--line); }
+  .board { overflow-x: auto; }
+  .b-top, .calls, .cols { min-width: 920px; }
+}
+@media (max-width: 760px) {
+  .wrap { padding-inline: 16px; }
+  .bar { position: static; }
+  .trio { grid-template-columns: minmax(0, 1fr); }
+  .opt, .opt + .opt { padding: 24px 0; border-inline-start: 0; }
+  .opt + .opt { border-block-start: 1px solid var(--line); }
+  .ph { width: 340px; height: 740px; }
+  .welcome .frame { width: 232px; height: 290px; }
+  .welcome .tline { width: 280px; }
+  .om { padding: 20px 16px; }
+  .kpi .v { font-size: 26px; }
+  .om-h .acts { margin-inline-start: 0; }
+  .og2 table th:nth-child(2), .og2 table td:nth-child(2), .og2 table th:nth-child(5), .og2 table td:nth-child(5) { display: none; }
+  .intro h1 { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="mark" viewBox="0 0 48 48">
+      <path d="M8 41V22a16 16 0 0 1 32 0v19" fill="none" stroke="currentColor" stroke-width="4"/>
+      <path d="M16 39a8 8 0 0 1 16 0z" fill="currentColor"/>
+      <rect x="22.5" y="28" width="3" height="3" rx="1.5" fill="currentColor"/>
+      <path d="M3 41h42" stroke="currentColor" stroke-width="4" stroke-linecap="round"/>
+    </symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path d="M5 12h14" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5a2 2 0 0 0 4 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V20h-5v-6H9v6H4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24"><path d="M4 5h4v14H4zM10 5h4v9h-4zM16 5h4v6h-4z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M6 3v18M6 3c3 0 4 3 4 6s-1 4-4 4M15 3v6a3 3 0 0 0 3 3v9M18 3v6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h2v2h-2zM18 18h2v2h-2zM14 18h2M18 14h2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+    <symbol id="i-team" viewBox="0 0 24 24"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7ZM3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 4.5a3.5 3.5 0 0 1 0 6.5M18 14c2 .7 3 3 3 6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><path d="m8 10 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-print" viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-6a1 1 0 0 1 1-1h14a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-2M7 14h10v6H7z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="bar">
+  <div class="wrap">
+    <span class="id"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#mark"/></svg>Sufra v2</span>
+    <div class="ctl">Type
+      <div class="seg" data-set="type" role="group" aria-label="Type route"><button data-v="a">A Printed menu</button><button data-v="b">B Gulf signage</button><button data-v="c">C Hand signature</button></div>
+    </div>
+    <div class="ctl">Palette
+      <div class="seg" data-set="pal" role="group" aria-label="Palette"><button data-v="majlis">1 Majlis</button><button data-v="qahwa">2 Qahwa</button><button data-v="indigo">3 Indigo</button></div>
+    </div>
+    <div class="seg" data-set="theme" role="group" aria-label="Theme"><button data-v="light">Light</button><button data-v="dark">Dark</button></div>
+    <div class="seg" data-set="lang" role="group" aria-label="Language"><button data-v="en">EN</button><button data-v="ar" lang="ar">عربي</button></div>
+    <a href="sufra.html">v1</a>
+  </div>
+</header>
+
+<main>
+<section class="intro">
+  <div class="wrap" dir="auto">
+    <h1>Pick a voice and a palette for Sufra</h1>
+    <p>The guest app, the kitchen pass and the owner home below all switch together. Judge them as one system. The venue, dishes and numbers are sample data.</p>
+  </div>
+</section>
+
+<!-- ============ GUEST ============ -->
+<section class="block" id="guest">
+  <div class="wrap">
+    <div class="bh" dir="auto"><h2>Guest</h2><p>Scans the table card, sees the venue first, orders, then follows the order without asking anyone.</p></div>
+  </div>
+  <div class="wrap">
+    <div class="phones">
+      <div>
+        <p class="ph-cap" data-ar="الترحيب">Welcome</p>
+        <div class="ph welcome">
+          <div class="arch frame"><img src="https://images.unsplash.com/photo-1696950169710-bbed68aec0e1?auto=format&fit=crop&w=600&h=760&q=75" width="264" height="330" alt="Kabsa spread on a silver tray"></div>
+          <div class="tline"></div>
+          <div class="venue" data-ar="بيت الزعفران">Bait Al Zaafaran</div>
+          <div class="tbl" data-ar="طاولة 7 · أهلاً وسهلاً">Table 7 · Welcome</div>
+          <form onsubmit="return false">
+            <label for="gname" data-ar="اسمك (اختياري)">Your name (optional)</label>
+            <input id="gname" data-ar-ph="ليعرف الطاقم لمن الطلب" placeholder="So the team knows who it is for">
+            <button class="go" data-ar="افتح القائمة">Open the menu</button>
+          </form>
+          <div class="by"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#mark"/></svg><span data-ar="تقدمها سفرة">Served by Sufra</span></div>
+        </div>
+      </div>
+
+      <div>
+        <p class="ph-cap" data-ar="القائمة">Menu</p>
+        <div class="ph">
+          <div class="m-head"><span class="v" data-ar="بيت الزعفران">Bait Al Zaafaran</span><span class="t" data-ar="طاولة 7">Table 7</span></div>
+          <div class="m-tabs"><span class="on" data-ar="الرئيسية">Mains</span><span data-ar="المقبلات">Mezze</span><span data-ar="القهوة">Coffee</span><span data-ar="الحلويات">Sweets</span></div>
+          <div class="m-body">
+            <div class="feat"><img src="https://images.unsplash.com/photo-1696950169936-7e00c08955e4?auto=format&fit=crop&w=800&h=420&q=75" width="350" height="196" alt="Chicken kabsa from above"><div class="cap"><b data-ar="كبسة دجاج للمشاركة">Chicken kabsa to share</b><span data-ar="185 د.إ">AED 185</span></div></div>
+            <div class="dish"><div><div class="n" data-ar="مجبوس لحم">Lamb machboos</div><p class="d" data-ar="كتف مطهو ببطء، لومي، أرز بالزعفران">Slow-roasted shoulder, loomi, saffron rice</p><div class="row"><span class="p" data-ar="68 د.إ">AED 68</span><span class="qty"><svg><use href="#i-minus"/></svg>1<svg><use href="#i-plus"/></svg></span></div></div><div class="arch"><img src="https://images.unsplash.com/photo-1696950169710-bbed68aec0e1?auto=format&fit=crop&w=200&h=240&q=75" width="76" height="92" alt="" loading="lazy"></div></div>
+            <div class="dish"><div><div class="n" data-ar="مجبوس دجاج">Chicken machboos</div><p class="d" data-ar="دجاج متبّل بالبهارات، أرز، دقوس">Spiced chicken, rice, daqqus</p><div class="row"><span class="p" data-ar="56 د.إ">AED 56</span><button class="add" aria-label="Add chicken machboos"><svg><use href="#i-plus"/></svg><span data-ar="أضف">Add</span></button></div></div><div class="arch"><img src="https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=200&h=240&q=75" width="76" height="92" alt="" loading="lazy"></div></div>
+            <div class="dish"><div><div class="n" data-ar="كبسة لحم">Lamb kabsa</div><p class="d" data-ar="أرز بالطماطم والبهارات، لوز محمص">Tomato and spice rice, toasted almonds</p><div class="row"><span class="p" data-ar="72 د.إ">AED 72</span><button class="add" aria-label="Add lamb kabsa"><svg><use href="#i-plus"/></svg><span data-ar="أضف">Add</span></button></div></div><div class="arch"><img src="https://images.unsplash.com/photo-1633945274309-2c16c9682a8c?auto=format&fit=crop&w=200&h=240&q=75" width="76" height="92" alt="" loading="lazy"></div></div>
+          </div>
+          <div class="m-bar"><span data-ar="عرض الطلب · 2 صنف">View order · 2 items</span><span class="tnum" data-ar="90 د.إ">AED 90</span></div>
+        </div>
+      </div>
+
+      <div>
+        <p class="ph-cap" data-ar="متابعة الطلب">Order tracker</p>
+        <div class="ph">
+          <div class="m-head"><span class="v" data-ar="بيت الزعفران">Bait Al Zaafaran</span><span class="t" data-ar="طاولة 7">Table 7</span></div>
+          <div class="tr">
+            <p class="eyeless" data-ar="طلبك الأول · أُرسل 7:42 م">Your first order · sent 7:42 pm</p>
+            <h3 data-ar="طلبك عند المطبخ الآن">Your order is with the kitchen</h3>
+            <p class="eyeless" data-ar="خذ راحتك. سنخبرك حين يجهز.">Take your time. We will tell you when it is ready.</p>
+            <ol class="steps">
+              <li class="step done"><i><svg><use href="#i-check"/></svg></i><span><b data-ar="استلمنا الطلب">Received</b></span><time>7:42</time></li>
+              <li class="step now"><i></i><span><b data-ar="قيد التحضير">Preparing</b><small data-ar="بدأ المطبخ بطلبك">The kitchen has started on it</small></span><time>7:44</time></li>
+              <li class="step wait"><i></i><span><b data-ar="جاهز">Ready</b></span><time></time></li>
+              <li class="step wait"><i></i><span><b data-ar="على طاولتك">On your table</b></span><time></time></li>
+            </ol>
+            <ul class="mini-list">
+              <li><span class="arch"><img src="https://images.unsplash.com/photo-1696950169710-bbed68aec0e1?auto=format&fit=crop&w=80&h=96&q=70" width="32" height="38" alt="" loading="lazy"></span><span data-ar="1 × مجبوس لحم">1 × Lamb machboos</span><span>68</span></li>
+              <li><span class="arch"><img src="https://images.unsplash.com/photo-1661685249316-a06e692e1cb2?auto=format&fit=crop&w=80&h=96&q=70" width="32" height="38" alt="" loading="lazy"></span><span data-ar="1 × قهوة عربية وتمر">1 × Arabic coffee and dates</span><span>22</span></li>
+            </ul>
+            <div class="tot"><span data-ar="مجموع الطاولة">Table total</span><span class="tnum" data-ar="90 د.إ">AED 90</span></div>
+            <div class="acts">
+              <button class="btn2"><svg class="i"><use href="#i-bell"/></svg><span data-ar="نادِ النادل">Call a waiter</span></button>
+              <button class="btn2"><svg class="i"><use href="#i-receipt"/></svg><span data-ar="اطلب الفاتورة">Ask for the bill</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ STAFF ============ -->
+<section class="block" id="staff">
+  <div class="wrap">
+    <div class="bh" dir="auto"><h2>Staff · the pass</h2><p>A tablet at the pass. Big table numbers, quantities first, one action per ticket. Calls and bill requests sit above the rail. Light and dark both pass contrast.</p></div>
+    <div class="board">
+      <div class="b-top">
+        <span class="vn"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#mark"/></svg><span data-ar="بيت الزعفران">Bait Al Zaafaran</span></span>
+        <nav class="b-tabs" aria-label="Board sections"><span class="on"><span data-ar="اللوحة">Board</span><b>6</b></span><span><span data-ar="الطاولات">Tables</span><b>9</b></span><span><span data-ar="القائمة">Menu</span><b>1</b></span></nav>
+        <div class="rt"><span class="live" data-ar="متصل">Live</span><span class="sw"><i aria-hidden="true"></i><span data-ar="الوردية بدأت">Shift on</span></span></div>
+      </div>
+      <div class="calls">
+        <div class="call"><b data-ar="ط 9">T9</b><span data-ar="يطلب نادلاً">wants a waiter</span><time data-ar="منذ 2 د">2 min</time><button data-ar="تم">Done</button></div>
+        <div class="call"><b data-ar="ط 4">T4</b><span data-ar="يطلب الفاتورة">asks for the bill</span><time data-ar="الآن">now</time><button data-ar="تم">Done</button></div>
+      </div>
+      <div class="cols">
+        <div class="col" style="--c:var(--st-new)">
+          <div class="col-h"><h4 data-ar="جديد">New</h4><span>2</span></div>
+          <article class="tk"><div class="tk-h"><b data-ar="ط 12">T12</b><span class="g" data-ar="مريم">Mariam</span><time data-ar="1 د">1 min</time></div>
+            <ul><li><b>3</b><span data-ar="قهوة عربية وتمر">Arabic coffee and dates</span></li><li><b>1</b><span data-ar="لقيمات">Luqaimat</span><small data-ar="دبس تمر جانباً">Date syrup on the side</small></li></ul>
+            <button class="bt" data-ar="ابدأ التحضير">Start preparing</button></article>
+          <article class="tk"><div class="tk-h"><b data-ar="ط 7">T7</b><span class="g" data-ar="خالد">Khalid</span><time data-ar="3 د">3 min</time></div>
+            <ul><li><b>1</b><span data-ar="مجبوس لحم">Lamb machboos</span></li><li><b>1</b><span data-ar="مجبوس دجاج">Chicken machboos</span></li></ul>
+            <button class="bt" data-ar="ابدأ التحضير">Start preparing</button></article>
+        </div>
+        <div class="col" style="--c:var(--st-cook)">
+          <div class="col-h"><h4 data-ar="قيد التحضير">Preparing</h4><span>3</span></div>
+          <article class="tk late"><div class="tk-h"><b data-ar="ط 3">T3</b><span class="g" data-ar="4 ضيوف">4 guests</span><time data-ar="18 د · متأخر">18 min · late</time></div>
+            <ul><li><b>2</b><span data-ar="مجبوس لحم">Lamb machboos</span></li><li><b>1</b><span data-ar="كبسة دجاج للمشاركة">Chicken kabsa to share</span></li></ul>
+            <p class="nt" data-ar="بدون بصل في الأوزي">No onion on the ouzi</p>
+            <button class="bt" data-ar="جاهز للتقديم">Mark ready</button></article>
+          <article class="tk"><div class="tk-h"><b data-ar="ط 15">T15</b><time data-ar="9 د">9 min</time></div>
+            <ul><li><b>1</b><span data-ar="كبسة لحم">Lamb kabsa</span></li></ul>
+            <button class="bt" data-ar="جاهز للتقديم">Mark ready</button></article>
+        </div>
+        <div class="col" style="--c:var(--st-ready)">
+          <div class="col-h"><h4 data-ar="جاهز">Ready</h4><span>1</span></div>
+          <article class="tk"><div class="tk-h"><b data-ar="ط 5">T5</b><span class="g" data-ar="نورة">Noura</span><time data-ar="جاهز منذ 1 د">ready 1 min</time></div>
+            <ul><li><b>2</b><span data-ar="مقبلات للاثنين">Mezze for two</span></li></ul>
+            <button class="bt q" data-ar="قُدّم للطاولة">Served</button>
+            <div class="ft"><span data-ar="يقدّم إلى الطاولة">Bring to the table</span><button data-ar="إلغاء">Cancel</button></div></article>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OWNER ============ -->
+<section class="block" id="owner">
+  <div class="wrap">
+    <div class="bh" dir="auto"><h2>Owner · home</h2><p>A left menu like a serious admin, and a home page that answers one question: how is tonight going. One chart, one floor, the orders that matter.</p></div>
+    <div class="shell">
+      <aside class="sb" aria-label="Owner sections">
+        <div class="vsw"><svg class="m" viewBox="0 0 48 48" aria-hidden="true"><use href="#mark"/></svg><div><b data-ar="بيت الزعفران">Bait Al Zaafaran</b><small data-ar="دبي · فرع جميرا">Dubai · Jumeirah</small></div><svg class="i"><use href="#i-chev"/></svg></div>
+        <span class="nv on"><svg class="i"><use href="#i-home"/></svg><span data-ar="الرئيسية">Home</span></span>
+        <span class="nv"><svg class="i"><use href="#i-board"/></svg><span data-ar="اللوحة المباشرة">Live board</span><em>6</em></span>
+        <span class="nv"><svg class="i"><use href="#i-list"/></svg><span data-ar="الطلبات">Orders</span></span>
+        <span class="grp" data-ar="المطعم">Venue</span>
+        <span class="nv"><svg class="i"><use href="#i-menu"/></svg><span data-ar="القائمة">Menu</span></span>
+        <span class="nv"><svg class="i"><use href="#i-qr"/></svg><span data-ar="الطاولات و QR">Tables &amp; QR</span></span>
+        <span class="nv"><svg class="i"><use href="#i-team"/></svg><span data-ar="الفريق">Team</span></span>
+        <span class="nv"><svg class="i"><use href="#i-gear"/></svg><span data-ar="الإعدادات">Settings</span></span>
+        <div class="me"><i>A</i><div><span>Anas</span><small data-ar="مالك">Owner</small></div></div>
+      </aside>
+      <div class="om">
+        <div class="om-h">
+          <div><h3 data-ar="الرئيسية">Home</h3><p data-ar="الأحد 16 نوفمبر · بيانات تجريبية">Sunday 16 November · sample data</p></div>
+          <div class="acts"><span class="sw"><i aria-hidden="true"></i><span data-ar="نستقبل الطلبات">Taking orders</span></span><button class="btn2"><svg class="i"><use href="#i-print"/></svg><span data-ar="اطبع بطاقات الطاولات">Print table cards</span></button></div>
+        </div>
+        <div class="kpis">
+          <div class="kpi"><div class="l" data-ar="الطلبات اليوم">Orders today</div><div class="v">38</div><div class="dl"><b>+6</b> <span data-ar="عن الأحد الماضي">vs last Sunday</span></div></div>
+          <div class="kpi"><div class="l" data-ar="المحصّل">Collected</div><div class="v">4,212 <small data-ar="د.إ">AED</small></div><div class="dl"><b>+9%</b> <span data-ar="عن الأحد الماضي">vs last Sunday</span></div></div>
+          <div class="kpi"><div class="l" data-ar="متوسط الفاتورة">Average bill</div><div class="v">110.80 <small data-ar="د.إ">AED</small></div><div class="dl" data-ar="لكل طاولة">per table</div></div>
+          <div class="kpi"><div class="l" data-ar="وقت المطبخ">Kitchen time</div><div class="v">14 <small data-ar="د">min</small></div><div class="dl" data-ar="الوسيط، من الطلب للجاهزية">median, order to ready</div></div>
+        </div>
+        <div class="og">
+          <div class="pn chart">
+            <div class="ph-h"><h4 data-ar="الطلبات حسب الساعة">Orders by hour</h4><div class="lg"><span style="--c:var(--text)"><i></i><span data-ar="اليوم">Today</span></span><span style="--c:var(--text-3)"><i class="dash"></i><span data-ar="الأحد الماضي">Last Sunday</span></span></div></div>
+            <svg id="chart" viewBox="0 0 640 240" role="img" aria-label="Orders by hour, today against last Sunday"></svg>
+          </div>
+          <div class="pn floor">
+            <div class="ph-h"><h4 data-ar="الصالة">Floor</h4><div class="lg"><span style="--c:var(--primary)"><i style="height:8px;width:8px;border-radius:2px"></i><span data-ar="جالسون">Seated</span></span><span style="--c:var(--accent)"><i style="height:8px;width:8px;border-radius:2px"></i><span data-ar="طلب الفاتورة">Bill</span></span></div></div>
+            <svg id="floor" viewBox="0 0 300 240" role="img" aria-label="Floor plan, 9 of 18 tables seated"></svg>
+          </div>
+        </div>
+        <div class="og og2">
+          <div class="pn">
+            <div class="ph-h"><h4 data-ar="أحدث الطلبات">Latest orders</h4></div>
+            <table>
+              <thead><tr><th data-ar="الطاولة">Table</th><th data-ar="الضيف">Guest</th><th data-ar="الحالة">Status</th><th class="num" data-ar="الأصناف">Items</th><th data-ar="الوقت">Placed</th><th class="num" data-ar="المبلغ">Total</th></tr></thead>
+              <tbody>
+                <tr><td><b data-ar="ط 12">T12</b></td><td data-ar="مريم">Mariam</td><td><span class="st" style="--c:var(--st-new)" data-ar="جديد">New</span></td><td class="num">4</td><td class="tnum">8:03</td><td class="num" data-ar="94 د.إ">AED 94</td></tr>
+                <tr><td><b data-ar="ط 7">T7</b></td><td data-ar="خالد">Khalid</td><td><span class="st" style="--c:var(--st-new)" data-ar="جديد">New</span></td><td class="num">2</td><td class="tnum">8:01</td><td class="num" data-ar="124 د.إ">AED 124</td></tr>
+                <tr><td><b data-ar="ط 3">T3</b></td><td data-ar="4 ضيوف">4 guests</td><td><span class="st" style="--c:var(--st-danger)" data-ar="متأخر 18 د">Late · 18 min</span></td><td class="num">3</td><td class="tnum">7:46</td><td class="num" data-ar="321 د.إ">AED 321</td></tr>
+                <tr><td><b data-ar="ط 5">T5</b></td><td data-ar="نورة">Noura</td><td><span class="st" style="--c:var(--st-ready)" data-ar="جاهز">Ready</span></td><td class="num">2</td><td class="tnum">7:51</td><td class="num" data-ar="96 د.إ">AED 96</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pn top-d">
+            <div class="ph-h"><h4 data-ar="الأكثر طلباً الليلة">Most ordered tonight</h4></div>
+            <ul>
+              <li><span class="arch"><img src="https://images.unsplash.com/photo-1696950169710-bbed68aec0e1?auto=format&fit=crop&w=100&h=120&q=70" width="40" height="48" alt="" loading="lazy"></span><div><span data-ar="مجبوس لحم">Lamb machboos</span><div class="bar2"><i style="width:100%"></i></div></div><em>14</em></li>
+              <li><span class="arch"><img src="https://images.unsplash.com/photo-1661685249316-a06e692e1cb2?auto=format&fit=crop&w=100&h=120&q=70" width="40" height="48" alt="" loading="lazy"></span><div><span data-ar="قهوة عربية وتمر">Arabic coffee and dates</span><div class="bar2"><i style="width:79%"></i></div></div><em>11</em></li>
+              <li><span class="arch"><img src="https://images.unsplash.com/photo-1777716003985-68fed08d0c7e?auto=format&fit=crop&w=100&h=120&q=70" width="40" height="48" alt="" loading="lazy"></span><div><span data-ar="مقبلات للاثنين">Mezze for two</span><div class="bar2"><i style="width:57%"></i></div></div><em>8</em></li>
+              <li><span class="arch"><img src="https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?auto=format&fit=crop&w=100&h=120&q=70" width="40" height="48" alt="" loading="lazy"></span><div><span data-ar="مجبوس دجاج">Chicken machboos</span><div class="bar2"><i style="width:43%"></i></div></div><em>6</em></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARE ============ -->
+<section class="block" id="type">
+  <div class="wrap">
+    <div class="bh" dir="auto"><h2>Type routes</h2><p>Interface text is IBM Plex Sans with Plex Sans Arabic in every route: one family drawn for both scripts, so prices and tables align in English and Arabic. The routes differ in the voice of names.</p></div>
+    <div class="trio">
+      <article class="opt" data-type="a">
+        <h3>A · Printed menu <button data-pick="type" data-v="a">Use</button></h3>
+        <div class="spec"><div class="lock"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span><span class="dv"></span><span class="ar" lang="ar">سفرة</span></div>
+          <div class="big">Bait Al Zaafaran</div><div class="big-ar" lang="ar">بيت الزعفران</div><div class="ui">Lamb machboos · AED 68</div></div>
+        <p class="why" dir="auto">Markazi Text was drawn for Arabic and Latin together, with Naskh book roots. Names read like a well-printed menu. The warmest route.</p>
+        <dl dir="ltr"><dt>Names</dt><dd>Markazi Text 500–600</dd><dt>Licence</dt><dd>Free (OFL)</dd></dl>
+      </article>
+      <article class="opt" data-type="b">
+        <h3>B · Gulf signage <button data-pick="type" data-v="b">Use</button></h3>
+        <div class="spec"><div class="lock"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span><span class="dv"></span><span class="ar" lang="ar">سفرة</span></div>
+          <div class="big">Bait Al Zaafaran</div><div class="big-ar" lang="ar">بيت الزعفران</div><div class="ui">Lamb machboos · AED 68</div></div>
+        <p class="why" dir="auto">Beiruti is a contemporary bilingual sans, like museum and district wayfinding. Modern and architectural, closer to a hotel group than a menu.</p>
+        <dl dir="ltr"><dt>Names</dt><dd>Beiruti 600–700</dd><dt>Licence</dt><dd>Free (OFL). Licensed upgrade: 29LT Zarid</dd></dl>
+      </article>
+      <article class="opt" data-type="c">
+        <h3>C · Hand signature <button data-pick="type" data-v="c">Use</button></h3>
+        <div class="spec"><div class="lock"><svg viewBox="0 0 48 48" aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span><span class="dv"></span><span class="ar" lang="ar">سفرة</span></div>
+          <div class="big">Bait Al Zaafaran</div><div class="big-ar" lang="ar">بيت الزعفران</div><div class="ui">Lamb machboos · AED 68</div></div>
+        <p class="why" dir="auto">All the feeling goes into one mark: a Ruqaa سفرة, the hand of shop signs and receipts. Everything else is quiet Plex. The most enterprise route.</p>
+        <dl dir="ltr"><dt>Wordmark</dt><dd>Aref Ruqaa base, needs a lettering pass</dd><dt>Licence</dt><dd>Free (OFL)</dd></dl>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="palettes">
+  <div class="wrap">
+    <div class="bh" dir="auto"><h2>Palettes</h2><p>Each has a light and a dark ramp. Surfaces stay quiet; the brand colour carries the guest welcome and headers, the ink colour carries actions. Ratios are measured live from the tokens.</p></div>
+    <div class="trio" id="palTrio">
+      <article class="opt" data-pal="majlis" data-theme="light"><h3>1 · Majlis dusk <button data-pick="pal" data-v="majlis">Use</button></h3><p class="why" dir="auto">v1 refined. Stone paper, roasted-date ink, night indigo, one saffron spark. The most Emirati.</p></article>
+      <article class="opt" data-pal="qahwa" data-theme="light"><h3>2 · Qahwa and cardamom <button data-pick="pal" data-v="qahwa">Use</button></h3><p class="why" dir="auto">Pearl paper, coffee ink, deep cardamom green, brass. Nothing a delivery app would wear.</p></article>
+      <article class="opt" data-pal="indigo" data-theme="light"><h3>3 · Indigo and pearl <button data-pick="pal" data-v="indigo">Use</button></h3><p class="why" dir="auto">Indigo leads as brand and action, dried-lime ochre as the spark. Coolest and most hotel-grade.</p></article>
+    </div>
+  </div>
+</section>
+
+<section class="block" id="mark" style="border:0">
+  <div class="wrap">
+    <div class="bh" dir="auto"><h2>The mark</h2><p>An open majlis arch frames a cloche, both resting on the table line. The same arch frames every dish photo and marks every table on the floor plan.</p></div>
+    <div class="mk">
+      <div class="cons">
+        <svg viewBox="0 0 48 48" role="img" aria-label="Mark on its construction grid">
+          <g stroke="var(--line)" stroke-width=".2" fill="none"><path d="M0 0v48M4 0v48M8 0v48M12 0v48M16 0v48M20 0v48M24 0v48M28 0v48M32 0v48M36 0v48M40 0v48M44 0v48M48 0v48M0 0h48M0 4h48M0 8h48M0 12h48M0 16h48M0 20h48M0 24h48M0 28h48M0 32h48M0 36h48M0 40h48M0 44h48M0 48h48"/></g>
+          <g stroke="var(--accent)" stroke-width=".3" fill="none" stroke-dasharray="1 1"><circle cx="24" cy="22" r="16"/><circle cx="24" cy="39" r="8"/><path d="M0 41h48M24 0v48"/></g>
+          <use href="#mark"/>
+        </svg>
+      </div>
+      <div>
+        <div class="sizes">
+          <figure><svg viewBox="0 0 48 48" width="16" height="16" aria-hidden="true"><use href="#mark"/></svg>16</figure>
+          <figure><svg viewBox="0 0 48 48" width="24" height="24" aria-hidden="true"><use href="#mark"/></svg>24</figure>
+          <figure><svg viewBox="0 0 48 48" width="32" height="32" aria-hidden="true"><use href="#mark"/></svg>32</figure>
+          <figure><svg viewBox="0 0 48 48" width="64" height="64" aria-hidden="true"><use href="#mark"/></svg>64</figure>
+          <figure><svg viewBox="0 0 48 48" width="120" height="120" aria-hidden="true"><use href="#mark"/></svg>120</figure>
+        </div>
+        <ul dir="auto">
+          <li>Arch radius 16 units, legs land on the table line. Cloche radius 8, centred.</li>
+          <li>The table line overshoots the arch by 5 units each side, with round caps only there.</li>
+          <li>One colour at a time. Never a gradient, outline or shadow.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const state = { type: "a", pal: "majlis", theme: "light", lang: "en" };
+  try { Object.assign(state, JSON.parse(localStorage.getItem("sufra-v2-options") || "{}")); } catch (e) {}
+
+  document.querySelectorAll("[data-ar]").forEach(el => { el.dataset.en = el.textContent; });
+  document.querySelectorAll("[data-ar-ph]").forEach(el => { el.dataset.enPh = el.placeholder; });
+
+  // ---- chart: orders by hour (sample) ----
+  const hours = ["12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"];
+  const today = [1, 3, 4, 2, 1, 2, 3, 6, 8, 5, 2, 1];
+  const prev  = [2, 3, 3, 2, 1, 1, 3, 5, 6, 5, 3, 1];
+  const ns = "http://www.w3.org/2000/svg";
+  const el = (n, a) => { const e = document.createElementNS(ns, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  function drawChart() {
+    const svg = document.getElementById("chart"); svg.textContent = "";
+    const W = 640, H = 240, L = 28, R = 8, T = 10, B = 26, max = 10;
+    const x = i => L + i * (W - L - R) / (hours.length - 1);
+    const y = v => T + (H - T - B) * (1 - v / max);
+    [0, 5, 10].forEach(v => { svg.append(el("line", { x1: L, x2: W - R, y1: y(v), y2: y(v), stroke: "var(--line)" })); const t = el("text", { x: 0, y: y(v) + 4 }); t.textContent = v; svg.append(t); });
+    hours.forEach((h, i) => { if (i % 2 === 0) { const t = el("text", { x: x(i), y: H - 6, "text-anchor": "middle" }); t.textContent = h + ":00"; svg.append(t); } });
+    const path = d => d.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(" ");
+    svg.append(el("path", { d: path(prev), fill: "none", stroke: "var(--text-3)", "stroke-width": 1.5, "stroke-dasharray": "3 4" }));
+    svg.append(el("path", { d: path(today.slice(0, 9)), fill: "none", stroke: "var(--text)", "stroke-width": 2.25, "stroke-linejoin": "round" }));
+    const now = 8;
+    svg.append(el("line", { x1: x(now), x2: x(now), y1: T, y2: H - B, stroke: "var(--accent)", "stroke-width": 1 }));
+    svg.append(el("circle", { cx: x(now), cy: y(today[now]), r: 4.5, fill: "var(--accent)", stroke: "var(--surface)", "stroke-width": 2 }));
+    const lab = el("text", { x: x(now) + 8, y: y(today[now]) - 8, style: "fill:var(--text);font-weight:500" }); lab.textContent = state.lang === "ar" ? "8 طلبات الآن" : "8 orders this hour"; svg.append(lab);
+  }
+
+  // ---- floor plan: 18 tables, arch markers ----
+  const tables = Array.from({ length: 18 }, (_, i) => i + 1);
+  const seated = new Set([3, 5, 7, 9, 12, 14, 15, 16]), bill = new Set([4]);
+  function drawFloor() {
+    const svg = document.getElementById("floor"); svg.textContent = "";
+    tables.forEach((n, i) => {
+      const cx = 25 + (i % 6) * 50, cy = 12 + Math.floor(i / 6) * 78;
+      const s = bill.has(n) ? "bill" : seated.has(n) ? "seat" : "free";
+      const fill = s === "bill" ? "var(--accent)" : s === "seat" ? "var(--primary)" : "none";
+      svg.append(el("path", { d: `M${cx - 14} ${cy + 40}V${cy + 14}a14 14 0 0 1 28 0v26z`, fill, stroke: s === "free" ? "var(--text-3)" : "none", "stroke-width": 1.5 }));
+      svg.append(el("line", { x1: cx - 19, x2: cx + 19, y1: cy + 41, y2: cy + 41, stroke: "var(--line)", "stroke-width": 2, "stroke-linecap": "round" }));
+      const t = el("text", { x: cx, y: cy + 60, "text-anchor": "middle" }); t.textContent = n; svg.append(t);
+    });
+  }
+
+  // ---- palette cards: ramps, preview, measured contrast ----
+  const lum = hex => { const c = hex.trim().replace("#", "").match(/../g).map(x => parseInt(x, 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const pairs = [["text", "bg", "Body text"], ["text-2", "surface", "Secondary text"], ["text-3", "surface-2", "Muted on raised"], ["on-primary", "primary", "Button label"], ["on-brand", "brand", "On brand"], ["accent-text", "bg", "Accent text"], ["accent", "bg", "Accent shape"]];
+  document.querySelectorAll("#palTrio .opt").forEach(card => {
+    const frag = document.createDocumentFragment();
+    const det = document.createElement("details"); det.innerHTML = "<summary>Measured contrast</summary>";
+    const cr = document.createElement("div"); cr.className = "cr";
+    ["light", "dark"].forEach(t => {
+      const probe = document.createElement("div"); probe.dataset.pal = card.dataset.pal; probe.dataset.theme = t; probe.hidden = true; document.body.append(probe);
+      const cs = getComputedStyle(probe), v = r => cs.getPropertyValue("--" + r).trim();
+      const l = document.createElement("div"); l.className = "ramp-l"; l.textContent = t === "light" ? "Light" : "Dark";
+      const ramp = document.createElement("div"); ramp.className = "ramp";
+      ["bg", "surface-2", "line", "text-2", "text", "brand", "accent"].forEach(r => { const i = document.createElement("i"); i.style.background = v(r); i.title = r + " " + v(r); ramp.append(i); });
+      frag.append(l, ramp);
+      pairs.forEach(([fg, bg, name]) => {
+        const r = ratio(v(fg), v(bg)), shape = fg === "accent";
+        const a = document.createElement("span"); a.textContent = (t === "light" ? "Light · " : "Dark · ") + name;
+        const b = document.createElement("span"); b.textContent = r.toFixed(1) + ":1" + (shape && r < 3 ? " decorative" : "");
+        if (shape && r < 3) b.className = "warn";
+        cr.append(a, b);
+      });
+      probe.remove();
+    });
+    const pv = document.createElement("div"); pv.className = "pv";
+    pv.innerHTML = '<div class="h"><b>Bait Al Zaafaran</b><span>Table 7</span></div><div class="b"><div class="r"><span>Lamb machboos</span><span>AED 68</span></div><div class="r"><span>Arabic coffee and dates</span><span>AED 22</span></div><div class="k">Send to the kitchen</div></div>';
+    det.append(cr);
+    card.querySelector(".why").after(frag, pv, det);
+  });
+
+  function apply() {
+    root.dataset.type = state.type; root.dataset.pal = state.pal; root.dataset.theme = state.theme;
+    root.lang = state.lang; root.dir = state.lang === "ar" ? "rtl" : "ltr";
+    document.querySelectorAll("#palTrio .opt").forEach(c => { c.dataset.theme = state.theme; });
+    const ar = state.lang === "ar";
+    document.querySelectorAll("[data-ar]").forEach(e => { e.textContent = ar ? e.dataset.ar : e.dataset.en; });
+    document.querySelectorAll("[data-ar-ph]").forEach(e => { e.placeholder = ar ? e.dataset.arPh : e.dataset.enPh; });
+    document.querySelectorAll(".seg").forEach(s => s.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(state[s.dataset.set] === b.dataset.v))));
+    document.querySelectorAll("[data-pick]").forEach(b => b.setAttribute("aria-pressed", String(state[b.dataset.pick] === b.dataset.v)));
+    drawChart(); drawFloor();
+    try { localStorage.setItem("sufra-v2-options", JSON.stringify(state)); } catch (e) {}
+  }
+  document.querySelectorAll(".seg").forEach(s => s.addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; state[s.dataset.set] = b.dataset.v; apply(); }));
+  document.querySelectorAll("[data-pick]").forEach(b => b.addEventListener("click", () => { state[b.dataset.pick] = b.dataset.v; apply(); }));
+  apply();
+})();
+</script>
+</body>
+</html>

@@ -1,34 +1,45 @@
 "use client"
 
 import * as React from "react"
-import { Switch as SwitchPrimitive } from "radix-ui"
-
 import { cn } from "@/lib/utils"
+import { Switch as SwitchPrimitive } from "radix-ui"
 
 function Switch({
   className,
   size = "default",
+  label,
+  id,
   ...props
 }: React.ComponentProps<typeof SwitchPrimitive.Root> & {
   size?: "sm" | "default"
+  /** Optional visible label, rendered beside the track. */
+  label?: React.ReactNode
 }) {
-  return (
+  const auto = React.useId()
+  const sid = id ?? auto
+  const root = (
     <SwitchPrimitive.Root
+      id={sid}
       data-slot="switch"
       data-size={size}
       className={cn(
-        "peer group/switch inline-flex shrink-0 items-center rounded-full border border-transparent shadow-xs transition-all outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 data-[size=default]:h-[1.15rem] data-[size=default]:w-8 data-[size=sm]:h-3.5 data-[size=sm]:w-6 data-[state=checked]:bg-primary data-[state=unchecked]:bg-input dark:data-[state=unchecked]:bg-input/80",
+        "peer group/switch inline-flex h-6 w-10 shrink-0 items-center rounded-full border-0 bg-input px-[3px] transition-colors duration-base ease-sufra outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:bg-primary",
         className
       )}
       {...props}
     >
       <SwitchPrimitive.Thumb
         data-slot="switch-thumb"
-        className={cn(
-          "pointer-events-none block rounded-full bg-background ring-0 transition-transform group-data-[size=default]/switch:size-4 group-data-[size=sm]/switch:size-3 data-[state=checked]:translate-x-[calc(100%-2px)] data-[state=unchecked]:translate-x-0 dark:data-[state=checked]:bg-primary-foreground dark:data-[state=unchecked]:bg-foreground"
-        )}
+        className="pointer-events-none block size-[18px] rounded-full bg-card shadow-sm transition-transform duration-base ease-sufra data-[state=checked]:translate-x-4 data-[state=checked]:bg-primary-foreground rtl:data-[state=checked]:-translate-x-4"
       />
     </SwitchPrimitive.Root>
+  )
+  if (label == null) return root
+  return (
+    <span className="inline-flex items-center gap-3 text-sm text-text-2">
+      {root}
+      <label htmlFor={sid}>{label}</label>
+    </span>
   )
 }
 

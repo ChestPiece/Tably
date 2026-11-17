@@ -1,0 +1,107 @@
+/* Hallmark · design-system: Sufra v2 · type B (Beiruti + IBM Plex Sans/Arabic) · palette 3 Indigo and pearl
+ * Single token source for sufra-v2.html (guidelines) and sufra-v2-app.html (prototype).
+ * Every text pair below is measured: text >= 4.5:1, UI shapes and focus >= 3:1, in both themes.
+ * Accent is a shape colour on light (2.8:1 on bg); use --accent-text for any accent words.
+ * Rules: no gradients on surfaces, no glows, no coloured side stripes on cards, no italic headings. */
+
+:root,
+[data-theme="light"] {
+  color-scheme: light;
+  --bg:          oklch(96.6% 0.004 106);  /* #F4F4F1 pearl */
+  --surface:     oklch(99.4% 0.003 270);  /* #FBFBFD */
+  --surface-2:   oklch(93.8% 0.003 286);  /* #EAEAEC */
+  --line:        oklch(89.6% 0.007 286);  /* #DCDCE1 */
+  --text:        oklch(22.2% 0.032 273);  /* #161A2A 15.7:1 on bg */
+  --text-2:      oklch(44.9% 0.033 274);  /* #4F5468 7.5:1 */
+  --text-3:      oklch(50.6% 0.031 274);  /* #5F6477 >= 4.9:1 on every surface */
+  --primary:     oklch(30.3% 0.087 270);  /* #1E2A5A indigo, the one action colour */
+  --on-primary:  oklch(96.6% 0.004 106);  /* 12.4:1 */
+  --brand:       oklch(30.3% 0.087 270);  /* guest welcome, headers, table card */
+  --on-brand:    oklch(96.6% 0.004 106);
+  --brand-field: oklch(36% 0.08 270);     /* input fill on brand */
+  --brand-rule:  oklch(48% 0.07 270);     /* hairline on brand */
+  --accent:      oklch(66.5% 0.120 81);   /* #B98B2E dried-lime ochre, shapes only */
+  --accent-text: oklch(49.4% 0.094 81);   /* #7D5B14 5.6:1 */
+  --focus:       oklch(30.3% 0.087 270);  /* ring = indigo, 12:1 */
+  --st-new:      oklch(42.5% 0.110 264);
+  --st-cook:     oklch(50.8% 0.104 72);
+  --st-ready:    oklch(47.3% 0.089 154);
+  --st-danger:   oklch(49.4% 0.143 31);
+  --st-danger-bg: oklch(92.5% 0.024 34);
+  --scrim:       oklch(18% 0.03 273 / 0.45);
+  --photo-scrim: oklch(15% 0.02 273 / 0.62);
+  --on-photo:    oklch(99% 0.003 270);
+  --shadow-float: 0 1px 2px oklch(22% 0.03 273 / 0.06), 0 16px 40px -16px oklch(22% 0.03 273 / 0.22);
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:          oklch(18.7% 0.029 274);  /* #0F1220 */
+  --surface:     oklch(22.3% 0.034 273);  /* #161A2B */
+  --surface-2:   oklch(26.1% 0.037 272);  /* #1E2336 */
+  --line:        oklch(31.5% 0.044 273);  /* #2A3048 */
+  --text:        oklch(94.7% 0.008 279);  /* 15.9:1 */
+  --text-2:      oklch(76.6% 0.025 275);  /* 8.2:1 */
+  --text-3:      oklch(64.6% 0.032 275);  /* >= 4.7:1 */
+  --primary:     oklch(90.6% 0.023 278);  /* #DCDFF0 */
+  --on-primary:  oklch(21.9% 0.047 275);  /* 13.2:1 */
+  --brand:       oklch(30.3% 0.087 270);
+  --on-brand:    oklch(94.7% 0.008 279);
+  --brand-field: oklch(36% 0.08 270);
+  --brand-rule:  oklch(48% 0.07 270);
+  --accent:      oklch(74.8% 0.119 83);   /* 8.3:1, also safe as text */
+  --accent-text: oklch(74.8% 0.119 83);
+  --focus:       oklch(74.8% 0.119 83);
+  --st-new:      oklch(77.0% 0.083 268);
+  --st-cook:     oklch(79.9% 0.111 79);
+  --st-ready:    oklch(77.4% 0.091 155);
+  --st-danger:   oklch(75.0% 0.120 30);
+  --st-danger-bg: oklch(28.4% 0.044 29);
+  --scrim:       oklch(8% 0.02 273 / 0.6);
+  --photo-scrim: oklch(10% 0.02 273 / 0.62);
+  --on-photo:    oklch(99% 0.003 270);
+  --shadow-float: 0 0 0 1px oklch(31.5% 0.044 273), 0 24px 48px -24px oklch(5% 0.02 273 / 0.7);
+}
+
+:root {
+  /* type: Beiruti for names and display, IBM Plex Sans + Plex Sans Arabic for every interface word */
+  --font-display: "Beiruti", "IBM Plex Sans Arabic", sans-serif;
+  --font-ui: "IBM Plex Sans", "IBM Plex Sans Arabic", system-ui, sans-serif;
+  --text-display-xl: 56px;
+  --text-display: 40px;
+  --text-title-1: 32px;
+  --text-title-2: 28px;
+  --text-title-3: 20px;
+  --text-body-l: 17px;
+  --text-body: 15px;
+  --text-small: 13px;
+  --text-micro: 12px;   /* Latin chart labels only; Arabic never below 13 */
+  --lh-display: 1.1;
+  --lh-title: 1.2;
+  --lh-body: 1.55;
+  --lh-body-ar: 1.75;
+
+  /* space: 4px grid */
+  --space-1: 4px;  --space-2: 8px;  --space-3: 12px; --space-4: 16px; --space-5: 20px;
+  --space-6: 24px; --space-8: 32px; --space-10: 40px; --space-12: 48px; --space-16: 64px; --space-24: 96px;
+
+  /* radius: nested radii add up (outer = inner + padding) */
+  --radius-sm: 8px;    /* chips, small controls */
+  --radius-md: 12px;   /* buttons, inputs */
+  --radius-lg: 16px;   /* tickets, panels, sheets */
+  --radius-xl: 24px;   /* app frames */
+  --radius-arch: 999px 999px 8px 8px;  /* the signature: photo frames and table markers only */
+
+  /* motion: one curve, three durations */
+  --ease: cubic-bezier(0.2, 0, 0, 1);
+  --dur-fast: 120ms;   /* press, hover, toggle */
+  --dur-base: 200ms;   /* state changes */
+  --dur-slow: 320ms;   /* sheets and drawers */
+
+  --control-h: 48px;   /* guest + staff touch height */
+  --control-h-sm: 40px; /* owner desktop */
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --dur-fast: 0ms; --dur-base: 120ms; --dur-slow: 120ms; }
+}

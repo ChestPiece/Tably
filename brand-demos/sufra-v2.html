@@ -1,0 +1,553 @@
+<!doctype html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sufra Brand Guidelines</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 48 48%27%3E%3Cpath d=%27M8 41V22a16 16 0 0 1 32 0v19%27 fill=%27none%27 stroke=%27%231E2A5A%27 stroke-width=%274%27/%3E%3Cpath d=%27M16 39a8 8 0 0 1 16 0z%27 fill=%27%231E2A5A%27/%3E%3Cpath d=%27M3 41h42%27 stroke=%27%231E2A5A%27 stroke-width=%274%27 stroke-linecap=%27round%27/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Beiruti:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="sufra-v2/tokens.css">
+<style>
+/* Hallmark · macrostructure: Long Document · tone: utilitarian-luxury · anchor hue: indigo 270
+ * design-system: sufra-v2/tokens.css · nav: N3 side-rail table of contents · footer: Ft5 statement
+ * pre-emit critique: P5 H5 E4 S5 R4 V4 · contrast: pass (40–41) · honest: pass (46) · chrome: pass (47) · tokens: pass (48) · mobile: 375 checked
+ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { overflow-x: clip; }
+html { scroll-behavior: smooth; scroll-padding-top: var(--space-6); }
+body { background: var(--bg); color: var(--text); font: 400 var(--text-body-l)/var(--lh-body) var(--font-ui); text-wrap: pretty; -webkit-font-smoothing: antialiased; }
+img, svg { display: block; }
+ul, ol { list-style: none; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.tnum { font-variant-numeric: tabular-nums; }
+.ar { font-family: var(--font-ui); direction: rtl; line-height: var(--lh-body-ar); }
+
+.page { display: grid; grid-template-columns: 240px minmax(0, 1fr); max-width: 1360px; margin-inline: auto; }
+.toc { position: sticky; top: 0; align-self: start; height: 100dvh; padding: var(--space-8) var(--space-5); border-inline-end: 1px solid var(--line); display: flex; flex-direction: column; gap: var(--space-1); font-size: 14px; }
+.toc .id { display: flex; align-items: center; gap: var(--space-3); margin-block-end: var(--space-8); font-weight: 600; }
+.toc .id svg { width: 26px; height: 26px; }
+.toc a { display: grid; grid-template-columns: 24px 1fr; padding: var(--space-2) var(--space-3); border-radius: var(--radius-sm); color: var(--text-2); text-decoration: none; transition: background-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease); }
+.toc a:hover { background: var(--surface-2); color: var(--text); }
+.toc a[aria-current="true"] { background: var(--surface-2); color: var(--text); font-weight: 500; }
+.toc a span { color: var(--text-3); font-variant-numeric: tabular-nums; }
+.toc .meta { margin-block-start: auto; font-size: var(--text-small); color: var(--text-3); display: grid; gap: var(--space-3); }
+.toc .seg { display: inline-flex; background: var(--surface-2); border-radius: var(--radius-sm); padding: 2px; }
+.toc .seg button { height: 30px; padding-inline: var(--space-3); border: 0; background: none; border-radius: 6px; font: 500 var(--text-small) var(--font-ui); color: var(--text-2); cursor: pointer; }
+.toc .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 0 0 1px var(--line); }
+main { min-width: 0; }
+.doc { padding-inline: var(--space-16); }
+section.ch { padding-block: var(--space-24) var(--space-16); border-block-end: 1px solid var(--line); }
+.tag { display: block; font-size: 14px; color: var(--text-3); font-variant-numeric: tabular-nums; margin-block-end: var(--space-3); }
+h2 { font: 600 var(--text-title-1)/var(--lh-title) var(--font-ui); max-width: 24ch; overflow-wrap: anywhere; min-width: 0; }
+h3 { font: 600 var(--text-title-3)/1.25 var(--font-ui); margin-block: var(--space-12) var(--space-4); }
+.lede { max-width: 62ch; color: var(--text-2); margin-block-start: var(--space-4); }
+p + p { margin-block-start: var(--space-3); }
+.rules { display: grid; gap: var(--space-3); max-width: 68ch; margin-block-start: var(--space-5); }
+.rules li { padding-inline-start: var(--space-5); position: relative; }
+.rules li::before { content: ""; position: absolute; inset-inline-start: 0; top: .75em; width: 8px; height: 2px; background: var(--text-3); }
+.cap { font-size: var(--text-small); color: var(--text-2); margin-block-start: var(--space-3); }
+figure { margin: 0; }
+
+/* cover */
+.cover { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: var(--space-16); align-items: end; padding-block: var(--space-16) var(--space-24); border-block-end: 1px solid var(--line); }
+.lock-xl { display: flex; align-items: center; gap: var(--space-5); flex-wrap: wrap; }
+.lock-xl svg { width: 72px; height: 72px; color: var(--brand); }
+[data-theme="dark"] .lock-xl svg { color: var(--text); }
+.lock-xl .en { font: 700 88px/1 var(--font-display); letter-spacing: -0.01em; }
+.lock-xl .dv { width: 2px; height: 64px; background: var(--line); }
+.lock-xl .arw { font: 700 84px/1.2 var(--font-display); }
+.cover h1 { font: 600 var(--text-title-2)/1.2 var(--font-ui); max-width: 22ch; margin-block-start: var(--space-10); }
+.cover .lede { margin-block-start: var(--space-4); }
+.cover dl { display: grid; grid-template-columns: auto 1fr; gap: var(--space-2) var(--space-6); margin-block-start: var(--space-10); font-size: 14px; }
+.cover dt { color: var(--text-3); }
+.cover .art { display: grid; justify-items: center; gap: 0; }
+.cover .art .arch { width: min(340px, 100%); aspect-ratio: 340 / 420; }
+.cover .art .tl { width: min(400px, 100%); height: 3px; border-radius: 3px; background: var(--text); }
+.arch { border-radius: var(--radius-arch); overflow: hidden; background: var(--surface-2); }
+.arch img { width: 100%; height: 100%; object-fit: cover; }
+
+/* principles */
+.princ { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-10); margin-block-start: var(--space-12); }
+.princ h4 { font: 600 var(--text-title-3)/1.25 var(--font-ui); margin-block-end: var(--space-3); }
+.princ p { color: var(--text-2); font-size: var(--text-body); }
+.princ div { border-block-start: 2px solid var(--text); padding-block-start: var(--space-5); }
+
+/* logo */
+.lgrid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-6); }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-8); }
+.panel svg.cons { width: 100%; height: auto; color: var(--text); }
+.spec-list { display: grid; gap: var(--space-3); font-size: var(--text-body); }
+.spec-list div { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: var(--space-4); padding-block-end: var(--space-3); border-block-end: 1px solid var(--line); }
+.spec-list dt { color: var(--text-3); }
+.locks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-4); }
+.tile { border-radius: var(--radius-lg); min-height: 200px; display: grid; place-items: center; position: relative; padding: var(--space-8) var(--space-6) var(--space-12); border: 1px solid var(--line); }
+.tile small { position: absolute; bottom: var(--space-4); inset-inline-start: var(--space-5); font-size: var(--text-small); }
+.t-light { background: var(--surface); color: var(--brand); }
+.t-light small { color: var(--text-2); }
+.t-brand { background: var(--brand); color: var(--on-brand); border-color: var(--brand); }
+.t-ink { background: var(--text); color: var(--bg); border-color: var(--text); }
+.t-photo { background: var(--surface-2); padding: 0; overflow: hidden; }
+.t-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.t-photo .plate { position: relative; background: var(--bg); color: var(--brand); padding: var(--space-4) var(--space-5); border-radius: var(--radius-md); }
+.t-photo small { color: var(--on-photo); background: var(--photo-scrim); padding: 2px var(--space-2); border-radius: 4px; z-index: 1; }
+.lk { display: flex; align-items: center; gap: var(--space-3); }
+.lk svg { width: 44px; height: 44px; }
+.lk .en { font: 700 44px/1 var(--font-display); }
+.lk .arw { font: 700 42px/1.2 var(--font-display); }
+.lk .dv { width: 1.5px; height: 34px; background: currentColor; opacity: .35; }
+.lk.stack { flex-direction: column; gap: var(--space-2); }
+.lk.stack .row { display: flex; align-items: center; gap: var(--space-3); }
+.space-demo { position: relative; display: inline-flex; padding: 44px; border: 1px dashed var(--text-3); }
+.space-demo .z { position: absolute; background: color-mix(in oklab, var(--accent) 22%, transparent); }
+.space-demo .z.t { inset-inline: 0; top: 0; height: 44px; } .space-demo .z.b { inset-inline: 0; bottom: 0; height: 44px; }
+.space-demo .z.l { inset-block: 0; inset-inline-start: 0; width: 44px; } .space-demo .z.r { inset-block: 0; inset-inline-end: 0; width: 44px; }
+.space-demo .lk { position: relative; color: var(--brand); }
+[data-theme="dark"] .space-demo .lk, [data-theme="dark"] .t-light { color: var(--text); }
+.mins { display: flex; align-items: end; gap: var(--space-10); flex-wrap: wrap; }
+.mins figure { display: grid; gap: var(--space-2); justify-items: start; font-size: var(--text-small); color: var(--text-2); }
+.mins .lk { color: var(--brand); }
+[data-theme="dark"] .mins .lk { color: var(--text); }
+.misuse { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+.mis { border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface); }
+.mis .stage { height: 150px; display: grid; place-items: center; background: var(--surface-2); position: relative; overflow: hidden; color: var(--brand); }
+[data-theme="dark"] .mis .stage { color: var(--text); }
+.mis .stage::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top right, transparent calc(50% - 1px), var(--st-danger) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)); opacity: .7; }
+.mis p { padding: var(--space-4) var(--space-5); font-size: var(--text-body); }
+.mis b { display: block; font-weight: 600; color: var(--st-danger); font-size: var(--text-small); }
+.mis .lk svg { width: 36px; height: 36px; } .mis .lk .en { font-size: 36px; } .mis .lk .arw { font-size: 34px; }
+
+/* colour */
+.swatches { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--space-4); }
+.sw { border-radius: var(--radius-lg); border: 1px solid var(--line); overflow: hidden; background: var(--surface); }
+.sw .chip { height: 96px; display: flex; align-items: end; padding: var(--space-3) var(--space-4); font-size: var(--text-small); font-weight: 500; }
+.sw .info { padding: var(--space-3) var(--space-4) var(--space-4); font-size: 14px; display: grid; gap: 2px; }
+.sw .info b { font-weight: 600; }
+.sw .info code { font: 400 var(--text-small) var(--font-ui); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.prop { display: flex; height: 16px; border-radius: 8px; overflow: hidden; margin-block-start: var(--space-6); border: 1px solid var(--line); }
+.prop-l { display: flex; justify-content: space-between; font-size: var(--text-small); color: var(--text-2); margin-block-start: var(--space-2); gap: var(--space-3); flex-wrap: wrap; }
+.tbl-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius-lg); background: var(--surface); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: start; font-weight: 500; color: var(--text-3); font-size: var(--text-small); padding: var(--space-3) var(--space-4); border-block-end: 1px solid var(--line); white-space: nowrap; }
+td { padding: var(--space-3) var(--space-4); border-block-end: 1px solid var(--line); vertical-align: middle; }
+tr:last-child td { border-block-end: 0; }
+td.num, th.num { text-align: end; font-variant-numeric: tabular-nums; }
+.pair { display: inline-flex; align-items: center; justify-content: center; min-width: 76px; height: 32px; border-radius: var(--radius-sm); font-weight: 500; font-size: 14px; border: 1px solid var(--line); }
+.pass { color: var(--st-ready); font-weight: 500; }
+.dec { color: var(--text-2); }
+
+/* type */
+.specimens { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); }
+.spm { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-8); display: grid; gap: var(--space-3); align-content: start; }
+.spm .big { font: 600 72px/1.05 var(--font-display); overflow-wrap: anywhere; }
+.spm .big.ui { font-family: var(--font-ui); font-weight: 500; font-size: 56px; }
+.spm .bigar { font: 600 64px/1.35 var(--font-display); direction: rtl; text-align: end; }
+.spm .bigar.ui { font-family: var(--font-ui); font-weight: 500; font-size: 48px; }
+.spm .abc { font-size: var(--text-body); color: var(--text-2); }
+.spm .who { font-size: var(--text-small); color: var(--text-3); border-block-start: 1px solid var(--line); padding-block-start: var(--space-3); margin-block-start: var(--space-3); }
+.scale td:first-child { white-space: nowrap; }
+.scale .s-en { font-family: var(--f); font-weight: var(--w); font-size: var(--sz); line-height: var(--lh); }
+.scale .s-ar { font-family: var(--f); font-weight: var(--w); font-size: max(13px, var(--sz)); line-height: var(--lha); direction: rtl; text-align: end; }
+.scale td.meta { color: var(--text-2); font-size: var(--text-small); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+/* table card */
+.print { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--space-12); align-items: start; }
+.tent-wrap { position: relative; padding: var(--space-8) var(--space-10) var(--space-8) var(--space-8); }
+.tent { width: 100mm; height: 150mm; position: relative; background: var(--bg); border-radius: 50mm 50mm 2mm 2mm; box-shadow: var(--shadow-float); display: flex; flex-direction: column; align-items: center; padding: 18mm 9mm 7mm; text-align: center; color: var(--text); }
+[data-theme="dark"] .tent { background: var(--on-brand); color: var(--brand); }
+.tent::before { content: ""; position: absolute; inset: 3mm; border-radius: 47mm 47mm 1mm 1mm; border: 0.3mm solid var(--line); pointer-events: none; }
+.tent .no { font: 700 22mm/1 var(--font-display); }
+.tent .no-ar { font: 600 6mm/1.3 var(--font-display); color: var(--text-2); margin-block-start: 1mm; }
+[data-theme="dark"] .tent .no-ar { color: var(--brand); }
+.tent .q { width: 32mm; height: 32mm; margin-block: 5mm 4mm; background: var(--bg); padding: 1.5mm; }
+.tent .q g { fill: var(--brand); }
+.tent .cta { font-size: 3.4mm; line-height: 1.35; }
+.tent .cta-ar { font-size: 3.6mm; line-height: 1.5; direction: rtl; }
+.tent .code { font-size: 3mm; margin-block-start: 2mm; font-variant-numeric: tabular-nums; }
+.tent .venue { margin-block-start: auto; font: 600 5mm/1.2 var(--font-display); }
+.tent .venue-ar { font: 600 4.6mm/1.4 var(--font-display); color: var(--text-2); }
+[data-theme="dark"] .tent .venue-ar { color: var(--brand); }
+.tent .ft { margin-block-start: 4mm; display: flex; align-items: center; gap: 1.5mm; font-size: 2.6mm; color: var(--text-2); }
+[data-theme="dark"] .tent .ft { color: var(--brand); }
+.tent .ft svg { width: 4mm; height: 4mm; }
+.dim { position: absolute; font-size: var(--text-small); color: var(--text-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.dim.w { top: 0; inset-inline: var(--space-8) var(--space-10); text-align: center; border-block-end: 1px solid var(--text-3); padding-block-end: 4px; }
+.dim.h { top: var(--space-8); bottom: var(--space-8); inset-inline-end: 0; writing-mode: vertical-rl; text-align: center; border-inline-start: 1px solid var(--text-3); padding-inline-start: 4px; }
+
+/* product */
+.shot { border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; background: var(--surface-2); position: relative; }
+.shot iframe { border: 0; display: block; transform-origin: 0 0; }
+[dir="rtl"] .shot iframe { transform-origin: 100% 0; }
+.prod { display: grid; grid-template-columns: 390px minmax(0, 1fr); gap: var(--space-10); align-items: start; margin-block-start: var(--space-10); }
+.prod .notes { display: grid; gap: var(--space-4); }
+.prod .notes h4 { font: 600 var(--text-title-3)/1.25 var(--font-ui); }
+.open-link { display: inline-flex; align-items: center; gap: var(--space-2); height: var(--control-h-sm); padding-inline: var(--space-4); border-radius: var(--radius-md); background: var(--primary); color: var(--on-primary); text-decoration: none; font-weight: 600; font-size: 14px; width: fit-content; transition: opacity var(--dur-fast) var(--ease); }
+.open-link:hover { opacity: .92; }
+
+/* voice */
+.say { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--space-4); }
+.say > div { border-radius: var(--radius-lg); padding: var(--space-6); }
+.say .yes { background: var(--surface); border: 1px solid var(--line); }
+.say .no { border: 1px dashed var(--line); color: var(--text-2); }
+.say h4 { font-size: 15px; font-weight: 600; margin-block-end: var(--space-4); color: var(--text); }
+.say li { padding-block: var(--space-3); border-block-start: 1px solid var(--line); display: grid; gap: var(--space-1); }
+.say li:first-child { border: 0; padding-block-start: 0; }
+.say .no li span:first-child { text-decoration: line-through; text-decoration-color: var(--text-3); }
+.say .ar { font-size: var(--text-body); color: var(--text-2); }
+
+/* motion */
+.mo { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-4); }
+.mo div { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: var(--space-6); }
+.mo b { font: 600 var(--text-title-2)/1 var(--font-ui); font-variant-numeric: tabular-nums; display: block; margin-block-end: var(--space-3); }
+.mo p { font-size: var(--text-body); color: var(--text-2); }
+
+.endnote { padding-block: var(--space-24); }
+.endnote p { font: 600 var(--text-title-1)/1.25 var(--font-ui); max-width: 26ch; }
+.endnote small { display: block; margin-block-start: var(--space-6); color: var(--text-3); font-size: 14px; }
+
+@media (max-width: 1100px) {
+  .page { grid-template-columns: minmax(0, 1fr); }
+  .toc { position: static; height: auto; flex-direction: row; flex-wrap: wrap; border-inline-end: 0; border-block-end: 1px solid var(--line); padding: var(--space-4); }
+  .toc .id { margin: 0 var(--space-4) 0 0; flex-basis: 100%; }
+  .toc a { grid-template-columns: auto auto; gap: var(--space-1); }
+  .toc .meta { margin: 0; flex-basis: 100%; grid-auto-flow: column; justify-content: start; }
+  .doc { padding-inline: var(--space-8); }
+  .cover, .lgrid, .print, .prod { grid-template-columns: minmax(0, 1fr); }
+  .swatches { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  .doc { padding-inline: var(--space-4); }
+  section.ch { padding-block: var(--space-16) var(--space-12); }
+  .lock-xl { flex-wrap: nowrap; gap: var(--space-3); } .lock-xl .en { font-size: 46px; } .lock-xl .arw { font-size: 44px; } .lock-xl svg { width: 40px; height: 40px; } .lock-xl .dv { height: 34px; }
+  .princ, .misuse, .mo, .say, .specimens, .locks { grid-template-columns: minmax(0, 1fr); }
+  .spm .big { font-size: 52px; } .spm .bigar { font-size: 48px; }
+  .spec-list div { grid-template-columns: minmax(0, 1fr); gap: var(--space-1); }
+  .tent-wrap { transform: scale(.8); transform-origin: top left; margin-block-end: -120px; }
+  .toc a { padding: var(--space-1) var(--space-2); }
+  .space-demo { padding: 24px; }
+  .space-demo .z.t, .space-demo .z.b { height: 24px; } .space-demo .z.l, .space-demo .z.r { width: 24px; }
+  .space-demo .lk svg, .lk svg { width: 30px; height: 30px; } .space-demo .lk .en, .lk .en { font-size: 30px; } .space-demo .lk .arw, .lk .arw { font-size: 28px; }
+  .panel { padding: var(--space-5); }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="mark" viewBox="0 0 48 48"><path d="M8 41V22a16 16 0 0 1 32 0v19" fill="none" stroke="currentColor" stroke-width="4"/><path d="M16 39a8 8 0 0 1 16 0z" fill="currentColor"/><rect x="22.5" y="28" width="3" height="3" rx="1.5" fill="currentColor"/><path d="M3 41h42" stroke="currentColor" stroke-width="4" stroke-linecap="round"/></symbol>
+</defs></svg>
+
+<div class="page">
+<nav class="toc" aria-label="Contents">
+  <span class="id"><svg aria-hidden="true"><use href="#mark"/></svg>Sufra guidelines</span>
+  <a href="#idea"><span>1</span>Idea</a>
+  <a href="#logo"><span>2</span>Logo</a>
+  <a href="#colour"><span>3</span>Colour</a>
+  <a href="#type"><span>4</span>Type</a>
+  <a href="#card"><span>5</span>Table card</a>
+  <a href="#product"><span>6</span>Product</a>
+  <a href="#voice"><span>7</span>Voice</a>
+  <a href="#motion"><span>8</span>Motion and states</a>
+  <div class="meta">
+    <div class="seg" role="group" aria-label="Theme"><button data-theme-set="light" aria-pressed="true">Light</button><button data-theme-set="dark" aria-pressed="false">Dark</button></div>
+    <span>v2 draft · 16 November 2026<br>Awaiting approval</span>
+  </div>
+</nav>
+
+<main>
+<div class="doc">
+
+<header class="cover">
+  <div>
+    <div class="lock-xl" aria-label="Sufra, سفرة"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span><span class="dv" aria-hidden="true"></span><span class="arw" lang="ar">سفرة</span></div>
+    <h1>The table is set before the guest sits down.</h1>
+    <p class="lede">Sufra is QR table ordering for restaurants that sell an evening, not a meal. These guidelines cover the mark, colour, type, the printed table card, the three apps and how we speak in English and Arabic.</p>
+    <dl><dt>Type</dt><dd>Beiruti · IBM Plex Sans + Plex Sans Arabic</dd><dt>Palette</dt><dd>Indigo and pearl, light and dark</dd><dt>Tokens</dt><dd><a href="sufra-v2/tokens.css">sufra-v2/tokens.css</a></dd><dt>Prototype</dt><dd><a href="sufra-v2-app.html">sufra-v2-app.html</a></dd></dl>
+  </div>
+  <figure class="art"><div class="arch"><img src="https://images.unsplash.com/photo-1696950169710-bbed68aec0e1?auto=format&fit=crop&w=700&h=860&q=75" width="340" height="420" alt="A kabsa spread on a silver tray, framed by the Sufra arch"></div><div class="tl" aria-hidden="true"></div></figure>
+</header>
+
+<!-- 1 -->
+<section class="ch" id="idea">
+  <span class="tag">1</span>
+  <h2>A sufra is the spread laid out for guests</h2>
+  <p class="lede">We sell that feeling to restaurants: hospitality that starts at the table, in the guest's own language, and a calm system behind it for the people who run the floor.</p>
+  <div class="princ">
+    <div><h4>Arabic is not a translation</h4><p>Both scripts carry equal weight in the lockup and in every screen. Arabic copy is written for Gulf guests, not converted from English. Layouts are designed right to left, not mirrored at the end.</p></div>
+    <div><h4>Quiet frame, real food</h4><p>Interfaces stay neutral so the venue and its dishes lead. The colour lives in photography, the arch and one indigo action. Nothing glows, nothing floats for decoration.</p></div>
+    <div><h4>Hosts, not robots</h4><p>We speak like a good host: warm, brief, specific. We never say "AI", "seamless" or "successfully". We say what happened and what happens next.</p></div>
+  </div>
+</section>
+
+<!-- 2 -->
+<section class="ch" id="logo">
+  <span class="tag">2</span>
+  <h2>The arch</h2>
+  <p class="lede">An open majlis arch frames a cloche, both resting on the table line. The same arch frames every dish photo and marks every table on the floor plan. Those are its only three uses.</p>
+
+  <h3>Construction</h3>
+  <div class="lgrid">
+    <div class="panel">
+      <svg class="cons" viewBox="0 0 48 48" role="img" aria-label="The mark on its 48-unit construction grid">
+        <g stroke="var(--line)" stroke-width=".15" fill="none"><path d="M0 0v48M4 0v48M8 0v48M12 0v48M16 0v48M20 0v48M24 0v48M28 0v48M32 0v48M36 0v48M40 0v48M44 0v48M48 0v48M0 0h48M0 4h48M0 8h48M0 12h48M0 16h48M0 20h48M0 24h48M0 28h48M0 32h48M0 36h48M0 40h48M0 44h48M0 48h48"/></g>
+        <g stroke="var(--accent)" stroke-width=".25" fill="none" stroke-dasharray="1 1"><circle cx="24" cy="22" r="16"/><circle cx="24" cy="39" r="8"/><path d="M0 41h48M24 0v48"/></g>
+        <use href="#mark"/>
+      </svg>
+    </div>
+    <dl class="spec-list">
+      <div><dt>Grid</dt><dd>48 × 48 units. All strokes are 4 units.</dd></div>
+      <div><dt>Arch</dt><dd>Outer radius 16 units, centred on x 24, y 22. Legs drop straight to the table line at y 41.</dd></div>
+      <div><dt>Cloche</dt><dd>Half circle, radius 8, sitting on the table line, with a 3-unit handle.</dd></div>
+      <div><dt>Table line</dt><dd>From x 3 to x 45, so it overshoots the arch by 5 units each side. Round caps on this line only.</dd></div>
+      <div><dt>Wordmark</dt><dd>"Sufra" in Beiruti 700. "سفرة" in Beiruti 700, set to the same cap height as the Latin. Divider is a 1.5 px rule at 35% of the ink colour.</dd></div>
+      <div><dt>Status</dt><dd>Draft drawn in SVG. Before launch, a lettering pass to match the Arabic and Latin stroke weights by eye.</dd></div>
+    </dl>
+  </div>
+
+  <h3>Lockups</h3>
+  <div class="locks">
+    <div class="tile t-light"><div class="lk"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span><span class="dv"></span><span class="arw" lang="ar">سفرة</span></div><small>Primary · bilingual · indigo on pearl</small></div>
+    <div class="tile t-brand"><div class="lk"><svg aria-hidden="true"><use href="#mark"/></svg><span class="arw" lang="ar">سفرة</span><span class="dv"></span><span class="en">Sufra</span></div><small>Arabic-first order for RTL contexts · pearl on indigo</small></div>
+    <div class="tile t-light"><div class="lk stack"><svg aria-hidden="true"><use href="#mark"/></svg><div class="row"><span class="en">Sufra</span><span class="dv"></span><span class="arw" lang="ar">سفرة</span></div></div><small>Stacked · table card, app icon splash</small></div>
+    <div class="tile t-ink"><div class="lk"><svg aria-hidden="true" style="width:72px;height:72px"><use href="#mark"/></svg></div><small style="color:var(--bg)">Mark only · favicon, app icon, 16 px and up</small></div>
+    <div class="tile t-photo"><img src="https://images.unsplash.com/photo-1777716003985-68fed08d0c7e?auto=format&fit=crop&w=900&h=500&q=70" alt="" width="450" height="250"><div class="plate lk"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span></div><small>On photos: always on a pearl plate</small></div>
+    <div class="tile t-light"><div class="lk"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span></div><small>Latin only · where Arabic cannot be set</small></div>
+  </div>
+
+  <h3>Clear space and minimum size</h3>
+  <div class="lgrid">
+    <div class="panel" style="display:grid;place-items:center"><div class="space-demo"><span class="z t"></span><span class="z b"></span><span class="z l"></span><span class="z r"></span><div class="lk"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span><span class="dv"></span><span class="arw" lang="ar">سفرة</span></div></div></div>
+    <div>
+      <p>Clear space on every side equals the height of the mark. Nothing enters that zone: no text, edges or photo detail.</p>
+      <div class="mins" style="margin-block-start:var(--space-8)">
+        <figure><div class="lk"><svg aria-hidden="true" style="width:16px;height:16px"><use href="#mark"/></svg></div>Mark · 16 px · 5 mm</figure>
+        <figure><div class="lk"><svg aria-hidden="true" style="width:20px;height:20px"><use href="#mark"/></svg><span class="en" style="font-size:20px">Sufra</span><span class="dv" style="height:16px"></span><span class="arw" lang="ar" style="font-size:19px">سفرة</span></div>Bilingual · 96 px wide · 25 mm</figure>
+      </div>
+    </div>
+  </div>
+
+  <h3>Misuse</h3>
+  <div class="misuse">
+    <div class="mis"><div class="stage"><div class="lk" style="transform:scaleX(1.5)"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span></div></div><p><b>Do not</b>Stretch or squash it. Scale proportionally only.</p></div>
+    <div class="mis"><div class="stage"><div class="lk" style="color:var(--accent)"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span></div></div><p><b>Do not</b>Set it in the accent or any colour outside indigo, pearl and ink.</p></div>
+    <div class="mis"><div class="stage"><div class="lk"><svg aria-hidden="true" style="fill:none;stroke:currentColor"><use href="#mark"/></svg><span class="en" style="color:var(--surface-2);-webkit-text-stroke:1.5px var(--brand)">Sufra</span></div></div><p><b>Do not</b>Outline it, add shadows, glows or gradients.</p></div>
+    <div class="mis"><div class="stage"><div class="lk" style="transform:rotate(-12deg)"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span></div></div><p><b>Do not</b>Rotate it or set it on a curve.</p></div>
+    <div class="mis"><div class="stage" style="background:none"><img src="https://images.unsplash.com/photo-1696950169936-7e00c08955e4?auto=format&fit=crop&w=600&h=300&q=60" alt="" width="300" height="150" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"><div class="lk" style="position:relative;color:var(--on-photo)"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en">Sufra</span></div></div><p><b>Do not</b>Place it straight on a busy photo. Use the pearl plate.</p></div>
+    <div class="mis"><div class="stage"><div class="lk"><svg aria-hidden="true"><use href="#mark"/></svg><span class="en" style="font-family:Georgia,serif;font-weight:400">Sufra</span></div></div><p><b>Do not</b>Retype the wordmark in another font. Use the supplied artwork.</p></div>
+  </div>
+</section>
+
+<!-- 3 -->
+<section class="ch" id="colour">
+  <span class="tag">3</span>
+  <h2>Indigo and pearl</h2>
+  <p class="lede">Pearl paper, indigo ink, and a dried-lime ochre that appears in small doses: the current step, the "now" marker, a bill request, the top dish. Switch the theme in the contents rail to see the dark set. Values update from the tokens.</p>
+  <div class="swatches" id="swatches" style="margin-block-start:var(--space-10)"></div>
+  <div class="prop" aria-label="Colour proportion on a typical screen"><span style="flex:62;background:var(--bg)"></span><span style="flex:20;background:var(--surface-2)"></span><span style="flex:10;background:var(--text)"></span><span style="flex:6;background:var(--primary)"></span><span style="flex:2;background:var(--accent)"></span></div>
+  <div class="prop-l"><span>Pearl and surfaces 82%</span><span>Ink 10%</span><span>Indigo 6%</span><span>Ochre 2%</span></div>
+
+  <h3>Measured contrast</h3>
+  <p class="lede" style="margin-block:0 var(--space-5)">Ratios are calculated live from the current theme. Text needs 4.5:1, icons, focus rings and shapes need 3:1.</p>
+  <div class="tbl-wrap"><table id="contrast"><thead><tr><th>Pair</th><th>Sample</th><th class="num">Ratio</th><th>Use</th></tr></thead><tbody></tbody></table></div>
+  <ul class="rules">
+    <li>Ochre is a shape colour on light. Any ochre words use <code>--accent-text</code>.</li>
+    <li>Status always pairs a colour with a word: New, Preparing, Ready, Late. Colour never carries meaning alone.</li>
+    <li>No hue gradients, glows or coloured side stripes on cards. Depth comes from hairlines, and in light mode one soft shadow on floating layers.</li>
+  </ul>
+
+  <h3>Print starting values</h3>
+  <div class="tbl-wrap"><table><thead><tr><th>Colour</th><th>Screen</th><th>CMYK starting point</th></tr></thead><tbody>
+    <tr><td>Indigo</td><td class="tnum">#1E2A5A</td><td class="tnum">67 53 0 65</td></tr>
+    <tr><td>Pearl</td><td class="tnum">#F4F4F1</td><td class="tnum">0 0 1 4 (or uncoated white stock)</td></tr>
+    <tr><td>Ink</td><td class="tnum">#161A2A</td><td class="tnum">48 38 0 84</td></tr>
+    <tr><td>Ochre</td><td class="tnum">#B98B2E</td><td class="tnum">0 25 75 27</td></tr>
+  </tbody></table></div>
+  <p class="cap">These are converted from screen values, not matched on press. Ask the printer for a proof on the actual stock, and choose a Pantone match for indigo from a physical swatch book before the first run.</p>
+</section>
+
+<!-- 4 -->
+<section class="ch" id="type">
+  <span class="tag">4</span>
+  <h2>Two families, two scripts each</h2>
+  <p class="lede">Beiruti carries names: the venue, dishes, table numbers. IBM Plex Sans and Plex Sans Arabic carry every interface word, price and figure. Both families were drawn for Arabic and Latin together, so mixed lines keep one rhythm.</p>
+  <div class="specimens" style="margin-block-start:var(--space-10)">
+    <div class="spm"><div class="big">Bait Al Zaafaran</div><div class="bigar" lang="ar">بيت الزعفران</div><p class="abc">Aa Bb Cc 0123456789 · أ ب ت ث ج ح خ</p><p class="who">Beiruti 600 and 700 · names and display only · licence OFL</p></div>
+    <div class="spm"><div class="big ui">Send to the kitchen</div><div class="bigar ui" lang="ar">أرسل إلى المطبخ</div><p class="abc">Tabular figures: AED 1,284.50 · 12:45 · T12</p><p class="who">IBM Plex Sans + Plex Sans Arabic 400, 500, 600 · interface · licence OFL</p></div>
+  </div>
+  <h3>Scale</h3>
+  <div class="tbl-wrap"><table class="scale"><thead><tr><th>Step</th><th>English</th><th>Arabic</th><th>Size / line height</th></tr></thead><tbody id="scale"></tbody></table></div>
+  <ul class="rules">
+    <li>Arabic never goes below 13 px. Latin 12 px is for chart axes only.</li>
+    <li>Arabic body line height is 1.75 against 1.55 for Latin, so diacritics never touch.</li>
+    <li>No letter-spacing on Arabic, ever. No tracking on Latin below 24 px.</li>
+    <li>Interface digits are Western (0–9) in both languages, with tabular figures for prices, times and counts.</li>
+    <li>Headings are always upright. Emphasis comes from weight and size, never italics.</li>
+  </ul>
+</section>
+
+<!-- 5 -->
+<section class="ch" id="card">
+  <span class="tag">5</span>
+  <h2>The table card</h2>
+  <p class="lede">The card is where the brand meets the guest first, so it carries the arch shape itself. Shown here at real size on most screens.</p>
+  <div class="print" style="margin-block-start:var(--space-10)">
+    <div class="tent-wrap">
+      <span class="dim w">100 × 150 mm per face</span>
+      <div class="tent" aria-label="Table card for table 7">
+        <span class="no">7</span><span class="no-ar" lang="ar">طاولة 7</span>
+        <span class="q"><svg viewBox="0 0 29 29" shape-rendering="crispEdges" aria-label="QR code placeholder"><g data-qr="t7-k3x9q"></g></svg></span>
+        <span class="cta">Scan to see the menu and order</span>
+        <span class="cta-ar" lang="ar">امسح الرمز لتصفح القائمة والطلب</span>
+        <span class="code">Table code 4821</span>
+        <span class="venue">Bait Al Zaafaran</span><span class="venue-ar" lang="ar">بيت الزعفران</span>
+        <span class="ft"><svg aria-hidden="true"><use href="#mark"/></svg>Sufra</span>
+      </div>
+    </div>
+    <dl class="spec-list">
+      <div><dt>Format</dt><dd>Folded tent, 100 × 150 mm per face, arch top with 50 mm radius. Same face front and back.</dd></div>
+      <div><dt>Bleed and safe area</dt><dd>3 mm bleed on all edges. Keep text and QR 6 mm inside the trim. The hairline frame sits 3 mm in.</dd></div>
+      <div><dt>QR</dt><dd>32 mm printed, never under 25 mm, with a quiet zone of 4 modules. Indigo on pearl only. Each table gets its own random link, never the table number.</dd></div>
+      <div><dt>Venue</dt><dd>The venue name in Beiruti, English and Arabic, sits low on the card. Sufra appears once, small, at the foot.</dd></div>
+      <div><dt>Table number</dt><dd>Beiruti 700 at 22 mm, with "طاولة 7" in Beiruti 600 underneath.</dd></div>
+      <div><dt>Call to scan</dt><dd>English and Arabic, both visible, same size. Plex Sans 3.4 mm, Plex Sans Arabic 3.6 mm.</dd></div>
+      <div><dt>Table code</dt><dd>Only when the venue switches on "Require table code" in Settings.</dd></div>
+      <div><dt>Stock</dt><dd>350 gsm uncoated or soft-touch matte. No gloss: it reflects table lamps into the camera.</dd></div>
+      <div><dt>Files</dt><dd>Exported per table from Tables & QR in the owner app, three per A4 sheet.</dd></div>
+    </dl>
+  </div>
+</section>
+
+<!-- 6 -->
+<section class="ch" id="product">
+  <span class="tag">6</span>
+  <h2>The three apps</h2>
+  <p class="lede">These frames are the live prototype, not pictures. Everything runs on the same tokens. Open the full prototype to order as a guest and watch the ticket arrive on the staff board.</p>
+  <div class="prod">
+    <div class="shot" style="width:390px;height:780px;max-width:100%"><iframe src="sufra-v2-app.html?view=guest&embed=1&step=menu&theme=light" title="Guest app" width="390" height="780" loading="lazy"></iframe></div>
+    <div class="notes">
+      <h4>Guest · phone</h4>
+      <ul class="rules" style="margin:0">
+        <li>The venue leads. Its name, its photography, its table number. Sufra appears once, small, on the welcome screen.</li>
+        <li>Dish photos sit in the arch. Dishes without a photo get no placeholder; the row closes up.</li>
+        <li>Thumb-zone actions: the order bar and primary buttons live at the bottom, 48 px tall.</li>
+        <li>After sending, the guest follows the order step by step and can call a waiter or ask for the bill without waving.</li>
+      </ul>
+      <a class="open-link" href="sufra-v2-app.html">Open the prototype</a>
+    </div>
+  </div>
+  <h3>Staff · the pass</h3>
+  <div class="shot frame-scale" data-w="1280" data-h="720"><iframe src="sufra-v2-app.html?view=staff&embed=1&theme=light" title="Staff board" width="1280" height="720" loading="lazy"></iframe></div>
+  <ul class="rules"><li>Table number first and largest, quantities before dish names, one action per ticket.</li><li>Late tickets say "late" in words; nothing flashes. Calls and bill requests sit above the rail.</li><li>Light and dark from the same tokens. Dark is the default on a kitchen tablet.</li></ul>
+  <h3>Owner · home</h3>
+  <div class="shot frame-scale" data-w="1440" data-h="900"><iframe src="sufra-v2-app.html?view=owner&embed=1&theme=light" title="Owner home" width="1440" height="900" loading="lazy"></iframe></div>
+  <ul class="rules"><li>A left menu like any serious admin: Home, Live board, Orders, then Menu, Tables & QR, Team, Settings.</li><li>Figures are separated by hairlines, not boxes. One chart, one floor plan, the latest orders and the top dishes.</li><li>Every figure on this page is computed from the prototype's sample orders and is labelled sample data.</li></ul>
+</section>
+
+<!-- 7 -->
+<section class="ch" id="voice">
+  <span class="tag">7</span>
+  <h2>Speak like a host</h2>
+  <p class="lede">Warm, brief and specific, in both languages. Say what happened and what happens next. Arabic is written for Gulf guests in clear Modern Standard Arabic with a Gulf ear, never word-for-word from English.</p>
+  <div class="say" style="margin-block-start:var(--space-10)">
+    <div class="yes"><h4>We say</h4><ul>
+      <li><span>Your order is with the kitchen.</span><span class="ar" lang="ar">طلبك عند المطبخ الآن.</span></li>
+      <li><span>Take your time. We will tell you when it is ready.</span><span class="ar" lang="ar">خذ راحتك. سنخبرك حين يجهز.</span></li>
+      <li><span>Someone is on their way.</span><span class="ar" lang="ar">أحد الطاقم في طريقه إليك.</span></li>
+      <li><span>Sold out today</span><span class="ar" lang="ar">نفد اليوم</span></li>
+    </ul></div>
+    <div class="no"><h4>We never say</h4><ul>
+      <li><span>Order placed successfully!</span><span class="ar" lang="ar">تم إرسال الطلب بنجاح!</span></li>
+      <li><span>Revolutionise your restaurant with AI</span></li>
+      <li><span>Seamless next-gen dining experience</span></li>
+      <li><span>Oops! Something went wrong</span><span class="ar" lang="ar">عذراً! حدث خطأ ما</span></li>
+    </ul></div>
+  </div>
+  <h3>Microcopy by moment</h3>
+  <div class="tbl-wrap"><table><thead><tr><th>Moment</th><th>English</th><th>Arabic</th></tr></thead><tbody>
+    <tr><td>Welcome</td><td>Table 7 · Welcome</td><td class="ar" lang="ar">طاولة 7 · أهلاً وسهلاً</td></tr>
+    <tr><td>Name field</td><td>Your name (optional). So the team knows who it is for</td><td class="ar" lang="ar">اسمك (اختياري). ليعرف الطاقم لمن الطلب</td></tr>
+    <tr><td>Wrong table code</td><td>That code does not match. Check the card on your table.</td><td class="ar" lang="ar">الرمز غير مطابق. تأكد من البطاقة على طاولتك.</td></tr>
+    <tr><td>Ordering paused</td><td>Ordering is paused for a moment. You can still browse the menu.</td><td class="ar" lang="ar">الطلب متوقف للحظات. يمكنك تصفح القائمة.</td></tr>
+    <tr><td>Order sent</td><td>Your order is with the kitchen</td><td class="ar" lang="ar">طلبك عند المطبخ الآن</td></tr>
+    <tr><td>Preparing</td><td>The kitchen is preparing it</td><td class="ar" lang="ar">المطبخ يحضّر طلبك</td></tr>
+    <tr><td>Ready</td><td>It is ready and on its way to you</td><td class="ar" lang="ar">طلبك جاهز وفي طريقه إليك</td></tr>
+    <tr><td>Served</td><td>Enjoy your meal</td><td class="ar" lang="ar">بالعافية</td></tr>
+    <tr><td>Cancelled</td><td>We could not make this one. Sold out.</td><td class="ar" lang="ar">لم نتمكن من تحضير هذا الطلب. نفد.</td></tr>
+    <tr><td>Bill</td><td>A team member is bringing your bill. Pay by card or cash at the table.</td><td class="ar" lang="ar">أحد الطاقم سيحضر فاتورتك. الدفع بالبطاقة أو نقداً على الطاولة.</td></tr>
+    <tr><td>Paid</td><td>Paid. Thank you for joining us tonight.</td><td class="ar" lang="ar">تم الدفع. شكراً لزيارتك الليلة.</td></tr>
+    <tr><td>Staff, empty column</td><td>Nothing new. Orders land here as guests send them.</td><td class="ar" lang="ar">لا طلبات جديدة. تصل هنا فور إرسالها.</td></tr>
+  </tbody></table></div>
+  <p class="cap">Arabic strings are a first draft. Have a native Gulf Arabic copywriter review them before launch.</p>
+</section>
+
+<!-- 8 -->
+<section class="ch" id="motion">
+  <span class="tag">8</span>
+  <h2>Motion and states</h2>
+  <p class="lede">One easing curve, three durations. Motion confirms an action or shows where something came from; it never decorates. With reduced motion on, everything becomes a short fade.</p>
+  <div class="mo" style="margin-block-start:var(--space-10)">
+    <div><b>120 ms</b><p>Press, hover and toggle feedback. Buttons press to 98%. Colours shift; nothing jumps.</p></div>
+    <div><b>200 ms</b><p>State changes: a ticket arrives with a fade and a soft highlight that clears after 4 seconds.</p></div>
+    <div><b>320 ms</b><p>Sheets and drawers: the guest item sheet rises from the bottom, the owner editor slides in from the side.</p></div>
+  </div>
+  <ul class="rules">
+    <li>Easing: <code>cubic-bezier(0.2, 0, 0, 1)</code> everywhere. No bounce, no spring.</li>
+    <li>Every control ships default, hover, focus, pressed and disabled states. Forms add error text under the field and keep the space for it, so nothing jumps.</li>
+    <li>Focus rings are 2 px, indigo on light and ochre on dark, and appear instantly.</li>
+    <li>Success is silent when the result is visible: the ticket moves, the switch flips. Messages are kept for failures and for things the user cannot see.</li>
+    <li>Sound is opt-in: the staff board chimes only after "Shift on", which also keeps the tablet awake.</li>
+  </ul>
+</section>
+
+<section class="endnote">
+  <p>Best for venues that sell an evening, not a meal.</p>
+  <small>Sufra v2 · draft for approval · photos from Unsplash for the sample venue only; each venue supplies its own.</small>
+</section>
+</div>
+</main>
+</div>
+
+<script src="qr.js"></script>
+<script>
+(() => {
+  document.querySelectorAll("[data-qr]").forEach(g => drawQR(g, g.dataset.qr));
+  const root = document.documentElement;
+  const css = n => getComputedStyle(root).getPropertyValue("--" + n).trim();
+  const toRGB = c => { const d = document.createElement("i"); d.style.color = c; document.body.append(d); const v = getComputedStyle(d).color; d.remove(); const ctx = document.createElement("canvas").getContext("2d"); ctx.fillStyle = v; ctx.fillRect(0, 0, 1, 1); return [...ctx.getImageData(0, 0, 1, 1).data].slice(0, 3); };
+  const lum = rgb => { const c = rgb.map(v => v / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const ratio = (a, b) => { const x = lum(toRGB(a)), y = lum(toRGB(b)); return (Math.max(x, y) + 0.05) / (Math.min(x, y) + 0.05); };
+  const hex = c => "#" + toRGB(c).map(v => v.toString(16).padStart(2, "0")).join("").toUpperCase();
+
+  const SW = [["bg", "Pearl", "Page"], ["surface", "Surface", "Panels, tickets"], ["surface-2", "Surface 2", "Selected, quiet buttons"], ["line", "Line", "Hairlines"], ["text", "Ink", "Body text"], ["text-2", "Ink 2", "Secondary text"], ["primary", "Indigo", "The one action colour"], ["accent", "Ochre", "Small doses only"]];
+  const PAIRS = [["text", "bg", "Body text", 4.5], ["text-2", "surface", "Secondary text", 4.5], ["text-3", "surface-2", "Muted text on raised", 4.5], ["on-primary", "primary", "Button label", 4.5], ["on-brand", "brand", "Text on brand", 4.5], ["accent-text", "bg", "Ochre words", 4.5], ["st-danger", "st-danger-bg", "Kitchen note", 4.5], ["st-new", "surface", "Status: New", 3], ["st-ready", "surface", "Status: Ready", 3], ["focus", "bg", "Focus ring", 3], ["accent", "bg", "Ochre shape", 3]];
+  const SCALE = [["Display XL", "56px", 700, "1.05", "1.3", "display", "Sufra", "سفرة"], ["Display", "40px", 600, "1.1", "1.35", "display", "Bait Al Zaafaran", "بيت الزعفران"], ["Title 1", "32px", 600, "1.15", "1.4", "display", "Your order is with the kitchen", "طلبك عند المطبخ"], ["Title 2", "28px", 600, "1.2", "1.4", "ui", "Home", "الرئيسية"], ["Title 3", "20px", 600, "1.25", "1.5", "display", "Lamb machboos", "مجبوس لحم"], ["Body L", "17px", 400, "1.55", "1.75", "ui", "Slow-roasted shoulder, loomi, saffron rice", "كتف مطهو ببطء، لومي، أرز بالزعفران"], ["Body", "15px", 400, "1.55", "1.75", "ui", "Guests can browse but cannot send orders.", "يتصفح الضيوف دون إرسال طلبات."], ["Small", "13px", 500, "1.45", "1.6", "ui", "Table 7 · sent 7:42 PM", "طاولة 7 · أُرسل 7:42 م"], ["Micro", "12px", 400, "1.4", "—", "ui", "18:00 · chart axis", ""]];
+
+  function paint() {
+    document.getElementById("swatches").innerHTML = SW.map(([k, n, u]) => `<div class="sw"><div class="chip" style="background:var(--${k});color:var(--${["bg", "surface", "surface-2", "line", "accent"].includes(k) ? "text" : "bg"})">${n}</div><div class="info"><b>--${k}</b><code>${hex(css(k))} · ${css(k)}</code><span style="color:var(--text-2);font-size:13px">${u}</span></div></div>`).join("");
+    document.querySelector("#contrast tbody").innerHTML = PAIRS.map(([f, b, use, min]) => { const r = ratio(css(f), css(b)); return `<tr><td><code>--${f}</code> on <code>--${b}</code></td><td><span class="pair" style="color:var(--${f});background:var(--${b})">Aa أب</span></td><td class="num">${r.toFixed(1)}:1</td><td>${r >= min ? `<span class="pass">Pass ${min === 3 ? "· shapes and icons" : "· text"}</span>` : `<span class="dec">${use === "Ochre shape" ? "Decorative only" : "Below " + min + ":1"}</span>`} · ${use}</td></tr>`; }).join("");
+  }
+  document.getElementById("scale").innerHTML = SCALE.map(([n, sz, w, lh, lha, f, en, ar]) => `<tr style="--f:var(--font-${f});--w:${w};--sz:${sz};--lh:${lh};--lha:${lha === "—" ? 1.6 : lha}"><td>${n}</td><td class="s-en">${en}</td><td class="s-ar" lang="ar">${ar || "<span style='font-size:13px;color:var(--text-3)'>Not used for Arabic</span>"}</td><td class="meta">${sz} / ${lh}${lha !== "—" ? " · AR " + lha : ""} · ${f === "display" ? "Beiruti" : "Plex"} ${w}</td></tr>`).join("");
+
+  // theme switch
+  document.querySelectorAll("[data-theme-set]").forEach(b => b.addEventListener("click", () => {
+    root.dataset.theme = b.dataset.themeSet;
+    document.querySelectorAll("[data-theme-set]").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+    document.querySelectorAll("iframe").forEach(f => { const u = new URL(f.src); u.searchParams.set("theme", b.dataset.themeSet); f.src = u; });
+    paint();
+  }));
+  paint();
+
+  // scale wide iframes to their frame
+  const fit = () => document.querySelectorAll(".frame-scale").forEach(s => { const w = +s.dataset.w, h = +s.dataset.h, k = Math.min(1, s.clientWidth / w); s.style.height = h * k + "px"; s.querySelector("iframe").style.transform = `scale(${k})`; });
+  new ResizeObserver(fit).observe(document.body); fit();
+
+  // contents highlight
+  const links = [...document.querySelectorAll(".toc a")];
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.setAttribute("aria-current", String(a.hash === "#" + e.target.id))); }), { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll("section.ch").forEach(s => io.observe(s));
+})();
+</script>
+</body>
+</html>
