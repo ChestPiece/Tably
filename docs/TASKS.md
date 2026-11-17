@@ -50,5 +50,5 @@ Skills: `web-design-engineer` (lead), `no-ai-design-slop` (gate), `localization-
 - [ ] Optional: Turnstile captcha on anonymous sign-in
 
 ## 6. Cleanup
-- [ ] Delete `_legacy/` once nothing references it
+- [x] Delete `_legacy/` (2026-11-17)
 - [ ] Commit (only when the user asks)

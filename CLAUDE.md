@@ -8,13 +8,12 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 - **Remaining work lives in `docs/TASKS.md`.** Read it first, tick items as they land.
 - Rebuilt on **Next.js 16 (App Router) + Supabase, deploying to Vercel**. Guest app, staff board, owner admin, QR sheet and `/dev` launcher are built; `tsc` + `eslint` clean; DB flow test passes. Next: live E2E, design pass, accessibility, deploy.
 - **Brand:** "ChestBest" is the demo venue name. **Sufra (سفرة) v2 is ported (2026-11-17)** across guest, staff, owner, QR print and `/dev`. Spec: `docs/brand/sufra/README.md`. Visual reference: `brand-demos/sufra-v2-app.html`. Port decisions: `.superpowers/sdd/2026-11-16-sufra-port/progress.md`.
-- Old OpenAI Sites demo (vinext + Cloudflare D1) was copied to `_legacy/` for reference only. Do not extend or import from it; delete once done.
 - Supabase cloud project ref `xyptwnbukercpptbleei` (project-scoped MCP in `.mcp.json`). No Docker on this machine: no `supabase start`.
 - Seed logins (demo only, change before anything public): owner `anasowner` / `anas123`, staff `anasstaff` / `anas123`. Usernames map to `<name>@chestbest.test` via `toEmail()`.
 
 ## Gotchas
 - PowerShell blocks `npm.ps1`: use `npm.cmd run dev` (or `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`).
-- Tailwind v4 runs through the `@tailwindcss/turbopack` loader rule in `next.config.ts`; there is no `postcss.config`. Remove that rule and every page goes unstyled. `_legacy/` is excluded with `@source not` in `app/globals.css`.
+- Tailwind v4 runs through the `@tailwindcss/turbopack` loader rule in `next.config.ts`; there is no `postcss.config`. Remove that rule and every page goes unstyled.
 - Next 16 uses `proxy.ts`, not `middleware.ts`. Read `node_modules/next/dist/docs` before using Next APIs (see `AGENTS.md`).
 - Guest Supabase client uses localStorage key `cb-guest`; staff use `@supabase/ssr` cookies. Both work in one browser.
 - Owner admin CRUD (menu, tables, settings) writes directly through RLS; guest and order-flow writes go through RPCs only.

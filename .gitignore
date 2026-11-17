@@ -40,7 +40,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# legacy demo + local state
-/_legacy/node_modules
-/.wrangler/
+# local tool state
 .playwright-mcp/
