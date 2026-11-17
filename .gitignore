@@ -30,8 +30,9 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# env files
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -40,5 +41,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local tool state
+# local tool state (agent notes, browser runs, per-machine settings)
 .playwright-mcp/
+.superpowers/
+.claude/settings.local.json
+.claude/worktrees/
+*.log
+Thumbs.db
