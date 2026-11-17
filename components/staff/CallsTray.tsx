@@ -19,11 +19,11 @@ export function CallsTray({ requests, lang, onResolve, now, busyId, fresh }: Pro
   if (!requests.length) return null;
   return (
     <section aria-label={tr(lang, "callsTitle")} className="shrink-0 border-b bg-card">
-      <ul className="flex flex-wrap gap-3 px-5 py-3">
+      <ul className="flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]">
         {requests.map((r) => (
           <li
             key={r.id}
-            className={cn("flex items-center gap-3 rounded-md border bg-background py-2 ps-4 pe-2 text-sm animate-in fade-in", fresh?.has(r.id) && "bg-muted")}
+            className={cn("flex shrink-0 items-center gap-3 rounded-md border bg-background py-1.5 ps-4 pe-1.5 text-sm whitespace-nowrap animate-in fade-in", fresh?.has(r.id) && "bg-muted")}
           >
             <b className="font-display text-xl leading-none font-semibold">{tableLabel(lang, r.table_number)}</b>
             <span>{tr(lang, r.kind === "bill" ? "wantsBill" : "needsWaiter")}</span>

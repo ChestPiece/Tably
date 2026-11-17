@@ -8,6 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLang } from "@/lib/i18n";
+import type { Can, StaffRole } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 export type StaffTab = "board" | "tables" | "menu";
@@ -20,25 +21,26 @@ type Props = {
   online: boolean;
   shift: boolean;
   onToggleShift: () => void;
-  role: "owner" | "staff";
+  role: StaffRole;
+  can: Can;
   onSignOut: () => void;
 };
 
-export function StaffHeader({ venue, tab, onTab, counts, online, shift, onToggleShift, role, onSignOut }: Props) {
+export function StaffHeader({ venue, tab, onTab, counts, online, shift, onToggleShift, role, can, onSignOut }: Props) {
   const { t, toggle } = useLang();
   const { resolvedTheme, setTheme } = useTheme();
-  const tabs: [StaffTab, string, number][] = [
-    ["board", t("tabBoard"), counts.board],
-    ["tables", t("tabTables"), counts.tables],
-    ["menu", t("tabMenu"), counts.soldOut],
-  ];
+  const tabs = ([
+    ["board", t("tabBoard"), counts.board, true],
+    ["tables", t("tabTables"), counts.tables, can.tables],
+    ["menu", t("tabMenu"), counts.soldOut, can.soldOut],
+  ] as const).filter((x) => x[3]);
   return (
     <header className="z-20 flex h-15 shrink-0 items-center gap-6 border-b bg-card px-5 max-[900px]:gap-3 max-[900px]:px-3">
       <h1 className="flex shrink-0 items-center gap-2 font-semibold whitespace-nowrap">
         <BrandMark className="size-[22px] text-primary" />
         <span className="max-[900px]:sr-only">{venue}</span>
       </h1>
-      <Tabs value={tab} onValueChange={(v) => onTab(v as StaffTab)} className="h-full min-w-0">
+      <Tabs value={tab} onValueChange={(v) => onTab(v as StaffTab)} className="h-full min-w-0 overflow-x-auto [scrollbar-width:none]">
         <TabsList variant="underline" aria-label={t("boardSections")} className="h-full">
           {tabs.map(([k, label, n]) => (
             <TabsTrigger key={k} value={k} className="h-full gap-2 px-4 max-[900px]:px-2.5">
@@ -49,7 +51,7 @@ export function StaffHeader({ venue, tab, onTab, counts, online, shift, onToggle
         </TabsList>
       </Tabs>
 
-      <div className="ms-auto flex items-center gap-5 max-[900px]:gap-2">
+      <div className="ms-auto flex shrink-0 items-center gap-5 max-[900px]:gap-2">
         <span role="status" className="inline-flex items-center gap-2 text-sm whitespace-nowrap text-text-2">
           <i aria-hidden className={cn("size-2 rounded-full", online ? "bg-status-ready" : "bg-ochre")} />
           <span className="max-[900px]:sr-only">{t(online ? "connLive" : "connReconnecting")}</span>

@@ -195,7 +195,8 @@ body {
 /* Arabic: no tracking, roomy leading, never below 13px. */
 :lang(ar), html[dir="rtl"] body { letter-spacing: 0; line-height: 1.75; }
 
-h1, h2, h3, p { text-wrap: pretty; }
+/* In base so truncate / whitespace-nowrap utilities can still override text-wrap-mode. */
+@layer base { h1, h2, h3, p { text-wrap: pretty; } }
 
 :focus-visible { outline: 3px solid var(--ring); outline-offset: 2px; }
 

@@ -36,3 +36,14 @@ export const pick = (lang: Lang, en: string, ar: string | null | undefined) => (
 
 export const MENU_SELECT = "*, item_options(*)";
 export const ORDER_SELECT = "*, order_lines(*)";
+
+export type StaffRole = "owner" | "staff" | "kitchen" | "waiter";
+/** Mirrors private.require_role in the staff RPCs. "staff" is the front desk / counter role. */
+export const can = (role: StaffRole) => ({
+  cook: role !== "waiter", // start + mark ready
+  cancel: role === "owner" || role === "staff",
+  calls: role !== "kitchen",
+  tables: role === "owner" || role === "staff",
+  soldOut: role !== "waiter",
+});
+export type Can = ReturnType<typeof can>;

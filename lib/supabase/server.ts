@@ -2,6 +2,7 @@ import "server-only";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { SUPABASE_KEY, SUPABASE_URL } from "./env";
+import type { StaffRole } from "@/lib/types";
 
 export async function serverClient() {
   const store = await cookies();
@@ -19,7 +20,7 @@ export async function serverClient() {
   });
 }
 
-export type StaffContext = { userId: string; email: string; role: "owner" | "staff"; restaurantId: string };
+export type StaffContext = { userId: string; email: string; role: StaffRole; restaurantId: string };
 
 export async function getStaff(): Promise<StaffContext | null> {
   const sb = await serverClient();

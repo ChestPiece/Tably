@@ -36,7 +36,7 @@ export function TablesAdmin({ sb, mutate, run, restaurant, tables }: AdminProps 
   return (
     <div className="flex flex-col gap-5">
       <p className="text-sm text-muted-foreground">{t(restaurant.pin_required ? "codesOn" : "codesOff")}</p>
-      <ul className="grid grid-cols-[repeat(auto-fill,minmax(196px,1fr))] gap-5">
+      <ul className="grid grid-cols-[repeat(auto-fill,minmax(196px,1fr))] gap-5 max-sm:grid-cols-2 max-sm:gap-3">
         {tables.map((tb) => (
           <li
             key={tb.id}
@@ -60,17 +60,20 @@ export function TablesAdmin({ sb, mutate, run, restaurant, tables }: AdminProps 
                   <MoreHorizontal aria-hidden />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
+              <DropdownMenuContent align="end" className="min-w-60">
+                <DropdownMenuItem asChild className="items-start">
                   <a href={`/t/${tb.qr_slug}`} target="_blank" rel="noreferrer">
-                    <ExternalLink aria-hidden /> {t("colLink")}
+                    <ExternalLink aria-hidden className="mt-0.5" />
+                    <Help title={t("openGuestPage")} hint={t("openGuestPageHint")} />
                   </a>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setDlg({ kind: "code", tb })}>
-                  <KeyRound aria-hidden /> {t("setCode")}
+                <DropdownMenuItem className="items-start" onSelect={() => setDlg({ kind: "code", tb })}>
+                  <KeyRound aria-hidden className="mt-0.5" />
+                  <Help title={t("tableCode")} hint={t(restaurant.pin_required ? "tableCodeHint" : "tableCodeOffHint")} />
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => setDlg({ kind: "link", tb })}>
-                  <RefreshCw aria-hidden /> {t("newLink")}
+                <DropdownMenuItem className="items-start" onSelect={() => setDlg({ kind: "link", tb })}>
+                  <RefreshCw aria-hidden className="mt-0.5" />
+                  <Help title={t("replaceLink")} hint={t("replaceLinkHint")} />
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem variant="destructive" onSelect={() => setDlg({ kind: "delete", tb })}>
@@ -109,6 +112,13 @@ export function TablesAdmin({ sb, mutate, run, restaurant, tables }: AdminProps 
     </div>
   );
 }
+
+const Help = ({ title, hint }: { title: string; hint: string }) => (
+  <span className="flex flex-col">
+    {title}
+    <small className="text-xs text-muted-foreground">{hint}</small>
+  </span>
+);
 
 // QR drawn in currentColor so it follows the theme on screen; the print sheet draws its own.
 function Qr({ slug, label }: { slug: string; label: string }) {

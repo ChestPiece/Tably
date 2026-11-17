@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kitchen board mockups</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Beiruti:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../docs/brand/sufra/tokens.css">
+<style>
+  /* Throwaway mockup: three kitchen board directions on the same seeded load (26 open tickets). */
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; }
+  body { background: var(--bg); color: var(--text); font: 15px/1.45 var(--font-ui); -webkit-font-smoothing: antialiased; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* mockup switcher (not part of the design) */
+  .switch { position: fixed; inset-block-end: 12px; inset-inline-start: 50%; translate: -50% 0; z-index: 50; display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--surface-2); box-shadow: var(--shadow-float); }
+  .switch button { border: 0; background: none; padding: 8px 12px; border-radius: 8px; font-size: 13px; color: var(--text-2); }
+  .switch button[aria-pressed=true] { background: var(--surface); color: var(--text); }
+
+  .app { display: flex; flex-direction: column; height: 100dvh; }
+
+  /* header */
+  .top { display: flex; align-items: center; gap: 24px; height: 56px; padding-inline: 20px; border-block-end: 1px solid var(--line); background: var(--surface); flex-shrink: 0; }
+  .brand { font-weight: 600; display: flex; gap: 8px; align-items: center; }
+  .brand i { width: 18px; height: 22px; border-radius: var(--radius-arch); border: 2px solid var(--primary); }
+  .tabs { display: flex; height: 100%; }
+  .tabs a { display: flex; align-items: center; gap: 8px; padding-inline: 14px; color: var(--text-2); text-decoration: none; font-weight: 500; }
+  .tabs a[aria-current] { color: var(--text); box-shadow: inset 0 -2px 0 var(--text); }
+  .tabs a span { color: var(--text-3); font-size: 13px; }
+  .meta { margin-inline-start: auto; display: flex; gap: 20px; align-items: center; color: var(--text-2); font-size: 13px; }
+  .meta .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--st-ready); display: inline-block; margin-inline-end: 6px; }
+  .meta .clock { color: var(--text); font-size: 15px; font-weight: 500; }
+
+  /* calls strip: one quiet line, only when there are calls */
+  .calls { display: flex; gap: 8px; align-items: center; padding: 8px 20px; border-block-end: 1px solid var(--line); overflow-x: auto; flex-shrink: 0; }
+  .calls b { font-size: 13px; color: var(--text-2); font-weight: 500; margin-inline-end: 4px; white-space: nowrap; }
+  .call { display: flex; align-items: center; gap: 10px; padding: 4px 4px 4px 12px; border-radius: 10px; background: var(--surface-2); white-space: nowrap; font-size: 14px; }
+  .call .t { font: 700 18px/1 var(--font-display); }
+  .call time { color: var(--text-3); font-size: 13px; }
+  .call button { border: 0; border-radius: 8px; padding: 6px 12px; background: var(--primary); color: var(--on-primary); font-weight: 600; font-size: 13px; }
+
+  /* summary strip above the board */
+  .sum { display: flex; gap: 24px; padding: 10px 20px; font-size: 13px; color: var(--text-2); flex-shrink: 0; }
+  .sum strong { color: var(--text); font-weight: 600; }
+  .sum .late strong { color: var(--st-danger); }
+
+  .board { flex: 1; min-height: 0; }
+
+  /* ticket */
+  .tk { background: var(--surface); border-radius: var(--radius-lg); padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 10px; }
+  .tk header { display: grid; grid-template-columns: auto 1fr auto; align-items: baseline; gap: 10px; }
+  .tk .t { font: 700 30px/0.9 var(--font-display); }
+  .tk .who { color: var(--text-3); font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .age { font-size: 15px; font-weight: 600; color: var(--text-2); }
+  .age.warn { color: var(--accent-text); }
+  .age.late { color: var(--st-danger); background: var(--st-danger-bg); padding: 2px 8px; border-radius: 6px; }
+  .st { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text-2); }
+  .st::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--c); }
+  .st.new { --c: var(--st-new); } .st.cook { --c: var(--st-cook); } .st.ready { --c: var(--st-ready); }
+  .tk ul { list-style: none; padding: 0; display: grid; gap: 4px; font-size: 16px; }
+  .tk li { display: grid; grid-template-columns: 26px 1fr; }
+  .tk li b { font-weight: 600; }
+  .tk li small { display: block; color: var(--text-2); font-size: 14px; }
+  .tk li.hit { color: var(--accent-text); }
+  .note { font-size: 14px; color: var(--st-danger); background: var(--st-danger-bg); padding: 6px 10px; border-radius: 8px; }
+  .tk footer { display: flex; gap: 8px; align-items: center; }
+  .bump { flex: 1; height: 48px; border: 0; border-radius: var(--radius-md); background: var(--surface-2); color: var(--text); font-weight: 600; font-size: 15px; }
+  .bump.soft { background: none; box-shadow: inset 0 0 0 1px var(--line); color: var(--text-2); }
+  .more { width: 48px; height: 48px; border: 0; border-radius: var(--radius-md); background: none; color: var(--text-3); font-size: 20px; }
+  .tk.dim { opacity: .35; }
+
+  /* A: rail. Oldest first, flows down then across, like tickets on a rail. */
+  .rail { height: 100%; overflow: auto; padding: 4px 20px 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; align-content: start; align-items: start; }
+  .tk .lane-tag { margin-inline-start: auto; }
+
+  /* B: lanes */
+  .lanes { height: 100%; display: grid; grid-template-columns: 1fr 1fr 300px; }
+  .lane { display: flex; flex-direction: column; min-height: 0; border-inline-end: 1px solid var(--line); }
+  .lane:last-child { border: 0; }
+  .lane h2 { display: flex; align-items: baseline; gap: 10px; padding: 14px 16px 10px; font-size: 15px; font-weight: 600; }
+  .lane h2 span { color: var(--text-3); font-weight: 500; font-size: 13px; }
+  .lane h2 em { margin-inline-start: auto; font-style: normal; color: var(--text-3); font-size: 13px; font-weight: 500; }
+  .lane .scroll { overflow: auto; padding: 0 16px 80px; display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; align-content: start; align-items: start; }
+  .pass { list-style: none; padding: 0 12px 80px; overflow: auto; display: grid; gap: 6px; align-content: start; }
+  .pass li { display: grid; grid-template-columns: 64px 1fr auto; align-items: center; gap: 10px; background: var(--surface); padding: 6px 6px 6px 14px; border-radius: 12px; }
+  .pass .t { font: 700 26px/1 var(--font-display); }
+  .pass small { color: var(--text-3); font-size: 13px; display: block; }
+  .pass button { height: 44px; padding-inline: 14px; border: 0; border-radius: 10px; background: var(--surface-2); font-weight: 600; }
+
+  /* C: rail + all-day */
+  .withsum { height: 100%; display: grid; grid-template-columns: 248px 1fr; }
+  .allday { border-inline-end: 1px solid var(--line); overflow: auto; padding: 14px 12px 80px; }
+  .allday h2 { font-size: 15px; font-weight: 600; padding: 0 8px 4px; }
+  .allday p { font-size: 13px; color: var(--text-3); padding: 0 8px 12px; }
+  .allday button { width: 100%; display: grid; grid-template-columns: 40px 1fr; align-items: baseline; gap: 6px; text-align: start; border: 0; background: none; padding: 10px 8px; border-radius: 10px; }
+  .allday button b { font: 700 24px/1 var(--font-display); }
+  .allday button small { display: block; color: var(--text-3); font-size: 13px; }
+  .allday button[aria-pressed=true] { background: var(--surface-2); }
+
+  /* D: line + pass. Kitchen rail holds only work still to cook; finished tickets leave for the pass list. */
+  .d { height: 100%; display: grid; grid-template-columns: 1fr 248px; }
+  .d.todo { grid-template-columns: 232px 1fr 248px; }
+  .d .allday { display: none; }
+  .d.todo .allday { display: block; }
+  .linewrap { position: relative; min-height: 0; overflow: auto; }
+  .mason { display: flex; gap: 10px; align-items: flex-start; padding: 4px 16px 88px; }
+  .mason > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+  .d .tk { padding: 10px 12px 12px; gap: 8px; }
+  .d .tk header { grid-template-columns: auto 1fr auto; }
+  .d .tk .t { font-size: 28px; }
+  .d .tk ul { font-size: 16px; gap: 3px; }
+  .d .tk li small { display: inline; margin-inline-start: 6px; font-size: 14px; }
+  .d .tk li small::before { content: "· "; }
+  .d .tk.fresh { background: none; box-shadow: inset 0 0 0 1.5px var(--line); }
+  .sum[hidden] { display: none; }
+  .d .tk footer .more { width: 40px; }
+  .d .side { border-inline-start: 1px solid var(--line); display: flex; flex-direction: column; min-height: 0; }
+  .d .side h2, .d .linehead { display: flex; align-items: baseline; gap: 8px; padding: 12px 16px 8px; font-size: 15px; font-weight: 600; }
+  .d .side h2 span, .d .linehead span { color: var(--text-3); font-size: 13px; font-weight: 500; }
+  .d .linehead { position: sticky; top: 0; z-index: 2; background: var(--bg); }
+  .d .linehead .tog { margin-inline-start: auto; height: 36px; padding-inline: 12px; border: 0; border-radius: 10px; background: var(--surface-2); font-size: 13px; font-weight: 600; }
+  .d .linehead .tog[aria-pressed=true] { background: var(--text); color: var(--bg); }
+  .d .pass { padding-inline: 10px; }
+  .d .pass { overflow-x: hidden; }
+  .d .pass li { grid-template-columns: 48px 1fr auto; padding-inline-start: 12px; }
+  .d .pass li.late { box-shadow: inset 0 0 0 1.5px var(--accent); }
+  .newer { position: sticky; bottom: 16px; margin-inline: auto; display: block; width: max-content; margin-block-start: -64px; height: 44px; padding-inline: 18px; border: 0; border-radius: 22px; background: var(--text); color: var(--bg); font-weight: 600; box-shadow: var(--shadow-float); z-index: 3; }
+  .newer[hidden] { display: none; }
+  .seg { display: none; }
+
+  /* phone */
+  @media (max-width: 720px) {
+    .d, .d.todo { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .d .seg { display: flex; gap: 4px; padding: 8px 12px; }
+    .d .seg button { flex: 1; height: 44px; border: 0; border-radius: 10px; background: none; color: var(--text-2); font-weight: 600; }
+    .d .seg button[aria-pressed=true] { background: var(--surface-2); color: var(--text); }
+    .d[data-pane=line] .side, .d[data-pane=pass] .linewrap, .d .allday { display: none !important; }
+    .d .side { border: 0; }
+    .mason { padding-inline: 12px; }
+    .d .linehead .tog { display: none; }
+    .calls { scrollbar-width: none; }
+    .top { gap: 8px; padding-inline: 12px; }
+    .brand span, .meta .live { display: none; }
+    .tabs a { padding-inline: 10px; }
+    .rail, .lane .scroll { grid-template-columns: 1fr; padding-inline: 12px; }
+    .lanes { grid-template-columns: 100% 100% 100%; overflow-x: auto; scroll-snap-type: x mandatory; }
+    .lane { scroll-snap-align: start; }
+    .withsum { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .allday { display: flex; gap: 4px; overflow-x: auto; padding: 8px 12px; border: 0; border-block-end: 1px solid var(--line); }
+    .allday h2, .allday p { display: none; }
+    .allday button { width: auto; white-space: nowrap; grid-template-columns: auto auto; }
+    .allday button small { display: none; }
+    .sum { gap: 16px; padding-inline: 12px; overflow-x: auto; white-space: nowrap; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="brand"><i aria-hidden="true"></i><span>ChestBest</span></div>
+    <nav class="tabs"><a href="#" aria-current="page">Board <span class="num" id="cnt"></span></a><a href="#">Tables <span>9</span></a><a href="#">Menu <span>1</span></a></nav>
+    <div class="meta"><span class="live"><i class="dot"></i>Live</span><span class="clock num" id="clock">19:42</span></div>
+  </header>
+  <section class="calls" aria-label="Calls">
+    <b>Calls</b>
+    <span class="call"><span class="t">T4</span>Needs waiter <time class="num">2m</time><button>Done</button></span>
+    <span class="call"><span class="t">T11</span>Wants the bill <time class="num">5m</time><button>Done</button></span>
+  </section>
+  <div class="sum" id="sum"></div>
+  <main class="board" id="board"></main>
+</div>
+<div class="switch" role="group" aria-label="Mockup">
+  <button data-v="A" aria-pressed="true">A · Rail</button>
+  <button data-v="B">B · Lanes</button>
+  <button data-v="C">C · Rail + all-day</button>
+  <button data-v="D">D · Line + pass</button>
+  <button id="theme">Light</button>
+</div>
+<script>
+const MENU = [
+  ["Signature Burger", ["Classic", "Spicy"]], ["Crispy Chicken Burger", [null]], ["Double Smash", ["No pickles", null]],
+  ["Hotshots", ["Original", "Hot"]], ["Golden Fries", ["Regular", "Large"]], ["Ice-cold Cola", ["Regular"]],
+];
+const NOTES = ["No onions", "Nut allergy", "Sauce on the side"];
+const NAMES = ["Sara", "Ali", null, "Maya", null, "Omar", "Lina", null, "Yousef"];
+// deterministic seed so screenshots match
+let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const pick = (a) => a[Math.floor(rnd() * a.length)];
+const tickets = [];
+const N = +(new URLSearchParams(location.search).get("n") || 26);
+for (let i = 0; i < N; i++) {
+  const age = Math.round((N - i) * (18 / N) + rnd() * 2); // minutes
+  const status = age > 15 ? (rnd() < 0.6 ? "ready" : "cook") : age > 6 ? (rnd() < 0.75 ? "cook" : "new") : "new";
+  const lines = Array.from({ length: i % 9 === 4 ? 8 : 1 + Math.floor(rnd() * 3.4) }, () => { const [n, o] = pick(MENU); return { q: 1 + Math.floor(rnd() * 2.2), n, o: pick(o) }; });
+  tickets.push({ id: 140 + i, t: 1 + Math.floor(rnd() * 14), who: pick(NAMES), age: status === "ready" ? Math.round(rnd() * 6) : age, status, lines, note: rnd() < 0.15 ? pick(NOTES) : null, first: rnd() < 0.3 });
+}
+const ST = { new: ["New", "Start"], cook: ["Cooking", "Ready"], ready: ["Ready", "Served"] };
+const ageCls = (tk) => tk.status === "ready" ? (tk.age >= 5 ? "warn" : "") : tk.age >= 15 ? "late" : tk.age >= 10 ? "warn" : "";
+let filter = null;
+
+function ticket(tk, showStatus) {
+  const hit = (l) => filter && l.n === filter;
+  return `<article class="tk ${filter && !tk.lines.some(hit) ? "dim" : ""}">
+    <header><span class="t">T${tk.t}</span><span class="who">#${tk.id}${tk.who ? " · " + tk.who : ""}${tk.first ? " · New table" : ""}</span><span class="age num ${ageCls(tk)}">${tk.age}m</span></header>
+    <ul>${tk.lines.map((l) => `<li class="${hit(l) ? "hit" : ""}"><b class="num">${l.q}</b><span>${l.n}${l.o ? `<small>${l.o}</small>` : ""}</span></li>`).join("")}</ul>
+    ${tk.note ? `<p class="note">${tk.note}</p>` : ""}
+    <footer>${showStatus ? `<span class="st ${tk.status}">${ST[tk.status][0]}</span>` : ""}<button class="bump ${tk.status === "ready" ? "soft" : ""}" ${showStatus ? 'style="flex:0 0 55%;margin-inline-start:auto"' : ""}>${ST[tk.status][1]}</button><button class="more" aria-label="More">…</button></footer>
+  </article>`;
+}
+const open = () => tickets.filter((x) => x.status !== "ready").sort((a, b) => b.age - a.age);
+const ready = () => tickets.filter((x) => x.status === "ready").sort((a, b) => b.age - a.age);
+
+function summary() {
+  const o = open(); const late = o.filter((x) => x.age >= 15).length;
+  const oldest = o[0]?.age ?? 0;
+  document.getElementById("sum").innerHTML =
+    `<span><strong class="num">${o.filter((x) => x.status === "new").length}</strong> new</span>
+     <span><strong class="num">${o.filter((x) => x.status === "cook").length}</strong> cooking</span>
+     <span><strong class="num">${ready().length}</strong> waiting at the pass</span>
+     <span class="late"><strong class="num">${late}</strong> over 15 min</span>
+     <span>Oldest <strong class="num">${oldest}m</strong></span>`;
+  document.getElementById("cnt").textContent = tickets.length;
+}
+
+function allDay() {
+  const m = new Map();
+  for (const tk of open()) for (const l of tk.lines) {
+    const e = m.get(l.n) ?? { q: 0, opts: new Map() }; e.q += l.q;
+    if (l.o) e.opts.set(l.o, (e.opts.get(l.o) ?? 0) + l.q); m.set(l.n, e);
+  }
+  return [...m].sort((a, b) => b[1].q - a[1].q);
+}
+
+const VIEWS = {
+  // A: one rail, oldest first. Ready tickets sit at the end, quieter.
+  A: () => `<div class="rail">${open().map((t) => ticket(t, true)).join("")}${ready().map((t) => ticket(t, true)).join("")}</div>`,
+  B: () => {
+    const lane = (title, list, oldest) => `<section class="lane"><h2>${title} <span class="num">${list.length}</span><em class="num">${oldest != null ? "oldest " + oldest + "m" : ""}</em></h2><div class="scroll">${list.map((t) => ticket(t, false)).join("")}</div></section>`;
+    const n = open().filter((x) => x.status === "new"), c = open().filter((x) => x.status === "cook");
+    return `<div class="lanes">${lane("New", n, n[0]?.age)}${lane("Cooking", c, c[0]?.age)}
+      <section class="lane"><h2>At the pass <span class="num">${ready().length}</span></h2><ul class="pass">${ready().map((t) => `<li><span class="t">T${t.t}</span><span><span class="num">#${t.id}</span><small class="num ${ageCls(t)}">waiting ${t.age}m</small></span><button>Served</button></li>`).join("")}</ul></section></div>`;
+  },
+  C: () => `<div class="withsum"><aside class="allday"><h2>To cook</h2><p>Across open tickets. Tap to highlight.</p>${allDay().map(([n, e]) => `<button aria-pressed="${filter === n}" data-f="${n}"><b class="num">${e.q}</b><span>${n}<small>${[...e.opts].map(([o, q]) => q + " " + o).join(" · ")}</small></span></button>`).join("")}</aside>
+    <div class="rail">${open().map((t) => ticket(t, true)).join("")}${ready().map((t) => ticket(t, true)).join("")}</div></div>`,
+};
+// D: tickets dealt into columns in age order, each to the shortest column, so the top row is always the oldest work and no gaps open.
+let todo = false, pane = "line";
+const estH = (tk) => 96 + tk.lines.length * 26 + (tk.note ? 38 : 0);
+function dTicket(tk) {
+  const hit = (l) => filter && l.n === filter;
+  return `<article class="tk ${tk.status === "new" ? "fresh" : ""} ${filter && !tk.lines.some(hit) ? "dim" : ""}" data-id="${tk.id}">
+    <header><span class="t">T${tk.t}</span><span class="who">#${tk.id}${tk.who ? " · " + tk.who : ""}${tk.first ? " · New table" : ""}</span><span class="age num ${ageCls(tk)}">${tk.age}m</span></header>
+    <ul>${tk.lines.map((l) => `<li class="${hit(l) ? "hit" : ""}"><b class="num">${l.q}</b><span>${l.n}${l.o ? `<small>${l.o}</small>` : ""}</span></li>`).join("")}</ul>
+    ${tk.note ? `<p class="note">${tk.note}</p>` : ""}
+    <footer><button class="bump">${tk.status === "new" ? "Start" : "Ready"}</button><button class="more" aria-label="More">…</button></footer>
+  </article>`;
+}
+VIEWS.D = () => {
+  const w = document.getElementById("board").clientWidth - (innerWidth > 720 ? 248 + (todo ? 232 : 0) : 0) - 32;
+  const k = Math.max(1, Math.floor((w + 10) / 226));
+  const cols = Array.from({ length: k }, () => ({ h: 0, html: "" }));
+  for (const tk of open()) { const c = cols.reduce((a, b) => (b.h < a.h ? b : a)); c.h += estH(tk) + 10; c.html += dTicket(tk); }
+  const r = ready(), o = open();
+  return `<div class="d ${todo ? "todo" : ""}" data-pane="${pane}">
+    <div class="seg" role="tablist"><button data-pane="line" aria-pressed="${pane === "line"}">Line ${o.length}</button><button data-pane="pass" aria-pressed="${pane === "pass"}">Pass ${r.length}</button></div>
+    <aside class="allday"><h2>To cook</h2><p>Across the line. Tap to highlight.</p>${allDay().map(([n, e]) => `<button aria-pressed="${filter === n}" data-f="${n}"><b class="num">${e.q}</b><span>${n}<small>${[...e.opts].map(([o, q]) => q + " " + o).join(" · ")}</small></span></button>`).join("")}</aside>
+    <div class="linewrap" id="line">
+      <div class="linehead">Line <span class="num">${o.length} · oldest first</span>${o.some((x) => x.age >= 15) ? `<span class="num" style="color:var(--st-danger)">${o.filter((x) => x.age >= 15).length} over 15m</span>` : ""}<button class="tog" data-todo aria-pressed="${todo}">To cook</button></div>
+      <div class="mason">${cols.map((c) => `<div>${c.html}</div>`).join("")}</div>
+      <button class="newer" id="newer" hidden></button>
+    </div>
+    <section class="side"><h2>At the pass <span class="num">${r.length}</span></h2>
+      <ul class="pass">${r.map((t) => `<li class="${t.age >= 5 ? "late" : ""}"><span class="t">T${t.t}</span><span><span class="num">#${t.id}</span><small class="num">${t.age}m</small></span><button>Served</button></li>`).join("")}</ul></section>
+  </div>`;
+};
+// "N newer below": tickets in the line whose top edge sits under the fold.
+function newer() {
+  const line = document.getElementById("line"), b = document.getElementById("newer"); if (!line) return;
+  const fold = line.getBoundingClientRect().bottom;
+  const n = [...line.querySelectorAll(".tk")].filter((t) => t.getBoundingClientRect().top > fold - 40).length;
+  b.hidden = !n; b.textContent = `${n} more below ↓`;
+}
+let view = "A";
+function render() {
+  summary(); document.getElementById("sum").hidden = view === "D"; document.getElementById("board").innerHTML = VIEWS[view]();
+  const line = document.getElementById("line"); if (line) { line.addEventListener("scroll", newer, { passive: true }); newer(); }
+}
+addEventListener("resize", () => view === "D" && render());
+document.querySelector(".switch").addEventListener("click", (e) => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.id === "theme") { const d = document.documentElement; const dark = d.dataset.theme === "dark"; d.dataset.theme = dark ? "light" : "dark"; b.textContent = dark ? "Dark" : "Light"; return; }
+  view = b.dataset.v; filter = null;
+  document.querySelectorAll(".switch [data-v]").forEach((x) => x.setAttribute("aria-pressed", x === b)); render();
+});
+document.getElementById("board").addEventListener("click", (e) => {
+  if (e.target.closest("[data-todo]")) { todo = !todo; filter = null; return render(); }
+  if (e.target.closest("#newer")) { const l = document.getElementById("line"); return l.scrollBy({ top: l.clientHeight * 0.8, behavior: "smooth" }); }
+  const p = e.target.closest("[data-pane]"); if (p && p.tagName === "BUTTON") { pane = p.dataset.pane; return render(); }
+  const b = e.target.closest("[data-f]"); if (!b) return; filter = filter === b.dataset.f ? null : b.dataset.f; render(); });
+const v = new URLSearchParams(location.search).get("v"); if (VIEWS[v]) { view = v; document.querySelectorAll(".switch [data-v]").forEach((x) => x.setAttribute("aria-pressed", x.dataset.v === v)); }
+render();
+</script>
+</body>
+</html>

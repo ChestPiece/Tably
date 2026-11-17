@@ -23,6 +23,8 @@ import { useLiveRefresh } from "./use-live-refresh";
 
 export function AdminApp(props: {
   me: string;
+  email: string;
+  sidebarOpen: boolean;
   restaurant: Restaurant;
   categories: Category[];
   menu: MenuItem[];
@@ -139,7 +141,7 @@ export function AdminApp(props: {
   const title = t(OWNER_PAGES.find((p) => p.id === page)!.label);
 
   return (
-    <SidebarProvider style={{ "--sidebar-width": "248px" } as React.CSSProperties}>
+    <SidebarProvider defaultOpen={props.sidebarOpen} style={{ "--sidebar-width": "248px" } as React.CSSProperties}>
       <AdminSidebar page={page} onPage={setPage} venue={venue} me={meName} liveCount={live} />
       <SidebarInset className="min-w-0">
         <div className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b bg-background px-3 md:hidden">
@@ -148,11 +150,14 @@ export function AdminApp(props: {
         </div>
         <main className="mx-auto w-full max-w-[1280px] px-8 pt-8 pb-12 max-[900px]:px-5 max-[900px]:pt-6">
           <header className="mb-6 flex flex-wrap items-end gap-x-6 gap-y-3">
-            <div className="min-w-0">
-              <h1 className="text-[28px] leading-[1.15] font-semibold">{title}</h1>
-              {head[page].sub && <p className="mt-1 text-sm text-muted-foreground">{head[page].sub}</p>}
+            <div className="flex min-w-0 items-start gap-2">
+              <SidebarTrigger className="-ms-2 size-8 text-muted-foreground max-md:hidden" />
+              <div className="min-w-0">
+                <h1 className="text-[28px] leading-[1.15] font-semibold">{title}</h1>
+                {head[page].sub && <p className="mt-1 text-sm text-muted-foreground">{head[page].sub}</p>}
+              </div>
             </div>
-            {head[page].acts && <div className="ms-auto flex flex-wrap items-center gap-4">{head[page].acts}</div>}
+            {head[page].acts && <div className="ms-auto flex flex-wrap items-center gap-4 max-sm:ms-0 max-sm:w-full max-sm:[&>a]:flex-1 max-sm:[&>button]:flex-1">{head[page].acts}</div>}
           </header>
           {page === "home" && <OwnerHome today={props.today} menu={props.menu} tables={props.tables} onOrders={() => setPage("orders")} />}
           {page === "board" && (
@@ -163,7 +168,7 @@ export function AdminApp(props: {
           {page === "orders" && <OwnerOrders orders={props.today.orders} filter={filter} onFilter={(f) => go({ filter: f === "all" ? null : f })} />}
           {page === "menu" && <MenuAdmin {...common} restaurant={r} categories={props.categories} menu={props.menu} editing={editing} onEdit={setEditing} />}
           {page === "tables" && <TablesAdmin {...common} restaurant={r} tables={props.tables} />}
-          {page === "settings" && <SettingsForm {...common} restaurant={r} />}
+          {page === "settings" && <SettingsForm {...common} restaurant={r} email={props.email} />}
           {page === "team" && <TeamAdmin {...common} me={props.me} rid={r.id} team={props.team} invites={props.invites} />}
         </main>
       </SidebarInset>

@@ -1,6 +1,6 @@
 "use client";
 import Image from "next/image";
-import { ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
+import { ChevronRight, ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
 import { useState, type DragEvent } from "react";
 import { ConfirmAction } from "@/components/app/confirm-action";
 import {
@@ -9,9 +9,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ResponsiveSheet } from "@/components/app/responsive-sheet";
 import { Button } from "@/components/ui/button";
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { MAX_FILS, filsToInput, parseFils } from "@/lib/format";
 import { errorText, useLang } from "@/lib/i18n";
@@ -35,6 +36,11 @@ export function ItemEditor({ item, ...rest }: Props) {
 }
 
 type OptRow = ItemOption & { aed: string };
+type LangId = "en" | "ar";
+const LANGS = [
+  { id: "en", label: "English", dir: "ltr", name: "name", desc: "description", tag: "badge", opt: "name", ek: "n" },
+  { id: "ar", label: "العربية", dir: "rtl", name: "name_ar", desc: "description_ar", tag: "badge_ar", opt: "name_ar", ek: "a" },
+] as const;
 const MAX_PHOTO = 5 * 1024 * 1024;
 const toRows = (m: MenuItem): OptRow[] => m.item_options.map((o) => ({ ...o, aed: filsToInput(o.price_fils) }));
 
@@ -49,6 +55,8 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
   const [photoErr, setPhotoErr] = useState("");
   const [confirmClose, setConfirmClose] = useState(false);
   const [errs, setErrs] = useState<Record<string, string>>({});
+  const [tab, setTab] = useState<LangId>(lang === "ar" ? "ar" : "en");
+  const [optsOpen, setOptsOpen] = useState(item.item_options.length > 0);
   const set = <K extends keyof MenuItem>(k: K, v: MenuItem[K]) => setD((p) => ({ ...p, [k]: v }));
   const dirty = JSON.stringify([d, price, opts]) !== initial;
   // Esc, overlay, X and Cancel all land here: ask before throwing away edits.
@@ -86,7 +94,17 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
       if (badPrice(optFils[i])) e[`o${i}p`] = badPrice(optFils[i]);
     });
     setErrs(e);
-    if (Object.keys(e).length) return document.querySelector<HTMLElement>("#item-editor [aria-invalid=true]")?.focus();
+    const keys = Object.keys(e);
+    if (keys.length) {
+      // Jump to the language tab (and open options) holding the first error, then focus it.
+      const en = keys.some((k) => k === "name" || /^o\d+n$/.test(k));
+      const ar = keys.some((k) => k === "name_ar" || /^o\d+a$/.test(k));
+      const next: LangId = en && (tab === "en" || !ar) ? "en" : ar ? "ar" : tab;
+      setTab(next);
+      if (keys.some((k) => k.startsWith("o"))) setOptsOpen(true);
+      requestAnimationFrame(() => document.querySelector<HTMLElement>(`#ie-${next} [aria-invalid=true], #ie-price[aria-invalid=true], #item-editor details [aria-invalid=true]`)?.focus());
+      return;
+    }
     setSaving(true);
     const { item_options: _ignored, ...row } = d;
     void _ignored;
@@ -137,37 +155,90 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
     </div>
   );
 
+  // Language tabs: one set of text fields per language instead of six paired inputs.
+  const enErr = ["name", ...opts.map((_, i) => `o${i}n`)].some((k) => errs[k]);
+  const arErr = ["name_ar", ...opts.map((_, i) => `o${i}a`)].some((k) => errs[k]);
+  const flag = { en: enErr || (!!d.name_ar.trim() && !d.name.trim()), ar: arErr || (!!d.name.trim() && !d.name_ar.trim()) };
+  const cur = LANGS.find((x) => x.id === tab)!;
+
   return (
-    <ResponsiveSheet open onOpenChange={(o) => !o && !saving && tryClose()} title={t(isNew ? "newItem" : "editItem")} side="right" full footer={footer}>
+    <ResponsiveSheet open onOpenChange={(o) => !o && !saving && tryClose()} title={t(isNew ? "newItem" : "editItem")} full footer={footer}>
       <form
         id="item-editor"
         noValidate
-        className="flex flex-col gap-6 pt-2"
+        className="flex flex-col gap-6"
         onSubmit={(e) => {
           e.preventDefault();
           save();
         }}
       >
-        <FieldGroup className="gap-4">
-          <Field data-invalid={!!errs.name}>
-            <FieldLabel htmlFor="ie-name">{t("nameEn")}</FieldLabel>
-            <Input id="ie-name" size="sm" maxLength={80} value={d.name} aria-invalid={!!errs.name} onChange={(e) => set("name", e.target.value)} />
-            {err("name")}
-          </Field>
-          <Field data-invalid={!!errs.name_ar}>
-            <FieldLabel htmlFor="ie-name-ar">{t("nameAr")}</FieldLabel>
-            <Input id="ie-name-ar" size="sm" dir="rtl" maxLength={80} value={d.name_ar} aria-invalid={!!errs.name_ar} onChange={(e) => set("name_ar", e.target.value)} />
-            {err("name_ar")}
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="ie-desc">{t("descEn")}</FieldLabel>
-            <Textarea id="ie-desc" rows={3} maxLength={400} value={d.description} onChange={(e) => set("description", e.target.value)} />
-          </Field>
-          <Field>
-            <FieldLabel htmlFor="ie-desc-ar">{t("descAr")}</FieldLabel>
-            <Textarea id="ie-desc-ar" dir="rtl" rows={3} maxLength={400} value={d.description_ar} onChange={(e) => set("description_ar", e.target.value)} />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
+        <Tabs value={tab} onValueChange={(v) => setTab(v as LangId)} className="gap-4">
+          <TabsList className="w-full" aria-label={t("language")}>
+            {LANGS.map((l) => (
+              <TabsTrigger key={l.id} value={l.id} lang={l.id} className="gap-2">
+                {l.label}
+                {flag[l.id] && <i role="img" aria-label={t("needsAttention")} className="size-1.5 rounded-full bg-ochre" />}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+          {LANGS.map((l) => (
+            <TabsContent key={l.id} value={l.id} forceMount id={`ie-${l.id}`} className="flex flex-col gap-4 data-[state=inactive]:hidden">
+              <Field data-invalid={!!errs[l.name]}>
+                <FieldLabel htmlFor={`ie-name-${l.id}`}>{t("fName")}</FieldLabel>
+                <Input id={`ie-name-${l.id}`} size="sm" dir={l.dir} maxLength={80} value={d[l.name]} aria-invalid={!!errs[l.name]} onChange={(e) => set(l.name, e.target.value)} />
+                {err(l.name)}
+              </Field>
+              <Field>
+                <FieldLabel htmlFor={`ie-desc-${l.id}`}>
+                  {t("fDesc")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
+                </FieldLabel>
+                <Textarea id={`ie-desc-${l.id}`} dir={l.dir} rows={2} maxLength={400} className="min-h-16" value={d[l.desc]} onChange={(e) => set(l.desc, e.target.value)} />
+              </Field>
+              <Field>
+                <FieldLabel htmlFor={`ie-tag-${l.id}`}>
+                  {t("fTag")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
+                </FieldLabel>
+                <Input id={`ie-tag-${l.id}`} size="sm" dir={l.dir} maxLength={40} value={d[l.tag] ?? ""} aria-describedby="ie-tag-hint" onChange={(e) => set(l.tag, e.target.value)} />
+              </Field>
+            </TabsContent>
+          ))}
+          <p id="ie-tag-hint" className="-mt-2 text-sm text-muted-foreground">{t("tagHint")}</p>
+        </Tabs>
+
+        <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-x-4 gap-y-2">
+          <div className="flex flex-col gap-1">
+            <label
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={onDrop}
+              className="relative grid size-24 cursor-pointer place-items-center overflow-hidden rounded-lg border border-dashed border-input text-center text-xs text-muted-foreground transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+            >
+              <input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="sr-only"
+                disabled={uploading}
+                aria-label={t(d.image_url ? "replacePhoto" : "addPhoto")}
+                aria-invalid={!!photoErr}
+                onChange={(e) => {
+                  upload(e.target.files?.[0]);
+                  e.target.value = "";
+                }}
+              />
+              {d.image_url && <Image src={d.image_url} alt="" fill sizes="96px" className="object-cover" />}
+              {(uploading || !d.image_url) && (
+                <span className="relative flex flex-col items-center gap-1 px-1">
+                  {uploading ? <Loader2 aria-hidden className="size-4 animate-spin" /> : <ImagePlus aria-hidden className="size-4" />}
+                  {t(uploading ? "uploading" : "addPhoto")}
+                </span>
+              )}
+            </label>
+            {d.image_url && !uploading && (
+              <Button type="button" variant="link" size="xs" className="self-start px-0 text-muted-foreground" aria-label={t("removePhoto")} onClick={() => set("image_url", null)}>
+                {t("remove")}
+              </Button>
+            )}
+          </div>
+          <div className="flex min-w-0 flex-col gap-4">
             <Field data-invalid={!!errs.price}>
               <FieldLabel htmlFor="ie-price">{t("basePrice")}</FieldLabel>
               <div className="relative">
@@ -187,76 +258,50 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
                 </SelectContent>
               </Select>
             </Field>
-            <Field>
-              <FieldLabel htmlFor="ie-badge">{t("badgeEn")}</FieldLabel>
-              <Input id="ie-badge" size="sm" maxLength={40} value={d.badge ?? ""} onChange={(e) => set("badge", e.target.value)} />
-            </Field>
-            <Field>
-              <FieldLabel htmlFor="ie-badge-ar">{t("badgeAr")}</FieldLabel>
-              <Input id="ie-badge-ar" size="sm" dir="rtl" maxLength={40} value={d.badge_ar ?? ""} onChange={(e) => set("badge_ar", e.target.value)} />
-            </Field>
-            <FieldDescription className="-mt-2 sm:col-span-2">{t("badgeHint")}</FieldDescription>
           </div>
-        </FieldGroup>
+          {photoErr && <FieldError className="col-span-2">{photoErr}</FieldError>}
+        </div>
 
-        <Field data-invalid={!!photoErr}>
-          <FieldLabel htmlFor="ie-photo">{t("photo")}</FieldLabel>
-          <div className="flex items-center gap-2">
-            <label
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={onDrop}
-              className="relative flex min-h-28 flex-1 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-lg border border-dashed border-input p-3 text-center text-sm text-muted-foreground transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+        <details open={optsOpen} onToggle={(e) => setOptsOpen(e.currentTarget.open)} className="group border-t pt-4">
+          <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 font-medium [&::-webkit-details-marker]:hidden">
+            <ChevronRight aria-hidden className="size-4 text-muted-foreground transition-transform group-open:rotate-90 rtl:-scale-x-100" />
+            {t("sizesExtras")}
+            {opts.length > 0 && <span className="font-normal text-muted-foreground tabular-nums">{opts.length}</span>}
+          </summary>
+          <div className="flex flex-col gap-2 pt-2">
+            <p className="mb-1 text-sm text-muted-foreground">{t("optionsHint")}</p>
+            {opts.map((o, i) => {
+              const nk = `o${i}${cur.ek}`;
+              return (
+                <div key={o.id} className="grid grid-cols-[minmax(0,1fr)_7rem_auto] items-start gap-2">
+                  <Field data-invalid={!!errs[nk]}>
+                    <Input size="sm" dir={cur.dir} aria-label={`${t("optName")} ${i + 1} (${cur.label})`} placeholder={t("optName")} aria-invalid={!!errs[nk]} value={o[cur.opt]} onChange={(e) => setOpt(i, { [cur.opt]: e.target.value })} />
+                    {err(nk)}
+                  </Field>
+                  <Field data-invalid={!!errs[`o${i}p`]}>
+                    <div className="relative">
+                      <span aria-hidden className="pointer-events-none absolute inset-y-0 start-3 grid place-items-center text-sm text-muted-foreground">+</span>
+                      <Input size="sm" aria-label={`${t("optExtra")} ${i + 1} (${t("aed")})`} inputMode="decimal" dir="ltr" className="ps-6 text-start tabular-nums" aria-invalid={!!errs[`o${i}p`]} value={o.aed} onChange={(e) => setOpt(i, { aed: e.target.value })} />
+                    </div>
+                    {err(`o${i}p`)}
+                  </Field>
+                  <Button type="button" variant="ghost" size="icon-sm" className="mt-0.5 text-muted-foreground" aria-label={`${t("removeOption")} ${i + 1}`} onClick={() => setOpts((p) => p.filter((_, n) => n !== i))}>
+                    <X aria-hidden />
+                  </Button>
+                </div>
+              );
+            })}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="self-start"
+              onClick={() => setOpts((p) => [...p, { id: crypto.randomUUID(), item_id: d.id, restaurant_id: rid, name: "", name_ar: "", price_fils: 0, position: p.length + 1, aed: "0.00" }])}
             >
-              <input id="ie-photo" type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={uploading} onChange={(e) => { upload(e.target.files?.[0]); e.target.value = ""; }} />
-              {d.image_url && <Image src={d.image_url} alt="" fill sizes="(min-width: 640px) 36rem, 100vw" className="object-cover" />}
-              <span className={d.image_url ? "relative flex items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-foreground" : "flex flex-col items-center gap-1"}>
-                {uploading ? <Loader2 aria-hidden className="size-4 animate-spin" /> : <ImagePlus aria-hidden className="size-4" />}
-                {uploading ? t("uploading") : d.image_url ? t("replacePhoto") : t("dropPhoto")}
-              </span>
-            </label>
-            {d.image_url && (
-              <Button type="button" variant="ghost" size="icon" aria-label={t("removePhoto")} onClick={() => set("image_url", null)}>
-                <Trash2 aria-hidden />
-              </Button>
-            )}
+              <Plus aria-hidden /> {t("addOption")}
+            </Button>
           </div>
-          {photoErr ? <FieldError>{photoErr}</FieldError> : <FieldDescription>{t("photoHint")}</FieldDescription>}
-        </Field>
-
-        <FieldSet>
-          <FieldLegend variant="label">{t("optionsLabel")}</FieldLegend>
-          <FieldDescription>{t("optionsHint")}</FieldDescription>
-          <div className="flex flex-col gap-3">
-            {opts.map((o, i) => (
-              <div key={o.id} className="grid grid-cols-2 items-start gap-2 rounded-lg border p-3">
-                <Field data-invalid={!!errs[`o${i}n`]}>
-                  <Input aria-label={t("optNameEn")} placeholder={t("optNameEn")} aria-invalid={!!errs[`o${i}n`]} value={o.name} onChange={(e) => setOpt(i, { name: e.target.value })} />
-                  {err(`o${i}n`)}
-                </Field>
-                <Field data-invalid={!!errs[`o${i}a`]}>
-                  <Input aria-label={t("optNameAr")} placeholder={t("optNameAr")} dir="rtl" aria-invalid={!!errs[`o${i}a`]} value={o.name_ar} onChange={(e) => setOpt(i, { name_ar: e.target.value })} />
-                  {err(`o${i}a`)}
-                </Field>
-                <Field data-invalid={!!errs[`o${i}p`]}>
-                  <Input aria-label={`${t("optExtra")} (${t("aed")})`} placeholder={`${t("optExtra")} (${t("aed")})`} inputMode="decimal" dir="ltr" className="text-start tabular-nums" aria-invalid={!!errs[`o${i}p`]} value={o.aed} onChange={(e) => setOpt(i, { aed: e.target.value })} />
-                  {err(`o${i}p`)}
-                </Field>
-                <Button type="button" variant="ghost" size="icon" className="justify-self-end text-muted-foreground" aria-label={t("removeOption")} onClick={() => setOpts((p) => p.filter((_, n) => n !== i))}>
-                  <X aria-hidden />
-                </Button>
-              </div>
-            ))}
-          </div>
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            className="self-start"
-            onClick={() => setOpts((p) => [...p, { id: crypto.randomUUID(), item_id: d.id, restaurant_id: rid, name: "", name_ar: "", price_fils: 0, position: p.length + 1, aed: "0.00" }])}
-          >
-            <Plus aria-hidden /> {t("addOption")}
-          </Button>
-        </FieldSet>
+        </details>
       </form>
       <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
         <AlertDialogContent>

@@ -4,8 +4,9 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { staffClient } from "@/lib/supabase/browser";
+import { tableLabel } from "@/lib/format";
 import { errorText, tr, useLang } from "@/lib/i18n";
-import { MENU_SELECT, ORDER_SELECT, pick, type Category, type MenuItem, type Order, type Restaurant, type ServiceRequest, type Visit } from "@/lib/types";
+import { MENU_SELECT, ORDER_SELECT, pick, type Category, type MenuItem, type Order, type Restaurant, type ServiceRequest, type StaffRole, type Visit, can as canFor } from "@/lib/types";
 import { Board } from "@/components/staff/Board";
 import { CancelOrderDialog } from "@/components/staff/CancelOrderDialog";
 import { MenuToggles } from "@/components/staff/MenuToggles";
@@ -41,7 +42,8 @@ function useChime() {
 }
 
 /** `embedded`: board columns only (owner Live board page), no staff header/tabs. */
-export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant: Restaurant; role: "owner" | "staff"; embedded?: boolean }) {
+export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant: Restaurant; role: StaffRole; embedded?: boolean }) {
+  const can = canFor(role);
   const sb = useMemo(() => staffClient(), []);
   const router = useRouter();
   const rid = initial.id;
@@ -176,9 +178,10 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
         shift={shift}
         onToggleShift={toggleShift}
         role={role}
+        can={can}
         onSignOut={async () => {
           await sb.auth.signOut();
-          router.replace("/staff/login");
+          router.replace("/login");
         }}
       />
       )}
@@ -194,19 +197,28 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
             lang={lang}
             now={now}
             loaded={loaded}
+            can={can}
             orders={live}
             recent={recent}
             requests={requests}
             fresh={fresh}
             busyId={busyId}
-            onAdvance={(o) => run(o.id, () => sb.rpc("advance_order", { p_order: o.id, p_from: o.status }))}
+            onAdvance={async (o) => {
+              if (!(await run(o.id, () => sb.rpc("advance_order", { p_order: o.id, p_from: o.status })))) return;
+              // A mis-tap on a busy line is easy; offer one-step undo (server allows it for 2 minutes).
+              const to = o.status === "received" ? "preparing" : o.status === "preparing" ? "ready" : "served";
+              toast(`${tableLabel(lang, o.table_number)} #${o.number} · ${tr(lang, to === "preparing" ? "colCooking" : to === "ready" ? "colReady" : "actServed")}`, {
+                duration: 6000,
+                action: { label: tr(lang, "undo"), onClick: () => run(o.id, () => sb.rpc("revert_order", { p_order: o.id, p_from: to })) },
+              });
+            }}
             onCancel={setCancelling}
             onResolve={(id) => run(id, () => sb.rpc("resolve_request", { p_request: id }))}
           />
         </main>
       )}
 
-      {!embedded && tab === "tables" && (
+      {!embedded && tab === "tables" && can.tables && (
         <main className="min-h-0 flex-1 overflow-y-auto">
           <TablesView
             visits={visits}
@@ -219,7 +231,7 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
         </main>
       )}
 
-      {!embedded && tab === "menu" && (
+      {!embedded && tab === "menu" && can.soldOut && (
         <main className="min-h-0 flex-1 overflow-y-auto">
           <MenuToggles
             categories={categories}
