@@ -6,10 +6,11 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 
 ## Status (2026-11-17)
 - **Remaining work lives in `docs/TASKS.md`.** Read it first, tick items as they land.
-- Rebuilt on **Next.js 16 (App Router) + Supabase, deploying to Vercel**. Guest app, staff board, owner admin, QR sheet and `/dev` launcher are built; `tsc` + `eslint` clean; DB flow test passes. Next: live E2E, design pass, accessibility, deploy.
-- **Brand:** "ChestBest" is the demo venue name. **Sufra (سفرة) v2 is ported (2026-11-17)** across guest, staff, owner, QR print and `/dev`. Spec: `docs/brand/sufra/README.md`. Visual reference: `brand-demos/sufra-v2-app.html`. Port decisions: `.superpowers/sdd/2026-11-16-sufra-port/progress.md`.
+- Rebuilt on **Next.js 16 (App Router) + Supabase, deploying to Vercel**. Guest app, staff board, owner admin and QR sheet are built; `tsc` + `eslint` clean; DB flow test passes. Next: live E2E, design pass, accessibility, deploy.
+- **Brand:** "ChestBest" is the demo venue name. **Sufra (سفرة) v2 is ported (2026-11-17)** across guest, staff, owner and QR print. Spec: `docs/brand/sufra/README.md`. Visual reference: `brand-demos/sufra-v2-app.html`. Port decisions: `.superpowers/sdd/2026-11-16-sufra-port/progress.md`.
 - Supabase cloud project ref `xyptwnbukercpptbleei` (project-scoped MCP in `.mcp.json`). No Docker on this machine: no `supabase start`.
-- Seed logins (demo only, change before anything public): owner `anasowner` / `anas123`, staff `anasstaff` / `anas123`. Usernames map to `<name>@chestbest.test` via `toEmail()`.
+- Production: https://qr-restauratn-app.vercel.app (Vercel, deploys from `main`). The GitHub repo is **public**: never commit passwords, keys or `.env*` (only `.env.example`).
+- Logins are real emails only. The owner is the account linked in `staff_members` (see the note at the top of `seed.sql`). Staff join through an invite on the Team page. There are no seed accounts.
 
 ## Gotchas
 - PowerShell blocks `npm.ps1`: use `npm.cmd run dev` (or `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`).
@@ -19,6 +20,12 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 - Owner admin CRUD (menu, tables, settings) writes directly through RLS; guest and order-flow writes go through RPCs only.
 - Staff and owner UI are English-only for now; guest UI is EN + AR.
 - `apply_migration` via MCP may be declined; the user then runs SQL in the dashboard. `execute_sql` works for reads and tests.
+- The live DB may not match `seed.sql` (owner deletes tables). `ordering_flow.sql` needs tables 6 and 7: insert them inside the test block (it rolls back).
+- Realtime cannot filter DELETE events, so the board does not see bulk deletes until reload.
+- Password reset emails link to `/reset-password`. Supabase Auth "Site URL" and "Redirect URLs" must list the production domain, or links point at localhost. The page also accepts `?token_hash=…&type=recovery` (works across devices if the email template uses it).
+- The home page shows the QR for the table in env `HOME_TABLE_SLUG`. If that table's link is replaced in admin, update the env var on Vercel. This is test-phase only.
+- Global element styles in `app/globals.css` go in `@layer base`. An unlayered `p { text-wrap: … }` beat `truncate` / `whitespace-nowrap` everywhere.
+- `sr-only` spans are absolutely positioned: give every scroll container `relative`, or they leak page scroll.
 
 ## Target stack and commands
 - Next.js latest, TypeScript, Tailwind v4, shadcn/ui, `@supabase/ssr`.
@@ -27,14 +34,16 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 
 ## Routes
 - Guest: `/t/[slug]` welcome → `/t/[slug]/menu`, order tracker, table bill.
-- Staff (login): `/staff` live board, calls, tables & bills.
+- Staff (login): `/staff` kitchen board ("Line + pass": `components/staff/Board.tsx`, `OrderCard.tsx`; mockups in `brand-demos/kds/`), calls, tables & bills.
 - Owner (login): `/admin` menu, tables + QR sheet, settings, staff invites.
-- Dev only: `/dev` table links + one-click owner/staff sign-in + reset. Must 404 in production.
+- Public: `/` table QR + order button, `/login` (owner and staff, sign-up for invites, forgot password), `/reset-password`. `/staff/login` redirects to `/login`.
 
 ## Data rules
 - Money is integer fils. Never floats.
 - Every table has `restaurant_id` (tenant-ready for future self-serve sign-up).
-- All writes go through Postgres functions (`join_table`, `place_order`, `call_waiter`, `request_bill`, `advance_order`, `cancel_order`, `resolve_request`, `record_payment`, `close_visit`). Server recomputes prices.
+- All writes go through Postgres functions (`join_table`, `place_order`, `call_waiter`, `request_bill`, `advance_order`, `revert_order`, `cancel_order`, `resolve_request`, `set_item_available`, `record_payment`, `close_visit`). Server recomputes prices.
+- Staff roles (`staff_role` enum): `owner`, `staff` (shown as "Front desk": everything on the board), `kitchen` (start, ready, served, sold-out), `waiter` (served, calls). RPCs check via `private.require_role`; `can()` in `lib/types.ts` mirrors it for the UI. Change both together. Test: `supabase/tests/staff_roles.sql`.
+- `revert_order` undoes one step, same role as the step, within 2 minutes, never after payment.
 - RLS on every table. Guests are Supabase anonymous users and read only their own visit.
 - Order lines snapshot name/option/price at order time.
 - Orders auto-accept. Status: received → preparing → ready → served, or cancelled with reason.

@@ -8,7 +8,7 @@ ChestBest is a fictional demonstration. Do not promise headcount or payroll redu
 
 ## Five-minute walkthrough
 
-1. Show table 6’s QR and guest menu. Switch to Arabic to demonstrate RTL support.
+1. Show table 1’s QR and guest menu. Switch to Arabic to demonstrate RTL support.
 2. Submit two burgers, hotshots and a drink. Show automatic appearance on a separate kitchen screen.
 3. Advance preparation and show the guest status update. Explain that queued means received, not cooking.
 4. Place an additional ticket and request staff assistance.

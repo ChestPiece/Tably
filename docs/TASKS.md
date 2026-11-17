@@ -10,6 +10,9 @@ Updated 2026-11-17. Tick items here as they land. Plan: `docs/superpowers/specs/
 - [x] Tailwind wired via `@tailwindcss/turbopack` loader in `next.config.ts` (pages were unstyled before)
 - [x] Smoke check in browser (390x844): `/dev` → owner sign-in → T6 welcome → menu, no console errors
 - [x] Sufra v2 brand port, all surfaces (plan `docs/superpowers/plans/2026-11-16-sufra-port.md`, ledger `.superpowers/sdd/2026-11-16-sufra-port/progress.md`)
+- [x] Owner polish 2026-11-17: collapsible admin sidebar (cookie-persisted), phone layouts, dish editor with EN/AR tabs, help text on the table QR menu
+- [x] Staff roles 2026-11-17: Front desk / Kitchen / Waiter via invite + role select (`20261117000001`, `20261117000002`); RPCs enforce roles, UI hides what a role can't do; `supabase/tests/staff_roles.sql` → `ALL_TESTS_PASSED`
+- [x] Kitchen board redesign 2026-11-17 ("Line + pass", mockups in `brand-demos/kds/`): oldest-first line dealt into columns, pass list, "To cook" totals, "N more below" pill, 6 s undo toast (`revert_order`, `20261117000003`); stress-tested with 40 tickets at 1280 / 390, light + dark, EN + AR
 - [x] Partial live E2E 2026-11-17: guest T1 order → staff start/ready/served → call waiter resolved → cancel with reason → owner Orders view; fixed guest clock using browser timezone instead of `VENUE_TZ`
 
 ## 1. End-to-end test (live Playwright, guest 390x844, staff 1280x800)
@@ -36,17 +39,24 @@ Skills: `web-design-engineer` (lead), `no-ai-design-slop` (gate), `localization-
 - [x] Staff: login, live board, calls panel, tables & bills
 - [x] Owner: menu admin, tables, QR sheet, settings, staff invites
 - [ ] Loading, empty and error states on every screen
+- [ ] Live E2E with real role logins (invite `kitchen` + `waiter` users, sign up, confirm hidden actions and FORBIDDEN on forced RPCs)
 
 ## 4. Accessibility
 - [ ] `accessibility-audit` on all three surfaces (focus order, labels, contrast, dialog focus trap, reduced motion)
 
 ## 5. Ship
 - [x] `npm run build` passes
-- [ ] Vercel deploy; env: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SITE_URL`
+- [x] Vercel deploy (https://qr-restauratn-app.vercel.app)
+- [ ] Vercel env: `NEXT_PUBLIC_SITE_URL`, `HOME_TABLE_SLUG` (see `.env.example`)
 - [ ] Add the Vercel URL to Supabase Auth redirect/site URLs
-- [ ] Confirm `/dev` 404s in production
+- [x] `/dev` launcher removed (2026-11-17)
 - [ ] Print QR sheet from the deployed site, scan with a real phone, run full flow
-- [ ] Change seed passwords before anything public (`anas123` is demo-only)
+- [x] Seed accounts deleted, owner moved to a real email, `reset_demo` dropped, test guests and orders cleared (2026-11-17)
+- [x] Shared `/login`, forgot password + `/reset-password`, change password in owner Settings, owner sign-out (2026-11-17)
+- [ ] Supabase Auth: Site URL + redirect URLs = production domain; min password length 8
+- [ ] Apply `supabase/migrations/20261118000002_accept_invites_confirmed.sql` (SQL editor; MCP apply was blocked) and keep "Confirm email" on
+- [ ] Custom SMTP (e.g. Resend) before inviting staff: built-in email only reaches project team members, ~2/hour
+- [ ] Before real guests: home page back to "scan your table" (drop `HOME_TABLE_SLUG`), scheduled cleanup of old anonymous users
 - [ ] Optional: Turnstile captcha on anonymous sign-in
 
 ## 6. Cleanup

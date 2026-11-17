@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
-import { ChefHat, House, Languages, ListOrdered, MonitorPlay, Moon, QrCode, Settings, Sun, UsersRound, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { ChefHat, House, Languages, ListOrdered, LogOut, MonitorPlay, Moon, QrCode, Settings, Sun, UsersRound, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { BrandMark } from "@/components/brand";
 import {
@@ -8,6 +9,7 @@ import {
   SidebarMenuButton, SidebarMenuItem, SidebarRail, useSidebar,
 } from "@/components/ui/sidebar";
 import { useLang, type Key } from "@/lib/i18n";
+import { staffClient } from "@/lib/supabase/browser";
 
 export type OwnerPage = "home" | "board" | "orders" | "menu" | "tables" | "team" | "settings";
 
@@ -27,6 +29,7 @@ export function AdminSidebar({ page, onPage, venue, me, liveCount }: Props) {
   const { lang, t, toggle } = useLang();
   const { resolvedTheme, setTheme } = useTheme();
   const { setOpenMobile } = useSidebar();
+  const router = useRouter();
   const item = ({ id, label, icon: Icon }: (typeof OWNER_PAGES)[number]) => (
     <SidebarMenuItem key={id}>
       <SidebarMenuButton
@@ -89,6 +92,19 @@ export function AdminSidebar({ page, onPage, venue, me, liveCount }: Props) {
             <SidebarMenuButton tooltip={t("switchLang")} lang={lang === "ar" ? "en" : "ar"} onClick={toggle}>
               <Languages aria-hidden />
               <span>{t("switchLang")}</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={t("signOut")}
+              onClick={async () => {
+                await staffClient().auth.signOut();
+                router.replace("/login");
+                router.refresh();
+              }}
+            >
+              <LogOut aria-hidden />
+              <span>{t("signOut")}</span>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

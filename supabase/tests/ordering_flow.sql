@@ -5,7 +5,7 @@ do $$
 declare
   g1 uuid := gen_random_uuid();
   g2 uuid := gen_random_uuid();
-  owner_id uuid := '00000000-0000-4000-8000-0000000000a1';
+  owner_id uuid := (select user_id from public.staff_members where role = 'owner' limit 1);
   slug6 text; slug7 text;
   sig uuid; sig_classic uuid; hot uuid; hot_orig uuid; cola uuid; cola_reg uuid;
   res json; order1 uuid; visit6 uuid; n int; err text;
@@ -13,6 +13,10 @@ begin
   insert into auth.users (instance_id, id, aud, role, is_anonymous, created_at, updated_at)
   values ('00000000-0000-0000-0000-000000000000', g1, 'authenticated', 'authenticated', true, now(), now()),
          ('00000000-0000-0000-0000-000000000000', g2, 'authenticated', 'authenticated', true, now(), now());
+  -- The live venue only has table 1; add 6 and 7 for this run (rolled back).
+  insert into public.tables (restaurant_id, number)
+  select r.id, v.num from public.restaurants r, (values (6), (7)) v(num)
+  where not exists (select 1 from public.tables t where t.restaurant_id = r.id and t.number = v.num);
   select qr_slug into slug6 from public.tables where number = 6;
   select qr_slug into slug7 from public.tables where number = 7;
   select id into sig from public.menu_items where name = 'The Signature Burger';

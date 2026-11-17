@@ -1,5 +1,6 @@
 "use client";
 import { Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,7 +23,68 @@ function SwitchRow({ title, desc, checked, onChange }: { title: string; desc: st
   );
 }
 
-export function SettingsForm({ sb, restaurant, mutate }: AdminProps & { restaurant: Restaurant }) {
+// Owner changes their own password. Re-checks the current one first, so an unattended
+// signed-in laptop can't be used to lock the owner out.
+function PasswordForm({ sb, email }: { sb: AdminProps["sb"]; email: string }) {
+  const { t } = useLang();
+  const [cur, setCur] = useState("");
+  const [next, setNext] = useState("");
+  const [again, setAgain] = useState("");
+  const [err, setErr] = useState<Key | "">("");
+  const [busy, setBusy] = useState(false);
+
+  async function submit() {
+    if (next.length < 8) return setErr("weakPassword");
+    if (next !== again) return setErr("passwordMismatch");
+    setBusy(true);
+    setErr("");
+    const check = await sb.auth.signInWithPassword({ email, password: cur });
+    const upd = check.error ? null : await sb.auth.updateUser({ password: next });
+    setBusy(false);
+    if (check.error) return setErr("wrongCurrent");
+    if (upd?.error) return setErr(upd.error.code === "same_password" ? "samePassword" : upd.error.code === "weak_password" ? "weakPassword" : "signupFailed");
+    setCur("");
+    setNext("");
+    setAgain("");
+    toast.success(t("passwordSaved"));
+  }
+
+  const field = (id: string, label: Key, value: string, set: (v: string) => void, auto: string) => (
+    <div className="flex flex-col gap-1.5">
+      <label htmlFor={id} className="text-sm font-medium">{t(label)}</label>
+      <Input id={id} type="password" size="sm" autoComplete={auto} value={value} onChange={(e) => (set(e.target.value), err && setErr(""))} aria-invalid={!!err} aria-describedby="pw-err" />
+    </div>
+  );
+
+  return (
+    <form
+      noValidate
+      className="grid max-w-[760px] gap-x-5 gap-y-4 border-t pt-8 sm:grid-cols-2"
+      onSubmit={(e) => {
+        e.preventDefault();
+        submit();
+      }}
+    >
+      <div className="sm:col-span-2">
+        <h2 className="text-xl font-semibold">{t("accountTitle")}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t("accountDesc").replace("{n}", email)}</p>
+      </div>
+      <input type="email" autoComplete="username" value={email} readOnly hidden />
+      <div className="sm:col-span-2 sm:max-w-[calc(50%-10px)]">{field("pw-cur", "currentPassword", cur, setCur, "current-password")}</div>
+      {field("pw-new", "newPassword", next, setNext, "new-password")}
+      {field("pw-again", "confirmPassword", again, setAgain, "new-password")}
+      <p id="pw-err" aria-live="polite" className="min-h-5 text-sm text-destructive sm:col-span-2">{err && t(err)}</p>
+      <div className="sm:col-span-2">
+        <Button type="submit" size="sm" disabled={busy || !cur || !next}>
+          {busy && <Loader2 aria-hidden className="animate-spin" />}
+          {t("savePassword")}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { restaurant: Restaurant; email: string }) {
   const { t } = useLang();
   const [d, setD] = useState(restaurant);
   const [saving, setSaving] = useState(false);
@@ -82,6 +144,7 @@ export function SettingsForm({ sb, restaurant, mutate }: AdminProps & { restaura
   }
 
   return (
+    <div className="flex flex-col gap-10">
     <form
       id="settings-form"
       noValidate
@@ -118,5 +181,7 @@ export function SettingsForm({ sb, restaurant, mutate }: AdminProps & { restaura
         </Button>
       </div>
     </form>
+    <PasswordForm sb={sb} email={email} />
+    </div>
   );
 }

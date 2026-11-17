@@ -14,7 +14,7 @@ const PEARL = "oklch(96.6% 0.004 106)";
 // Three 100 mm tents don't fit A4 (297 mm), so print scales them to 93% on A4 landscape.
 export default async function QrSheet() {
   const staff = await getStaff();
-  if (!staff || staff.role !== "owner") redirect("/staff/login");
+  if (!staff || staff.role !== "owner") redirect("/login");
   const sb = await serverClient();
   const [{ data: r }, { data: tables }] = await Promise.all([
     sb.from("restaurants").select("name, name_ar, pin_required").eq("id", staff.restaurantId).single(),

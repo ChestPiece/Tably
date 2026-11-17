@@ -1,3 +1,4 @@
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getStaff, serverClient } from "@/lib/supabase/server";
 import { AdminApp } from "@/components/admin/AdminApp";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const staff = await getStaff();
-  if (!staff) redirect("/staff/login");
+  if (!staff) redirect("/login");
   if (staff.role !== "owner") redirect("/staff");
   const sb = await serverClient();
   const rid = staff.restaurantId;
@@ -31,6 +32,8 @@ export default async function AdminPage() {
   return (
     <AdminApp
       me={staff.userId}
+      email={staff.email}
+      sidebarOpen={(await cookies()).get("sidebar_state")?.value !== "false"}
       restaurant={r.data as Restaurant}
       categories={(c.data ?? []) as Category[]}
       menu={(m.data ?? []) as MenuItem[]}

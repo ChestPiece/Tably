@@ -1,16 +1,14 @@
--- ChestBest demo seed: restaurant, menu, 12 tables, owner + staff login.
--- Dev logins (username field maps to <name>@chestbest.test):
---   anasowner / anas123   (owner)
---   anasstaff / anas123   (staff)
--- Change before sharing a public deploy.
+-- ChestBest seed: restaurant, menu and table 1. No user accounts.
+-- To make someone the owner, have them sign up at /login, then run:
+--   insert into public.staff_members (restaurant_id, user_id, role)
+--   select r.id, u.id, 'owner' from public.restaurants r, auth.users u
+--   where r.slug = 'chestbest' and u.email = '<owner email>';
 
 do $$
 declare
   rid uuid;
   c_burgers uuid; c_chicken uuid; c_sides uuid; c_drinks uuid;
   it uuid;
-  owner_id uuid := '00000000-0000-4000-8000-0000000000a1';
-  staff_id uuid := '00000000-0000-4000-8000-0000000000a2';
   photo text := 'https://images.unsplash.com/%s?auto=format&fit=crop&w=900&q=80';
 begin
   insert into public.restaurants (slug, name, name_ar, tagline, tagline_ar)
@@ -65,27 +63,5 @@ begin
   insert into public.item_options (item_id, restaurant_id, name, name_ar, price_fils, position) values
     (it, rid, 'Regular', 'عادي', 0, 1), (it, rid, 'Zero sugar', 'بدون سكر', 0, 2);
 
-  insert into public.tables (restaurant_id, number) select rid, n from generate_series(1, 12) n;
-
-  -- Dev staff logins
-  insert into auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at,
-    raw_app_meta_data, raw_user_meta_data, created_at, updated_at,
-    confirmation_token, email_change, email_change_token_new, recovery_token)
-  values
-    ('00000000-0000-0000-0000-000000000000', owner_id, 'authenticated', 'authenticated', 'anasowner@chestbest.test',
-     extensions.crypt('anas123', extensions.gen_salt('bf')), now(),
-     '{"provider":"email","providers":["email"]}', '{"name":"Owner"}', now(), now(), '', '', '', ''),
-    ('00000000-0000-0000-0000-000000000000', staff_id, 'authenticated', 'authenticated', 'anasstaff@chestbest.test',
-     extensions.crypt('anas123', extensions.gen_salt('bf')), now(),
-     '{"provider":"email","providers":["email"]}', '{"name":"Staff"}', now(), now(), '', '', '', '')
-  on conflict (id) do nothing;
-
-  insert into auth.identities (provider_id, user_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
-  values
-    (owner_id::text, owner_id, json_build_object('sub', owner_id::text, 'email', 'anasowner@chestbest.test', 'email_verified', true), 'email', now(), now(), now()),
-    (staff_id::text, staff_id, json_build_object('sub', staff_id::text, 'email', 'anasstaff@chestbest.test', 'email_verified', true), 'email', now(), now(), now())
-  on conflict do nothing;
-
-  insert into public.staff_members (restaurant_id, user_id, role, display_name) values
-    (rid, owner_id, 'owner', 'Owner'), (rid, staff_id, 'staff', 'Front desk');
+  insert into public.tables (restaurant_id, number) values (rid, 1);
 end $$;
