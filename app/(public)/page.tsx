@@ -9,12 +9,18 @@ import { SUPABASE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 
 export const dynamic = "force-dynamic";
 
-// Test-phase home: the QR for one table (HOME_TABLE_SLUG) plus a button to the same guest page.
-// ponytail: one env-pinned table; drop this page back to "scan the code on your table" before real guests.
+// Test-phase home: the QR for one table plus a button to the same guest page.
+// HOME_TABLE_SLUG is an optional override; a missing or dead slug falls back to the first table (home_table_slug RPC).
+// ponytail: drop this page back to "scan the code on your table" before real guests.
 export default async function Home() {
-  const slug = process.env.HOME_TABLE_SLUG;
   const sb = createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { persistSession: false } });
-  const { data: info } = slug ? await sb.rpc("table_info", { p_slug: slug }) : { data: null };
+  const lookup = async (s: string | null | undefined) => (s ? (await sb.rpc("table_info", { p_slug: s })).data : null);
+  let slug: string | null | undefined = process.env.HOME_TABLE_SLUG;
+  let info = await lookup(slug);
+  if (!info) {
+    slug = (await sb.rpc("home_table_slug")).data as string | null;
+    info = await lookup(slug);
+  }
   const { data: r } = info ? await sb.from("restaurants").select("name, name_ar").eq("id", info.restaurant_id).single() : { data: null };
 
   if (!slug || !info || !r) {

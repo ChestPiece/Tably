@@ -23,7 +23,8 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 - The live DB may not match `seed.sql` (owner deletes tables). `ordering_flow.sql` needs tables 6 and 7: insert them inside the test block (it rolls back).
 - Realtime cannot filter DELETE events, so the board does not see bulk deletes until reload.
 - Password reset emails link to `/reset-password`. Supabase Auth "Site URL" and "Redirect URLs" must list the production domain, or links point at localhost. The page also accepts `?token_hash=…&type=recovery` (works across devices if the email template uses it).
-- The home page shows the QR for the table in env `HOME_TABLE_SLUG`. If that table's link is replaced in admin, update the env var on Vercel. This is test-phase only.
+- The home page shows the QR for the table in env `HOME_TABLE_SLUG` (optional override). Empty or dead slug falls back to the first table via RPC `home_table_slug()` (migration `20261118000003`). Test-phase only.
+- Owner admin below `lg` uses a bottom tab bar (`components/admin/BottomNav.tsx`: Home, Board, Orders, Menu, More sheet), not the sidebar sheet. Sidebar footer and More sheet share `useOwnerActions()` in `AdminSidebar.tsx`. Cards use `PANEL` from `OwnerHome.tsx`.
 - Global element styles in `app/globals.css` go in `@layer base`. An unlayered `p { text-wrap: … }` beat `truncate` / `whitespace-nowrap` everywhere.
 - `sr-only` spans are absolutely positioned: give every scroll container `relative`, or they leak page scroll.
 

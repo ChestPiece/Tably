@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { toast } from "sonner";
+import { BrandMark } from "@/components/brand";
 import { StaffBoard } from "@/components/staff/StaffBoard";
 import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
@@ -13,8 +14,9 @@ import { VENUE_TZ } from "@/lib/stats";
 import { staffClient } from "@/lib/supabase/browser";
 import { pick, type Category, type MenuItem, type Restaurant, type TableRow } from "@/lib/types";
 import { AdminSidebar, OWNER_PAGES, type OwnerPage } from "./AdminSidebar";
+import { BottomNav } from "./BottomNav";
 import { MenuAdmin, blankItem } from "./MenuAdmin";
-import { OwnerHome, type TodayData } from "./OwnerHome";
+import { OwnerHome, PANEL, type TodayData } from "./OwnerHome";
 import { ORDER_FILTERS, OwnerOrders, type OrderFilter } from "./OwnerOrders";
 import { SettingsForm } from "./SettingsForm";
 import { TablesAdmin, newSlug } from "./TablesAdmin";
@@ -141,17 +143,17 @@ export function AdminApp(props: {
   const title = t(OWNER_PAGES.find((p) => p.id === page)!.label);
 
   return (
-    <SidebarProvider defaultOpen={props.sidebarOpen} style={{ "--sidebar-width": "248px" } as React.CSSProperties}>
+    <SidebarProvider defaultOpen={props.sidebarOpen} style={{ "--sidebar-width": "248px", "--sidebar": "var(--card)" } as React.CSSProperties}>
       <AdminSidebar page={page} onPage={setPage} venue={venue} me={meName} liveCount={live} />
-      <SidebarInset className="min-w-0">
-        <div className="sticky top-0 z-10 flex h-14 items-center gap-2 border-b bg-background px-3 md:hidden">
-          <SidebarTrigger className="size-10" />
-          <span className="truncate font-semibold">{venue}</span>
-        </div>
-        <main className="mx-auto w-full max-w-[1280px] px-8 pt-8 pb-12 max-[900px]:px-5 max-[900px]:pt-6">
-          <header className="mb-6 flex flex-wrap items-end gap-x-6 gap-y-3">
+      <SidebarInset className="min-w-0 bg-secondary dark:bg-background">
+        <main className="mx-auto w-full max-w-[1320px] px-8 pt-8 pb-12 max-lg:pb-32 max-[900px]:px-4 max-[900px]:pt-5">
+          <div className="mb-5 flex items-center gap-2.5 lg:hidden">
+            <BrandMark className="size-6 text-primary" />
+            <span className="truncate font-semibold">{venue}</span>
+          </div>
+          <header className="mb-6 flex flex-wrap items-end gap-x-6 gap-y-4">
             <div className="flex min-w-0 items-start gap-2">
-              <SidebarTrigger className="-ms-2 size-8 text-muted-foreground max-md:hidden" />
+              <SidebarTrigger className="-ms-2 size-8 text-muted-foreground max-lg:hidden" />
               <div className="min-w-0">
                 <h1 className="text-[28px] leading-[1.15] font-semibold">{title}</h1>
                 {head[page].sub && <p className="mt-1 text-sm text-muted-foreground">{head[page].sub}</p>}
@@ -161,16 +163,21 @@ export function AdminApp(props: {
           </header>
           {page === "home" && <OwnerHome today={props.today} menu={props.menu} tables={props.tables} onOrders={() => setPage("orders")} />}
           {page === "board" && (
-            <div className="h-[calc(100dvh-11.5rem)] min-h-[480px] overflow-hidden rounded-lg border max-md:h-[calc(100dvh-13rem)]">
+            <div className="h-[calc(100dvh-12rem)] min-h-[480px] overflow-hidden rounded-2xl bg-card ring-1 ring-border max-lg:h-[calc(100dvh-17rem)]">
               <StaffBoard restaurant={r} role="owner" embedded />
             </div>
           )}
-          {page === "orders" && <OwnerOrders orders={props.today.orders} filter={filter} onFilter={(f) => go({ filter: f === "all" ? null : f })} />}
-          {page === "menu" && <MenuAdmin {...common} restaurant={r} categories={props.categories} menu={props.menu} editing={editing} onEdit={setEditing} />}
-          {page === "tables" && <TablesAdmin {...common} restaurant={r} tables={props.tables} />}
-          {page === "settings" && <SettingsForm {...common} restaurant={r} email={props.email} />}
-          {page === "team" && <TeamAdmin {...common} me={props.me} rid={r.id} team={props.team} invites={props.invites} />}
+          {page !== "home" && page !== "board" && (
+            <div className={PANEL}>
+              {page === "orders" && <OwnerOrders orders={props.today.orders} filter={filter} onFilter={(f) => go({ filter: f === "all" ? null : f })} />}
+              {page === "menu" && <MenuAdmin {...common} restaurant={r} categories={props.categories} menu={props.menu} editing={editing} onEdit={setEditing} />}
+              {page === "tables" && <TablesAdmin {...common} restaurant={r} tables={props.tables} />}
+              {page === "settings" && <SettingsForm {...common} restaurant={r} email={props.email} />}
+              {page === "team" && <TeamAdmin {...common} me={props.me} rid={r.id} team={props.team} invites={props.invites} />}
+            </div>
+          )}
         </main>
+        <BottomNav page={page} onPage={setPage} liveCount={live} />
       </SidebarInset>
     </SidebarProvider>
   );

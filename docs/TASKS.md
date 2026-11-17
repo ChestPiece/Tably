@@ -54,6 +54,8 @@ Skills: `web-design-engineer` (lead), `no-ai-design-slop` (gate), `localization-
 - [x] Seed accounts deleted, owner moved to a real email, `reset_demo` dropped, test guests and orders cleared (2026-11-17)
 - [x] Shared `/login`, forgot password + `/reset-password`, change password in owner Settings, owner sign-out (2026-11-17)
 - [ ] Supabase Auth: Site URL + redirect URLs = production domain; min password length 8
+- [ ] Apply `supabase/migrations/20261118000003_home_table.sql` (home QR fallback to first table; SQL editor)
+- [x] Owner dashboard card layout (Reztro feel, Sufra colors) + phone bottom tab bar (2026-11-17)
 - [ ] Apply `supabase/migrations/20261118000002_accept_invites_confirmed.sql` (SQL editor; MCP apply was blocked) and keep "Confirm email" on
 - [ ] Custom SMTP (e.g. Resend) before inviting staff: built-in email only reaches project team members, ~2/hour
 - [ ] Before real guests: home page back to "scan your table" (drop `HOME_TABLE_SLUG`), scheduled cleanup of old anonymous users

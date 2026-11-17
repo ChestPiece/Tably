@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ChefHat, House, Languages, ListOrdered, LogOut, MonitorPlay, Moon, QrCode, Settings, Sun, UsersRound, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
 import { useTheme } from "next-themes";
 import { BrandMark } from "@/components/brand";
 import {
@@ -23,17 +24,54 @@ export const OWNER_PAGES: { id: OwnerPage; label: Key; icon: LucideIcon; group: 
   { id: "settings", label: "navSettings", icon: Settings, group: "venue" },
 ];
 
+export type OwnerAction = { id: string; label: string; icon: ReactNode; href?: string; lang?: string; onClick?: () => void };
+
+/** Kitchen link, theme, language, sign out: shared by the sidebar footer and the phone "More" sheet. */
+export function useOwnerActions(): OwnerAction[] {
+  const { lang, t, toggle } = useLang();
+  const { resolvedTheme, setTheme } = useTheme();
+  const router = useRouter();
+  return [
+    { id: "kitchen", label: t("openKitchen"), icon: <ChefHat aria-hidden />, href: "/staff" },
+    {
+      id: "theme",
+      label: t("themeLabel"),
+      icon: (
+        <>
+          <Sun aria-hidden className="hidden dark:block" />
+          <Moon aria-hidden className="dark:hidden" />
+        </>
+      ),
+      onClick: () => setTheme(resolvedTheme === "dark" ? "light" : "dark"),
+    },
+    { id: "lang", label: t("switchLang"), icon: <Languages aria-hidden />, lang: lang === "ar" ? "en" : "ar", onClick: toggle },
+    {
+      id: "signout",
+      label: t("signOut"),
+      icon: <LogOut aria-hidden />,
+      onClick: async () => {
+        await staffClient().auth.signOut();
+        router.replace("/login");
+        router.refresh();
+      },
+    },
+  ];
+}
+
+// Active page = filled indigo pill.
+const ACTIVE = "h-10 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary data-[active=true]:hover:text-primary-foreground";
+
 type Props = { page: OwnerPage; onPage: (p: OwnerPage) => void; venue: string; me: string; liveCount: number };
 
 export function AdminSidebar({ page, onPage, venue, me, liveCount }: Props) {
-  const { lang, t, toggle } = useLang();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { t } = useLang();
   const { setOpenMobile } = useSidebar();
-  const router = useRouter();
+  const actions = useOwnerActions();
   const item = ({ id, label, icon: Icon }: (typeof OWNER_PAGES)[number]) => (
     <SidebarMenuItem key={id}>
       <SidebarMenuButton
         isActive={page === id}
+        className={ACTIVE}
         tooltip={t(label)}
         aria-current={page === id ? "page" : undefined}
         onClick={() => {
@@ -44,7 +82,7 @@ export function AdminSidebar({ page, onPage, venue, me, liveCount }: Props) {
         <Icon aria-hidden />
         <span>{t(label)}</span>
       </SidebarMenuButton>
-      {id === "board" && liveCount > 0 && <SidebarMenuBadge className="text-muted-foreground tabular-nums">{liveCount}</SidebarMenuBadge>}
+      {id === "board" && liveCount > 0 && <SidebarMenuBadge className="top-2.5 text-muted-foreground tabular-nums peer-data-[active=true]/menu-button:text-primary-foreground">{liveCount}</SidebarMenuBadge>}
     </SidebarMenuItem>
   );
   return (
@@ -73,40 +111,23 @@ export function AdminSidebar({ page, onPage, venue, me, liveCount }: Props) {
       </SidebarContent>
       <SidebarFooter className="border-t">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip={t("openKitchen")}>
-              <Link href="/staff">
-                <ChefHat aria-hidden />
-                <span>{t("openKitchen")}</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip={t("themeLabel")} aria-label={t("themeToggle")} onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}>
-              <Sun aria-hidden className="hidden dark:block" />
-              <Moon aria-hidden className="dark:hidden" />
-              <span>{t("themeLabel")}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton tooltip={t("switchLang")} lang={lang === "ar" ? "en" : "ar"} onClick={toggle}>
-              <Languages aria-hidden />
-              <span>{t("switchLang")}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              tooltip={t("signOut")}
-              onClick={async () => {
-                await staffClient().auth.signOut();
-                router.replace("/login");
-                router.refresh();
-              }}
-            >
-              <LogOut aria-hidden />
-              <span>{t("signOut")}</span>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
+          {actions.map((a) => (
+            <SidebarMenuItem key={a.id}>
+              {a.href ? (
+                <SidebarMenuButton asChild tooltip={a.label}>
+                  <Link href={a.href}>
+                    {a.icon}
+                    <span>{a.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              ) : (
+                <SidebarMenuButton tooltip={a.label} lang={a.lang} onClick={a.onClick}>
+                  {a.icon}
+                  <span>{a.label}</span>
+                </SidebarMenuButton>
+              )}
+            </SidebarMenuItem>
+          ))}
         </SidebarMenu>
         <div className="flex items-center gap-3 px-2 pt-2 group-data-[collapsible=icon]:hidden">
           <i aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full bg-muted text-sm font-semibold not-italic">
