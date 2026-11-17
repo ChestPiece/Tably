@@ -3,7 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   turbopack: {
     rules: {
-      "*.css": { loaders: ["@tailwindcss/turbopack"], as: "*.css" },
+      // not 'foreign': keep Tailwind off Next internals (next/font CSS breaks otherwise)
+      "*.css": { loaders: ["@tailwindcss/turbopack"], as: "*.css", condition: { not: "foreign" } },
     },
   },
   images: {

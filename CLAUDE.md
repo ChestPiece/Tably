@@ -13,7 +13,7 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 
 ## Gotchas
 - PowerShell blocks `npm.ps1`: use `npm.cmd run dev` (or `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`).
-- Tailwind v4 runs through the `@tailwindcss/turbopack` loader rule in `next.config.ts`; there is no `postcss.config`. Remove that rule and every page goes unstyled.
+- Tailwind v4 runs through the `@tailwindcss/turbopack` loader rule in `next.config.ts`; there is no `postcss.config`. Remove that rule and every page goes unstyled. Keep its `condition: { not: "foreign" }`, or `next/font` CSS fails with "Can't resolve @vercel/turbopack-next/internal/font/google/font".
 - Next 16 uses `proxy.ts`, not `middleware.ts`. Read `node_modules/next/dist/docs` before using Next APIs (see `AGENTS.md`).
 - Guest Supabase client uses localStorage key `cb-guest`; staff use `@supabase/ssr` cookies. Both work in one browser.
 - Owner admin CRUD (menu, tables, settings) writes directly through RLS; guest and order-flow writes go through RPCs only.
