@@ -4,7 +4,8 @@ import type { ReactNode } from "react";
 import { ConfirmAction } from "@/components/app/confirm-action";
 import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
-import { formatAge, formatMoney, plural, tableLabel } from "@/lib/format";
+import { formatAge, plural, tableLabel } from "@/lib/format";
+import { useVenue } from "@/lib/venue";
 import { useLang } from "@/lib/i18n";
 import type { Order, Visit } from "@/lib/types";
 
@@ -22,6 +23,7 @@ type Props = {
 
 export function TablesView({ visits, orders, now, busyId, onPay, onClose }: Props) {
   const { lang, t } = useLang();
+  const venue = useVenue();
   const guests = (n: number) =>
     plural(lang, n, { one: lang === "ar" ? "ضيف" : "# guest", two: "ضيفان", few: "# ضيوف", many: "# ضيفاً", other: lang === "ar" ? "# ضيف" : "# guests" });
   const ords = (n: number) =>
@@ -39,7 +41,7 @@ export function TablesView({ visits, orders, now, busyId, onPay, onClose }: Prop
           const busy = busyId === v.id;
           const unpaid = total > 0 && !v.paid_at;
           const reason = kitchen ? t("reasonKitchen") : unpaid ? t("reasonUnpaid") : "";
-          const money = formatMoney(total, lang);
+          const money = venue.money(total);
           const pay = (m: "cash" | "card", label: string, icon: ReactNode) => (
             <ConfirmAction
               title={fill(t("payTitle"), { m: label })}

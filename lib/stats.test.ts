@@ -28,15 +28,25 @@ test("dayStats excludes cancelled from orders count", () => {
   assert.equal(s.orders, 2);
 });
 test("ordersByHour uses Dubai hour", () => {
-  const h = ordersByHour([mk({ created_at: "2026-11-16T21:30:00Z" }), mk({ created_at: "2026-11-16T21:30:00Z", status: "cancelled" })]);
+  const h = ordersByHour([mk({ created_at: "2026-11-16T21:30:00Z" }), mk({ created_at: "2026-11-16T21:30:00Z", status: "cancelled" })], "Asia/Dubai");
   assert.equal(h.length, 24);
   assert.equal(h[1], 1);
   assert.equal(h.reduce((a, b) => a + b, 0), 1);
 });
 test("dayRange is the Dubai local day", () => {
-  const r = dayRange(new Date("2026-11-16T21:30:00Z"));
+  const r = dayRange(new Date("2026-11-16T21:30:00Z"), "Asia/Dubai");
   assert.equal(r.start, "2026-11-16T20:00:00.000Z");
   assert.equal(r.end, "2026-11-17T20:00:00.000Z");
+});
+test("dayRange handles a DST day (New York spring forward, 23 h)", () => {
+  const r = dayRange(new Date("2026-03-08T12:00:00Z"), "America/New_York");
+  assert.equal(r.start, "2026-03-08T05:00:00.000Z");
+  assert.equal(r.end, "2026-03-09T04:00:00.000Z");
+});
+test("dayRange handles a DST day (New York fall back, 25 h)", () => {
+  const r = dayRange(new Date("2026-11-01T12:00:00Z"), "America/New_York");
+  assert.equal(r.start, "2026-11-01T04:00:00.000Z");
+  assert.equal(r.end, "2026-11-02T05:00:00.000Z");
 });
 test("topDishes merges, sorts, excludes cancelled", () => {
   const top = topDishes([

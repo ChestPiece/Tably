@@ -55,11 +55,16 @@ export function Welcome({
           <BrandMark className="size-24 text-ochre" />
         </span>
       )}
-      <span aria-hidden className="h-0.5 w-[296px] max-w-full rounded-full bg-brand-rule" />
-      <h1 className="mt-6 font-display text-[40px] leading-[1.1] font-semibold [overflow-wrap:anywhere]">{venue}</h1>
-      <p className="mt-2 opacity-85">
-        {t("table")} {tableNumber} · {t("welcome")}
-      </p>
+      <div className="mt-8 w-full text-start">
+        <h1 className="font-display text-[44px] leading-[1.05] font-semibold [overflow-wrap:anywhere]">{venue}</h1>
+        <p className="mt-4 flex items-baseline-last gap-2 border-t border-brand-rule pt-3 [--border:var(--brand-rule)]">
+          <span className="opacity-85">{t("welcomeKicker")}</span>
+          <span aria-hidden className="leader" />
+          <span className="font-display text-[22px] leading-none font-semibold whitespace-nowrap tabular-nums">
+            {t("table")} {tableNumber}
+          </span>
+        </p>
+      </div>
 
       <form
         noValidate

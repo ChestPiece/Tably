@@ -3,9 +3,9 @@ import { Pencil } from "lucide-react";
 import { Arch } from "@/components/app/arch";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { formatMoney } from "@/lib/format";
 import { useLang } from "@/lib/i18n";
 import { pick, type MenuItem } from "@/lib/types";
+import { useVenue } from "@/lib/venue";
 
 type Props = {
   items: MenuItem[];
@@ -25,6 +25,7 @@ const Thumb = ({ src }: { src: string | null }) =>
 
 export function ItemsTable({ items, busyId, catName, onEdit, onToggle }: Props) {
   const { lang, t } = useLang();
+  const { money } = useVenue();
   const name = (i: MenuItem) => pick(lang, i.name, i.name_ar);
   const names = (i: MenuItem) => (
     <span className="min-w-0">
@@ -43,7 +44,7 @@ export function ItemsTable({ items, busyId, catName, onEdit, onToggle }: Props) 
       {t("edit")}
     </Button>
   );
-  const price = (i: MenuItem) => <span className="whitespace-nowrap tabular-nums">{formatMoney(i.price_fils, lang)}</span>;
+  const price = (i: MenuItem) => <span className="whitespace-nowrap tabular-nums">{money(i.price_fils)}</span>;
 
   return (
     <>

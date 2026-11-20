@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getStaff, serverClient } from "@/lib/supabase/server";
 import { AdminApp } from "@/components/admin/AdminApp";
+import { VenueProvider } from "@/lib/venue";
 import { dayRange } from "@/lib/stats";
 import { MENU_SELECT, ORDER_SELECT, type Category, type MenuItem, type Order, type Restaurant, type TableRow, type Visit } from "@/lib/types";
 
@@ -9,14 +10,14 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
   const staff = await getStaff();
-  if (!staff) redirect("/login");
+  if (!staff) redirect("/admin/setup"); // signed out goes on to /login from there
   if (staff.role !== "owner") redirect("/staff");
   const sb = await serverClient();
   const rid = staff.restaurantId;
-  // "Today" is the venue's day (Asia/Dubai), not the server's.
+  // "Today" is the venue's day in its own time zone, not the server's.
   const now = new Date();
-  const today = dayRange(now);
-  const lastWeek = dayRange(new Date(now.getTime() - 7 * 864e5));
+  const today = dayRange(now, staff.timezone);
+  const lastWeek = dayRange(new Date(now.getTime() - 7 * 864e5), staff.timezone);
   const [r, c, m, t, team, invites, orders, prev, open, paid] = await Promise.all([
     sb.from("restaurants").select("*").eq("id", rid).single(),
     sb.from("categories").select("*").eq("restaurant_id", rid).order("position"),
@@ -30,6 +31,7 @@ export default async function AdminPage() {
     sb.from("visits").select("*").eq("restaurant_id", rid).gte("paid_at", today.start).lt("paid_at", today.end),
   ]);
   return (
+    <VenueProvider restaurant={r.data as Restaurant}>
     <AdminApp
       me={staff.userId}
       email={staff.email}
@@ -47,5 +49,6 @@ export default async function AdminPage() {
         paidVisits: (paid.data ?? []) as Visit[],
       }}
     />
+    </VenueProvider>
   );
 }

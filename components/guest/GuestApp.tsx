@@ -9,6 +9,7 @@ import { TableView } from "./TableView";
 import { ItemSheet } from "./ItemSheet";
 import { CartSheet } from "./CartSheet";
 import { GuestHeader, CartBar } from "./Chrome";
+import { useVenue } from "@/lib/venue";
 
 export type CartLine = { key: string; itemId: string; optionId: string | null; quantity: number; unit: number };
 export type Me = { guest_id: string; seq: number; display_name: string | null };
@@ -41,8 +42,14 @@ export function GuestApp(props: {
   initialMenu: MenuItem[];
 }) {
   const { slug, tableNumber } = props;
-  const { lang, t } = useLang();
+  const { lang, t, toggle } = useLang();
+  const { secondLang } = useVenue();
   const sb = guestClient();
+
+  // English-only restaurant: a guest whose last venue was in Arabic switches back to English.
+  useEffect(() => {
+    if (!secondLang && lang === "ar") toggle();
+  }, [secondLang, lang, toggle]);
 
   const [phase, setPhase] = useState<Phase>("boot");
   const [ended, setEnded] = useState(false);

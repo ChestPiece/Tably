@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { ChevronRight, ImagePlus, Loader2, Plus, Trash2, X } from "lucide-react";
-import { useState, type DragEvent } from "react";
+import { useEffect, useState, type DragEvent } from "react";
 import { ConfirmAction } from "@/components/app/confirm-action";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { MAX_FILS, filsToInput, parseFils } from "@/lib/format";
+import { MAX_MINOR, minorToInput, parseMinor } from "@/lib/format";
+import { useVenue } from "@/lib/venue";
 import { errorText, useLang } from "@/lib/i18n";
 import { pick, type Category, type ItemOption, type MenuItem } from "@/lib/types";
 import type { AdminProps } from "./AdminApp";
@@ -35,33 +36,54 @@ export function ItemEditor({ item, ...rest }: Props) {
   return item ? <Editor key={item.id} item={item} {...rest} /> : null;
 }
 
-type OptRow = ItemOption & { aed: string };
+type OptRow = ItemOption & { aed: string; cost: string };
 type LangId = "en" | "ar";
 const LANGS = [
   { id: "en", label: "English", dir: "ltr", name: "name", desc: "description", tag: "badge", opt: "name", ek: "n" },
   { id: "ar", label: "العربية", dir: "rtl", name: "name_ar", desc: "description_ar", tag: "badge_ar", opt: "name_ar", ek: "a" },
 ] as const;
 const MAX_PHOTO = 5 * 1024 * 1024;
-const toRows = (m: MenuItem): OptRow[] => m.item_options.map((o) => ({ ...o, aed: filsToInput(o.price_fils) }));
+const toRows = (m: MenuItem, digits: number, costs: Map<string | null, number> = new Map()): OptRow[] =>
+  m.item_options.map((o) => ({ ...o, aed: minorToInput(o.price_fils, digits), cost: costs.has(o.id) ? minorToInput(costs.get(o.id)!, digits) : "" }));
 
 function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSaved, onDeleted }: Props & { item: MenuItem }) {
   const { lang, t } = useLang();
+  const { digits, currency, secondLang } = useVenue();
+  // Arabic fields exist only when the restaurant has an Arabic menu.
+  const langs = secondLang ? LANGS : LANGS.slice(0, 1);
+  const filsToInput = (m: number) => minorToInput(m, digits);
+  const parseFils = (v: string) => parseMinor(v, digits);
   const [d, setD] = useState(item);
   const [price, setPrice] = useState(filsToInput(item.price_fils));
-  const [opts, setOpts] = useState(() => toRows(item));
-  const [initial] = useState(() => JSON.stringify([item, filsToInput(item.price_fils), toRows(item)]));
+  const [opts, setOpts] = useState(() => toRows(item, digits));
+  const [cost, setCost] = useState("");
+  const [initial, setInitial] = useState(() => JSON.stringify([item, filsToInput(item.price_fils), toRows(item, digits), ""]));
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [photoErr, setPhotoErr] = useState("");
   const [confirmClose, setConfirmClose] = useState(false);
   const [errs, setErrs] = useState<Record<string, string>>({});
-  const [tab, setTab] = useState<LangId>(lang === "ar" ? "ar" : "en");
+  const [tab, setTab] = useState<LangId>(lang === "ar" && secondLang ? "ar" : "en");
   const [optsOpen, setOptsOpen] = useState(item.item_options.length > 0);
   const set = <K extends keyof MenuItem>(k: K, v: MenuItem[K]) => setD((p) => ({ ...p, [k]: v }));
-  const dirty = JSON.stringify([d, price, opts]) !== initial;
+  const dirty = JSON.stringify([d, price, opts, cost]) !== initial;
+
+  // Costs are owner-only (item_costs), so they load here rather than with the guest-readable menu.
+  useEffect(() => {
+    if (isNew) return;
+    sb.from("item_costs").select("option_id, cost_fils").eq("item_id", item.id).then(({ data }) => {
+      if (!data?.length) return;
+      const m = new Map(data.map((c) => [c.option_id as string | null, c.cost_fils as number]));
+      const base = m.has(null) ? filsToInput(m.get(null)!) : "";
+      const rows = toRows(item, digits, m);
+      setCost(base);
+      setOpts(rows);
+      setInitial(JSON.stringify([item, filsToInput(item.price_fils), rows, base]));
+    });
+  }, [sb, item, isNew]); // eslint-disable-line react-hooks/exhaustive-deps -- digits is fixed per restaurant
   // Esc, overlay, X and Cancel all land here: ask before throwing away edits.
   const tryClose = () => (dirty ? setConfirmClose(true) : onClose());
-  const badPrice = (f: number | null) => (f === null ? t("badPrice") : f > MAX_FILS ? t("priceTooHigh") : "");
+  const badPrice = (f: number | null) => (f === null ? t("badPrice") : f > MAX_MINOR ? t("priceTooHigh") : "");
 
   async function upload(file: File | undefined) {
     if (!file) return;
@@ -84,14 +106,19 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
   async function save() {
     const e: Record<string, string> = {};
     if (!d.name.trim()) e.name = t("required");
-    if (!d.name_ar.trim()) e.name_ar = t("required");
+    if (secondLang && !d.name_ar.trim()) e.name_ar = t("required");
     const fils = parseFils(price);
     if (badPrice(fils)) e.price = badPrice(fils);
+    // Empty cost = not set (the Profit page counts those dishes as missing a cost).
+    const costFils = cost.trim() ? parseFils(cost) : null;
+    if (cost.trim() && badPrice(costFils)) e.cost = badPrice(costFils);
     const optFils = opts.map((o) => parseFils(o.aed));
+    const optCost = opts.map((o) => (o.cost.trim() ? parseFils(o.cost) : null));
     opts.forEach((o, i) => {
       if (!o.name.trim()) e[`o${i}n`] = t("required");
-      if (!o.name_ar.trim()) e[`o${i}a`] = t("required");
+      if (secondLang && !o.name_ar.trim()) e[`o${i}a`] = t("required");
       if (badPrice(optFils[i])) e[`o${i}p`] = badPrice(optFils[i]);
+      if (o.cost.trim() && badPrice(optCost[i])) e[`o${i}c`] = badPrice(optCost[i]);
     });
     setErrs(e);
     const keys = Object.keys(e);
@@ -102,7 +129,7 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
       const next: LangId = en && (tab === "en" || !ar) ? "en" : ar ? "ar" : tab;
       setTab(next);
       if (keys.some((k) => k.startsWith("o"))) setOptsOpen(true);
-      requestAnimationFrame(() => document.querySelector<HTMLElement>(`#ie-${next} [aria-invalid=true], #ie-price[aria-invalid=true], #item-editor details [aria-invalid=true]`)?.focus());
+      requestAnimationFrame(() => document.querySelector<HTMLElement>(`#ie-${next} [aria-invalid=true], #ie-price[aria-invalid=true], #ie-cost[aria-invalid=true], #item-editor details [aria-invalid=true]`)?.focus());
       return;
     }
     setSaving(true);
@@ -114,10 +141,21 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
       const keep = opts.map((o) => o.id);
       const r2 = await sb.from("item_options").delete().eq("item_id", d.id).not("id", "in", `(${keep.length ? keep.join(",") : "00000000-0000-0000-0000-000000000000"})`);
       if (r2.error) return r2;
-      if (!opts.length) return { error: null };
-      return sb.from("item_options").upsert(
-        opts.map((o, i): ItemOption => ({ id: o.id, item_id: d.id, restaurant_id: rid, name: o.name, name_ar: o.name_ar, price_fils: optFils[i] ?? 0, position: i + 1 })),
-      );
+      if (opts.length) {
+        const r3 = await sb.from("item_options").upsert(
+          opts.map((o, i): ItemOption => ({ id: o.id, item_id: d.id, restaurant_id: rid, name: o.name, name_ar: o.name_ar, price_fils: optFils[i] ?? 0, position: i + 1 })),
+        );
+        if (r3.error) return r3;
+      }
+      // Replace this dish's costs; past orders keep their own snapshot.
+      const r4 = await sb.from("item_costs").delete().eq("item_id", d.id);
+      if (r4.error) return r4;
+      const costRows = [
+        { option_id: null as string | null, cost_fils: costFils },
+        ...opts.map((o, i) => ({ option_id: o.id as string | null, cost_fils: optCost[i] })),
+      ].filter((c) => c.cost_fils !== null);
+      if (!costRows.length) return { error: null };
+      return sb.from("item_costs").insert(costRows.map((c) => ({ ...c, restaurant_id: rid, item_id: d.id })));
     }, t("itemSaved"));
     setSaving(false);
     if (ok) onSaved();
@@ -126,6 +164,9 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
   const setOpt = (i: number, patch: Partial<OptRow>) => setOpts((p) => p.map((x, n) => (n === i ? { ...x, ...patch } : x)));
   const err = (k: string) => (errs[k] ? <FieldError>{errs[k]}</FieldError> : null);
   const itemName = pick(lang, d.name, d.name_ar);
+  const pf = parseFils(price);
+  const cf = parseFils(cost);
+  const marginHint = pf && cf !== null && cf <= pf ? `${t("marginLabel")} ${Math.round(((pf - cf) / pf) * 100)}%` : t("costHint");
 
   const footer = (
     <div className="flex items-center gap-2">
@@ -173,15 +214,15 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
         }}
       >
         <Tabs value={tab} onValueChange={(v) => setTab(v as LangId)} className="gap-4">
-          <TabsList className="w-full" aria-label={t("language")}>
-            {LANGS.map((l) => (
+          <TabsList className={langs.length > 1 ? "w-full" : "hidden"} aria-label={t("language")}>
+            {langs.map((l) => (
               <TabsTrigger key={l.id} value={l.id} lang={l.id} className="gap-2">
                 {l.label}
                 {flag[l.id] && <i role="img" aria-label={t("needsAttention")} className="size-1.5 rounded-full bg-ochre" />}
               </TabsTrigger>
             ))}
           </TabsList>
-          {LANGS.map((l) => (
+          {langs.map((l) => (
             <TabsContent key={l.id} value={l.id} forceMount id={`ie-${l.id}`} className="flex flex-col gap-4 data-[state=inactive]:hidden">
               <Field data-invalid={!!errs[l.name]}>
                 <FieldLabel htmlFor={`ie-name-${l.id}`}>{t("fName")}</FieldLabel>
@@ -243,9 +284,19 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
               <FieldLabel htmlFor="ie-price">{t("basePrice")}</FieldLabel>
               <div className="relative">
                 <Input id="ie-price" size="sm" inputMode="decimal" autoComplete="off" dir="ltr" className="pe-14 text-start tabular-nums" value={price} aria-invalid={!!errs.price} onChange={(e) => setPrice(e.target.value)} />
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground">{t("aed")}</span>
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground">{currency}</span>
               </div>
               {err("price")}
+            </Field>
+            <Field data-invalid={!!errs.cost}>
+              <FieldLabel htmlFor="ie-cost">
+                {t("costToMake")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
+              </FieldLabel>
+              <div className="relative">
+                <Input id="ie-cost" size="sm" inputMode="decimal" autoComplete="off" dir="ltr" className="pe-14 text-start tabular-nums" value={cost} aria-invalid={!!errs.cost} aria-describedby="ie-cost-hint" onChange={(e) => setCost(e.target.value)} />
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground">{currency}</span>
+              </div>
+              {err("cost") ?? <p id="ie-cost-hint" className="text-sm text-muted-foreground">{marginHint}</p>}
             </Field>
             <Field>
               <FieldLabel htmlFor="ie-cat">{t("categoryLabel")}</FieldLabel>
@@ -273,7 +324,7 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
             {opts.map((o, i) => {
               const nk = `o${i}${cur.ek}`;
               return (
-                <div key={o.id} className="grid grid-cols-[minmax(0,1fr)_7rem_auto] items-start gap-2">
+                <div key={o.id} className="grid grid-cols-[minmax(0,1fr)_6rem_6rem_auto] items-start gap-2 max-sm:grid-cols-[minmax(0,1fr)_5rem_5rem_auto]">
                   <Field data-invalid={!!errs[nk]}>
                     <Input size="sm" dir={cur.dir} aria-label={`${t("optName")} ${i + 1} (${cur.label})`} placeholder={t("optName")} aria-invalid={!!errs[nk]} value={o[cur.opt]} onChange={(e) => setOpt(i, { [cur.opt]: e.target.value })} />
                     {err(nk)}
@@ -281,9 +332,13 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
                   <Field data-invalid={!!errs[`o${i}p`]}>
                     <div className="relative">
                       <span aria-hidden className="pointer-events-none absolute inset-y-0 start-3 grid place-items-center text-sm text-muted-foreground">+</span>
-                      <Input size="sm" aria-label={`${t("optExtra")} ${i + 1} (${t("aed")})`} inputMode="decimal" dir="ltr" className="ps-6 text-start tabular-nums" aria-invalid={!!errs[`o${i}p`]} value={o.aed} onChange={(e) => setOpt(i, { aed: e.target.value })} />
+                      <Input size="sm" aria-label={`${t("optExtra")} ${i + 1} (${currency})`} inputMode="decimal" dir="ltr" className="ps-6 text-start tabular-nums" aria-invalid={!!errs[`o${i}p`]} value={o.aed} onChange={(e) => setOpt(i, { aed: e.target.value })} />
                     </div>
                     {err(`o${i}p`)}
+                  </Field>
+                  <Field data-invalid={!!errs[`o${i}c`]}>
+                    <Input size="sm" aria-label={`${t("optCost")} ${i + 1} (${currency})`} placeholder={t("costShort")} inputMode="decimal" dir="ltr" className="text-start tabular-nums" aria-invalid={!!errs[`o${i}c`]} value={o.cost} onChange={(e) => setOpt(i, { cost: e.target.value })} />
+                    {err(`o${i}c`)}
                   </Field>
                   <Button type="button" variant="ghost" size="icon-sm" className="mt-0.5 text-muted-foreground" aria-label={`${t("removeOption")} ${i + 1}`} onClick={() => setOpts((p) => p.filter((_, n) => n !== i))}>
                     <X aria-hidden />
@@ -296,7 +351,7 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
               variant="ghost"
               size="sm"
               className="self-start"
-              onClick={() => setOpts((p) => [...p, { id: crypto.randomUUID(), item_id: d.id, restaurant_id: rid, name: "", name_ar: "", price_fils: 0, position: p.length + 1, aed: "0.00" }])}
+              onClick={() => setOpts((p) => [...p, { id: crypto.randomUUID(), item_id: d.id, restaurant_id: rid, name: "", name_ar: "", price_fils: 0, position: p.length + 1, aed: filsToInput(0), cost: "" }])}
             >
               <Plus aria-hidden /> {t("addOption")}
             </Button>

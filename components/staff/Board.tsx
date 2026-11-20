@@ -9,11 +9,10 @@ import { OrderCard, ageTone } from "@/components/staff/OrderCard";
 import { StatusTag } from "@/components/app/status-badge";
 import { formatAge, tableLabel } from "@/lib/format";
 import { tr } from "@/lib/i18n";
-import { pick, type Can, type Lang, type Order, type ServiceRequest } from "@/lib/types";
+import { pick, type Lang, type Order, type ServiceRequest } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  can: Can;
   lang: Lang;
   now: number;
   loaded: boolean;
@@ -27,7 +26,7 @@ type Props = {
   onResolve: (id: string) => void;
 };
 
-const COL_MIN = 220; // px, one ticket column
+const COL_MIN = 248; // px, one ticket column; narrower clips the action row and the guest line
 const GAP = 12;
 
 /** Number of ticket columns that fit the line's width. */
@@ -71,12 +70,12 @@ function totals(list: Order[], lang: Lang) {
   return [...m].sort((a, b) => b[1].q - a[1].q);
 }
 
-export function Board({ can, lang, now, loaded, orders, recent, requests, fresh, busyId, onAdvance, onCancel, onResolve }: Props) {
+export function Board({ lang, now, loaded, orders, recent, requests, fresh, busyId, onAdvance, onCancel, onResolve }: Props) {
   const line = orders.filter((o) => o.status === "received" || o.status === "preparing");
   const pass = orders.filter((o) => o.status === "ready").sort((a, b) => (a.ready_at ?? "").localeCompare(b.ready_at ?? ""));
   const late = line.filter((o) => ageTone(now - new Date(o.created_at).getTime()) === "late").length;
 
-  const [pane, setPane] = useState<"line" | "pass">(can.cook ? "line" : "pass");
+  const [pane, setPane] = useState<"line" | "pass">("line");
   const [showTotals, setShowTotals] = useState(false);
   const [highlight, setHighlight] = useState<string | null>(null);
   const scroller = useRef<HTMLDivElement>(null);
@@ -101,7 +100,7 @@ export function Board({ can, lang, now, loaded, orders, recent, requests, fresh,
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <CallsTray requests={can.calls ? requests : []} lang={lang} now={now} busyId={busyId} fresh={fresh} onResolve={onResolve} />
+      <CallsTray requests={requests} lang={lang} now={now} busyId={busyId} fresh={fresh} onResolve={onResolve} />
 
       {/* Phone / narrow: one pane at a time. */}
       <div role="tablist" aria-label={tr(lang, "jumpTo")} className="flex shrink-0 gap-1 border-b p-2 lg:hidden">
@@ -125,7 +124,9 @@ export function Board({ can, lang, now, loaded, orders, recent, requests, fresh,
           ))}
         </div>
       ) : orders.length === 0 ? (
-        <EmptyState icon={Inbox} title={tr(lang, "allClear")} body={tr(lang, "allClearBody")} />
+        <div className="grid flex-1 place-items-center">
+          <EmptyState icon={Inbox} title={tr(lang, "allClear")} body={tr(lang, "allClearBody")} />
+        </div>
       ) : (
         <div className={cn("grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_256px]", showTotals && "lg:grid-cols-[232px_minmax(0,1fr)_256px]")}>
           {showTotals && (
@@ -161,7 +162,7 @@ export function Board({ can, lang, now, loaded, orders, recent, requests, fresh,
                   {line.length} · {tr(lang, "oldestFirst")}
                 </span>
                 {late > 0 && <span className="text-sm font-medium text-destructive tabular-nums">{tr(lang, "overLate").replace("{n}", String(late))}</span>}
-                {can.cook && line.length > 0 && (
+                {line.length > 0 && (
                   <Button
                     variant={showTotals ? "default" : "secondary"}
                     size="xs"
@@ -180,7 +181,7 @@ export function Board({ can, lang, now, loaded, orders, recent, requests, fresh,
                   deal(line, cols).map((list, i) => (
                     <div key={i} className="flex min-w-0 flex-1 flex-col gap-3">
                       {list.map((o) => (
-                        <OrderCard key={o.id} can={can} order={o} now={now} lang={lang} busy={busyId === o.id} fresh={fresh.has(o.id)} highlight={hi} onAdvance={onAdvance} onCancel={onCancel} />
+                        <OrderCard key={o.id} order={o} now={now} lang={lang} busy={busyId === o.id} fresh={fresh.has(o.id)} highlight={hi} onAdvance={onAdvance} onCancel={onCancel} />
                       ))}
                     </div>
                   ))
@@ -189,7 +190,7 @@ export function Board({ can, lang, now, loaded, orders, recent, requests, fresh,
             </div>
             {below > 0 && (
               <Button
-                className="absolute end-6 bottom-4 rounded-full shadow-lg"
+                className="absolute end-6 bottom-4 rounded-full shadow-float"
                 onClick={() => scroller.current?.scrollBy({ top: scroller.current.clientHeight * 0.8, behavior: "smooth" })}
               >
                 {tr(lang, "moreBelow").replace("{n}", String(below))}

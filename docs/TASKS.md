@@ -39,7 +39,9 @@ Skills: `web-design-engineer` (lead), `no-ai-design-slop` (gate), `localization-
 - [x] Staff: login, live board, calls panel, tables & bills
 - [x] Owner: menu admin, tables, QR sheet, settings, staff invites
 - [ ] Loading, empty and error states on every screen
-- [ ] Live E2E with real role logins (invite `kitchen` + `waiter` users, sign up, confirm hidden actions and FORBIDDEN on forced RPCs)
+- [x] Roles merged to Owner + Staff 2026-11-17 (`20261119000001_two_roles.sql`)
+- [ ] Automatic profit 2026-11-17: dish costs, hourly rates, shifts, Profit page (`20261119000002_profit.sql`). Code done; apply both migrations, run `staff_roles.sql` + `costs.sql`, browser check
+- [ ] Live E2E with a real staff login (invite, sign up, Shift mode creates a shift, owner sees wages)
 
 ## 4. Accessibility
 - [ ] `accessibility-audit` on all three surfaces (focus order, labels, contrast, dialog focus trap, reduced motion)

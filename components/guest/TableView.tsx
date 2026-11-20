@@ -2,20 +2,19 @@
 import { useState } from "react";
 import { ArrowLeft, Bell, Check, ReceiptText } from "lucide-react";
 import { useLang, type Key } from "@/lib/i18n";
-import { formatMoney } from "@/lib/format";
-import { VENUE_TZ } from "@/lib/stats";
 import { pick, type Lang, type MenuItem, type Order, type OrderLine, type ServiceRequest, type Visit } from "@/lib/types";
 import { Arch } from "@/components/app/arch";
 import { StatusTag } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { Me } from "./GuestApp";
+import { useVenue } from "@/lib/venue";
 
 const STEPS = ["received", "preparing", "ready", "served"] as const;
 const HEAD: Record<Order["status"], Key> = { received: "hReceived", preparing: "hPreparing", ready: "hReady", served: "hServed", cancelled: "hCancelled" };
 
-const clock = (iso: string | null, lang: Lang) =>
-  iso ? new Intl.DateTimeFormat(lang === "ar" ? "ar-AE-u-nu-latn" : "en-AE", { hour: "numeric", minute: "2-digit", timeZone: VENUE_TZ }).format(new Date(iso)) : "";
+const clock = (iso: string | null, lang: Lang, tz: string) =>
+  iso ? new Intl.DateTimeFormat(lang === "ar" ? "ar-AE-u-nu-latn" : "en-AE", { hour: "numeric", minute: "2-digit", timeZone: tz }).format(new Date(iso)) : "";
 
 export function TableView({
   me,
@@ -39,6 +38,7 @@ export function TableView({
   onOrderMore: () => void;
 }) {
   const { lang, t } = useLang();
+  const { tz } = useVenue();
   const [billView, setBillView] = useState(false);
   const waiter = requests.some((r) => r.kind === "waiter");
   const billAsked = requests.some((r) => r.kind === "bill") || !!visit?.bill_requested_at;
@@ -79,7 +79,7 @@ export function TableView({
       {focus ? (
         <>
           <p className="text-sm text-text-2">
-            {t("orderNo")} {focus.number} · {t("sentAt")} {clock(focus.created_at, lang)}
+            {t("orderNo")} {focus.number} · {t("sentAt")} {clock(focus.created_at, lang, tz)}
           </p>
           <h2 className="font-display text-[28px] leading-[1.15] font-semibold">{t(HEAD[focus.status])}</h2>
           {sub && <p className="text-text-2">{sub}</p>}
@@ -107,7 +107,7 @@ export function TableView({
                       <b className={cn("font-medium", state === "wait" && "font-normal text-muted-foreground")}>{t(s === "served" ? "sServed" : (`st_${s}` as Key))}</b>
                       {state === "now" && s === "preparing" && <small className="block text-sm text-text-2">{t("sPrepNote")}</small>}
                     </span>
-                    <time className="text-sm text-muted-foreground tabular-nums">{state !== "wait" ? clock(times[i], lang) : ""}</time>
+                    <time className="text-sm text-muted-foreground tabular-nums">{state !== "wait" ? clock(times[i], lang, tz) : ""}</time>
                   </li>
                 );
               })}
@@ -118,7 +118,7 @@ export function TableView({
             <section key={o.id} className="border-t py-4">
               <h3 className="mb-3 flex justify-between gap-2 text-sm font-medium text-text-2">
                 <span className="truncate">
-                  {clock(o.created_at, lang)}
+                  {clock(o.created_at, lang, tz)}
                   {o.guest_name && ` · ${o.guest_name}`}
                 </span>
                 <StatusTag status={o.status} />
@@ -159,6 +159,7 @@ export function TableView({
 
 function Lines({ lines, menu, className }: { lines: OrderLine[]; menu: MenuItem[]; className?: string }) {
   const { lang } = useLang();
+  const { money } = useVenue();
   return (
     <ul className={cn("grid gap-3", className)}>
       {lines.map((l) => {
@@ -167,11 +168,16 @@ function Lines({ lines, menu, className }: { lines: OrderLine[]; menu: MenuItem[
         return (
           <li key={l.id} className="flex items-center gap-3 text-[15px]">
             {img ? <Arch src={img} alt="" width={32} height={38} /> : <span aria-hidden className="h-[38px] w-8 shrink-0 rounded-arch bg-muted" />}
-            <span className="min-w-0">
-              {l.quantity} × {pick(lang, l.name, l.name_ar)}
+            <span className="min-w-0 flex-1">
+              <span className="flex items-baseline-last gap-2">
+                <span className="min-w-0">
+                  <span className="tabular-nums">{l.quantity}</span> × {pick(lang, l.name, l.name_ar)}
+                </span>
+                <span aria-hidden className="leader" />
+                <span className="whitespace-nowrap text-text-2 tabular-nums">{money(l.unit_price_fils * l.quantity)}</span>
+              </span>
               {l.option_name && <small className="block text-sm text-text-2">{pick(lang, l.option_name, l.option_name_ar)}</small>}
             </span>
-            <span className="ms-auto whitespace-nowrap text-text-2 tabular-nums">{formatMoney(l.unit_price_fils * l.quantity, lang)}</span>
           </li>
         );
       })}
@@ -180,11 +186,11 @@ function Lines({ lines, menu, className }: { lines: OrderLine[]; menu: MenuItem[
 }
 
 function Total({ label, fils }: { label: string; fils: number }) {
-  const { lang } = useLang();
+  const { money } = useVenue();
   return (
-    <div className="flex justify-between border-t py-4 font-semibold">
+    <div className="flex items-baseline justify-between border-t-[3px] border-double border-foreground py-4 font-semibold">
       <span>{label}</span>
-      <span className="tabular-nums">{formatMoney(fils, lang)}</span>
+      <span className="font-display text-[22px] tabular-nums">{money(fils)}</span>
     </div>
   );
 }

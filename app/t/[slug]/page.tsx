@@ -1,6 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { notFound } from "next/navigation";
 import { GuestApp } from "@/components/guest/GuestApp";
+import { VenueProvider } from "@/lib/venue";
 import { SUPABASE_KEY, SUPABASE_URL } from "@/lib/supabase/env";
 import { MENU_SELECT, type Category, type MenuItem, type Restaurant } from "@/lib/types";
 
@@ -20,6 +21,7 @@ export default async function TablePage({ params }: { params: Promise<{ slug: st
   ]);
   if (!restaurant) notFound();
   return (
+    <VenueProvider restaurant={restaurant as Restaurant}>
     <GuestApp
       slug={slug}
       tableNumber={info.table_number}
@@ -28,5 +30,6 @@ export default async function TablePage({ params }: { params: Promise<{ slug: st
       categories={(categories ?? []) as Category[]}
       initialMenu={(menu ?? []) as MenuItem[]}
     />
+    </VenueProvider>
   );
 }

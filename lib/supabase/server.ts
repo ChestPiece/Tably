@@ -20,7 +20,7 @@ export async function serverClient() {
   });
 }
 
-export type StaffContext = { userId: string; email: string; role: StaffRole; restaurantId: string };
+export type StaffContext = { userId: string; email: string; role: StaffRole; restaurantId: string; timezone: string };
 
 export async function getStaff(): Promise<StaffContext | null> {
   const sb = await serverClient();
@@ -29,11 +29,12 @@ export async function getStaff(): Promise<StaffContext | null> {
   if (!claims || claims.is_anonymous) return null;
   const { data: member } = await sb
     .from("staff_members")
-    .select("restaurant_id, role")
+    .select("restaurant_id, role, restaurants(timezone)")
     .eq("user_id", claims.sub)
     .order("role")
     .limit(1)
     .maybeSingle();
+  // ponytail: first membership wins (one restaurant per user in the beta); add a switcher when someone runs two.
   if (!member) return null;
-  return { userId: claims.sub, email: String(claims.email ?? ""), role: member.role, restaurantId: member.restaurant_id };
+  return { userId: claims.sub, email: String(claims.email ?? ""), role: member.role, restaurantId: member.restaurant_id, timezone: (member.restaurants as unknown as { timezone: string } | null)?.timezone ?? "UTC" };
 }

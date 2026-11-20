@@ -4,8 +4,25 @@
     {
       "name": "brand-demos",
       "runtimeExecutable": "npx.cmd",
-      "runtimeArgs": ["--yes", "http-server@14.1.1", "brand-demos", "-p", "4321", "-c-1", "--silent"],
+      "runtimeArgs": [
+        "--yes",
+        "http-server@14.1.1",
+        "brand-demos",
+        "-p",
+        "4321",
+        "-c-1",
+        "--silent"
+      ],
       "port": 4321
+    },
+    {
+      "name": "chestbest",
+      "runtimeExecutable": "npm.cmd",
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
+      "port": 3000
     }
   ]
 }

@@ -1,12 +1,12 @@
 "use client";
 import { useState } from "react";
 import { useLang } from "@/lib/i18n";
-import { formatMoney } from "@/lib/format";
 import { pick, type MenuItem } from "@/lib/types";
 import { Arch } from "@/components/app/arch";
 import { QuantityStepper } from "@/components/app/quantity-stepper";
 import { ResponsiveSheet } from "@/components/app/responsive-sheet";
 import { Button } from "@/components/ui/button";
+import { useVenue } from "@/lib/venue";
 
 export function ItemSheet({
   item,
@@ -20,6 +20,7 @@ export function ItemSheet({
   onAdd: (item: MenuItem, optionId: string | null, quantity: number) => void;
 }) {
   const { lang, t } = useLang();
+  const { money } = useVenue();
   const [optionId, setOptionId] = useState<string | null>(item.item_options[0]?.id ?? null);
   const [qty, setQty] = useState(1);
   const option = item.item_options.find((o) => o.id === optionId);
@@ -39,7 +40,7 @@ export function ItemSheet({
           <QuantityStepper value={qty} min={1} max={20} onChange={setQty} labels={{ decrease: t("decrease"), increase: t("increase") }} />
           <Button className="flex-1 justify-between" disabled={disabled} onClick={() => onAdd(item, optionId, qty)}>
             <span>{t("add")}</span>
-            <span className="tabular-nums">{formatMoney(unit * qty, lang)}</span>
+            <span className="tabular-nums">{money(unit * qty)}</span>
           </Button>
         </div>
       }
@@ -54,7 +55,7 @@ export function ItemSheet({
             >
               <input type="radio" name="option" checked={optionId === o.id} onChange={() => setOptionId(o.id)} className="size-[18px] accent-[var(--primary)] outline-none" />
               <span className="flex-1">{pick(lang, o.name, o.name_ar)}</span>
-              <span className="text-text-2 tabular-nums">{o.price_fils ? `+${formatMoney(o.price_fils, lang)}` : ""}</span>
+              <span className="text-text-2 tabular-nums">{o.price_fils ? `+${money(o.price_fils)}` : ""}</span>
             </label>
           ))}
         </fieldset>

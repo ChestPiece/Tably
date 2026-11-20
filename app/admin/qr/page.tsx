@@ -63,7 +63,7 @@ export default async function QrSheet() {
             )}
             <span dir="ltr" className="mt-[4mm] flex items-center gap-[1.5mm] text-[2.6mm]">
               <BrandMark className="size-[4mm]" />
-              Sufra
+              Tably
             </span>
           </div>
         ))}

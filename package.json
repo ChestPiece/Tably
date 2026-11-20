@@ -1,5 +1,5 @@
 {
-  "name": "chestbest",
+  "name": "tably",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -15,6 +15,8 @@
     "@supabase/supabase-js": "2.119.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "gsap": "^3.13.0",
+    "lenis": "^1.1.20",
     "lucide-react": "1.73.0",
     "next": "16.4.6",
     "next-themes": "^0.4.6",

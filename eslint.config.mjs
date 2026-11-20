@@ -13,6 +13,9 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     ".playwright-mcp/**",
+    // Installed agent skills (vendored, not app code).
+    ".agents/**",
+    ".claude/**",
   ]),
 ]);
 

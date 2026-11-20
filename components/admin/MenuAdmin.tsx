@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { tr, useLang } from "@/lib/i18n";
+import { useVenue } from "@/lib/venue";
 import { pick, type Category, type MenuItem, type Restaurant } from "@/lib/types";
 import type { AdminProps } from "./AdminApp";
 import { ItemEditor } from "./ItemEditor";
@@ -42,6 +43,7 @@ export function blankItem(rid: string, categories: Category[], menu: MenuItem[])
 
 export function MenuAdmin({ sb, mutate, run, restaurant, categories, menu, editing, onEdit }: Props) {
   const { lang, t } = useLang();
+  const { secondLang } = useVenue();
   const [cat, setCat] = useState("all");
   const [managing, setManaging] = useState(false);
   const [busyId, setBusyId] = useState("");
@@ -119,7 +121,7 @@ export function MenuAdmin({ sb, mutate, run, restaurant, categories, menu, editi
             variant="secondary"
             size="sm"
             className="self-start"
-            onClick={() => mutate(() => sb.from("categories").insert({ restaurant_id: rid, name: tr("en", "newCategoryName"), name_ar: tr("ar", "newCategoryName"), position: categories.length + 1 }), t("categoryAdded"))}
+            onClick={() => mutate(() => sb.from("categories").insert({ restaurant_id: rid, name: tr("en", "newCategoryName"), name_ar: secondLang ? tr("ar", "newCategoryName") : "", position: categories.length + 1 }), t("categoryAdded"))}
           >
             <Plus aria-hidden /> {t("addCategory")}
           </Button>
@@ -131,6 +133,7 @@ export function MenuAdmin({ sb, mutate, run, restaurant, categories, menu, editi
 
 function CategoryRow({ c, used, sb, mutate, run }: AdminProps & { c: Category; used: boolean }) {
   const { lang, t } = useLang();
+  const { secondLang } = useVenue();
   const [saving, setSaving] = useState(false);
   // Save on Enter or blur, only when the value changed.
   // An empty value or a failed save puts the stored name back in the field.
@@ -157,9 +160,9 @@ function CategoryRow({ c, used, sb, mutate, run }: AdminProps & { c: Category; u
   return (
     <div className="flex flex-col gap-1">
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-      <div className="grid flex-1 gap-2 sm:grid-cols-2">
+      <div className={secondLang ? "grid flex-1 gap-2 sm:grid-cols-2" : "grid flex-1"}>
         {input("name", t("catNameEn"))}
-        {input("name_ar", t("catNameAr"))}
+        {secondLang && input("name_ar", t("catNameAr"))}
       </div>
       <div className="flex items-center justify-end gap-1">
         {saving && <Loader2 aria-hidden className="size-4 animate-spin text-muted-foreground" />}

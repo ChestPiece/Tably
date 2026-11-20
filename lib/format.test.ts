@@ -1,14 +1,25 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ageLevel, filsToInput, formatAge, formatMoney, MAX_FILS, parseFils, plural, tableLabel } from "./format.ts";
+import { ageLevel, currencyDigits, formatAge, formatMoney, MAX_MINOR, minorToInput, parseMinor, plural, tableLabel } from "./format.ts";
 
 test("formatMoney en has number and AED", () => {
-  const s = formatMoney(8100, "en");
+  const s = formatMoney(8100, "en", "AED");
   assert.match(s, /81\.00/);
   assert.match(s, /AED/);
 });
-test("formatMoney en without currency is bare", () => assert.equal(formatMoney(8100, "en", { currency: false }), "81.00"));
-test("formatMoney ar uses Western digits", () => assert.match(formatMoney(8100, "ar"), /81.00/));
+test("formatMoney bare has no currency", () => assert.equal(formatMoney(8100, "en", "AED", { bare: true }), "81.00"));
+test("formatMoney ar uses Western digits", () => assert.match(formatMoney(8100, "ar", "AED"), /81.00/));
+test("formatMoney KWD has 3 decimals", () => assert.match(formatMoney(1250, "en", "KWD"), /1\.250/));
+test("formatMoney JPY has no decimals", () => {
+  const s = formatMoney(500, "en", "JPY");
+  assert.match(s, /500/);
+  assert.doesNotMatch(s, /\./);
+});
+test("currencyDigits per currency", () => {
+  assert.equal(currencyDigits("USD"), 2);
+  assert.equal(currencyDigits("KWD"), 3);
+  assert.equal(currencyDigits("JPY"), 0);
+});
 test("plural en one/other with #", () => {
   const f = { one: "1 order", other: "# orders" };
   assert.equal(plural("en", 1, f), "1 order");
@@ -27,21 +38,30 @@ test("formatAge en", () => {
   assert.equal(formatAge(65 * 60e3, "en"), "1h 05m");
 });
 test("formatAge ar uses Western digits", () => assert.match(formatAge(7 * 60e3, "ar"), /7د/));
-test("parseFils integer-safe", () => {
-  assert.equal(parseFils("12.5"), 1250);
-  assert.equal(parseFils("0.29"), 29);
-  assert.equal(parseFils("١٢٫٥٠"), 1250);
-  assert.equal(parseFils("7"), 700);
-  assert.equal(parseFils("1.234"), null);
-  assert.equal(parseFils(""), null);
-  assert.equal(parseFils("-1"), null);
-  assert.ok((parseFils("10000.01") ?? 0) > MAX_FILS);
-  assert.equal(parseFils("10000"), MAX_FILS);
+test("parseMinor integer-safe (2 decimals)", () => {
+  assert.equal(parseMinor("12.5", 2), 1250);
+  assert.equal(parseMinor("0.29", 2), 29);
+  assert.equal(parseMinor("١٢٫٥٠", 2), 1250);
+  assert.equal(parseMinor("7", 2), 700);
+  assert.equal(parseMinor("1.234", 2), null);
+  assert.equal(parseMinor("", 2), null);
+  assert.equal(parseMinor("-1", 2), null);
+  assert.ok((parseMinor("10000.01", 2) ?? 0) > MAX_MINOR);
+  assert.equal(parseMinor("10000", 2), MAX_MINOR);
 });
-test("filsToInput round-trips", () => {
-  assert.equal(filsToInput(1250), "12.50");
-  assert.equal(filsToInput(5), "0.05");
-  assert.equal(parseFils(filsToInput(8100)), 8100);
+test("parseMinor 3 and 0 decimals", () => {
+  assert.equal(parseMinor("1.25", 3), 1250);
+  assert.equal(parseMinor("1.250", 3), 1250);
+  assert.equal(parseMinor("1.2501", 3), null);
+  assert.equal(parseMinor("500", 0), 500);
+  assert.equal(parseMinor("1.5", 0), null);
+});
+test("minorToInput round-trips", () => {
+  assert.equal(minorToInput(1250, 2), "12.50");
+  assert.equal(minorToInput(5, 2), "0.05");
+  assert.equal(minorToInput(1250, 3), "1.250");
+  assert.equal(minorToInput(500, 0), "500");
+  assert.equal(parseMinor(minorToInput(8100, 2), 2), 8100);
 });
 test("tableLabel en/ar", () => {
   assert.equal(tableLabel("en", 12), "T12");

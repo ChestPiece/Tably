@@ -1,17 +1,20 @@
 "use client";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { staffClient } from "@/lib/supabase/browser";
 import { tableLabel } from "@/lib/format";
 import { errorText, tr, useLang } from "@/lib/i18n";
-import { MENU_SELECT, ORDER_SELECT, pick, type Category, type MenuItem, type Order, type Restaurant, type ServiceRequest, type StaffRole, type Visit, can as canFor } from "@/lib/types";
+import { MENU_SELECT, ORDER_SELECT, pick, type Category, type MenuItem, type Order, type Restaurant, type ServiceRequest, type StaffRole, type Visit } from "@/lib/types";
 import { Board } from "@/components/staff/Board";
 import { CancelOrderDialog } from "@/components/staff/CancelOrderDialog";
 import { MenuToggles } from "@/components/staff/MenuToggles";
-import { StaffHeader, type StaffTab } from "@/components/staff/StaffHeader";
+import { StaffSidebar, StaffTopBar, type StaffTab } from "@/components/staff/StaffHeader";
+import { StaffToday } from "@/components/staff/StaffToday";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { dayRange } from "@/lib/stats";
 import { TablesView } from "@/components/staff/TablesView";
+import { useVenue } from "@/lib/venue";
 
 function useChime() {
   const ctx = useRef<AudioContext | null>(null);
@@ -34,21 +37,20 @@ function useChime() {
       o.stop(t0 + 0.4);
     });
   }, []);
-  const unlock = () => {
+  const unlock = useCallback(() => {
     ctx.current ??= new AudioContext();
     return ctx.current.resume();
-  };
+  }, []);
   return { play, unlock };
 }
 
 /** `embedded`: board columns only (owner Live board page), no staff header/tabs. */
-export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant: Restaurant; role: StaffRole; embedded?: boolean }) {
-  const can = canFor(role);
+export function StaffBoard({ restaurant: initial, role, embedded, sidebarOpen = true, clockedIn = false }: { restaurant: Restaurant; role: StaffRole; embedded?: boolean; sidebarOpen?: boolean; clockedIn?: boolean }) {
   const sb = useMemo(() => staffClient(), []);
-  const router = useRouter();
   const rid = initial.id;
   const [restaurant, setRestaurant] = useState(initial);
   const { lang } = useLang();
+  const { tz } = useVenue();
   const [tab, setTab] = useState<StaffTab>("board");
   const [loaded, setLoaded] = useState(false);
   const [announce, setAnnounce] = useState("");
@@ -58,7 +60,8 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
   const [menu, setMenu] = useState<MenuItem[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [online, setOnline] = useState(false);
-  const [shift, setShift] = useState(false);
+  // Shift mode = clocked in (wages for the owner's profit report). Survives reloads through the open shift row.
+  const [shift, setShift] = useState(clockedIn);
   const [busyId, setBusyId] = useState("");
   const [cancelling, setCancelling] = useState<Order | null>(null);
   const langRef = useRef(lang);
@@ -68,11 +71,12 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
   const [fresh, setFresh] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => Date.now());
   const { play, unlock } = useChime();
-  const shiftRef = useRef(false);
+  const shiftRef = useRef(clockedIn);
   const wake = useRef<{ release: () => Promise<void> } | null>(null);
 
   const load = useCallback(async () => {
-    const since = new Date(Date.now() - 3 * 3600_000).toISOString();
+    // Whole venue day: the board shows live tickets, the Today page counts the rest.
+    const since = dayRange(new Date(), tz).start;
     const [o, r, v, m, c] = await Promise.all([
       sb.from("orders").select(ORDER_SELECT).eq("restaurant_id", rid).or(`status.in.(received,preparing,ready),created_at.gte.${since}`).order("created_at").order("position", { referencedTable: "order_lines" }),
       sb.from("service_requests").select("*").eq("restaurant_id", rid).is("resolved_at", null).order("created_at"),
@@ -87,7 +91,7 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
     setVisits(v.data as Visit[]);
     setMenu((m.data ?? []) as MenuItem[]);
     setCategories((c.data ?? []) as Category[]);
-  }, [sb, rid]);
+  }, [sb, rid, tz]);
 
   const markFresh = (id: string) => {
     setFresh((s) => new Set(s).add(id));
@@ -104,7 +108,7 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
         if (shiftRef.current) play("order");
         markFresh(p.new.id as string);
         setAnnounce(tr(langRef.current, "announceOrder").replace("{n}", String(p.new.table_number)));
-        if (document.hidden) document.title = "● New order · ChestBest";
+        if (document.hidden) document.title = "● New order · Tably";
         // Lines are inserted in the same transaction; reload after they land.
         window.setTimeout(load, 250);
       })
@@ -127,7 +131,7 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
     const tick = window.setInterval(() => setNow(Date.now()), 20000);
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
-      document.title = "ChestBest · Kitchen";
+      document.title = "Tably · Kitchen";
       load();
       if (shiftRef.current) navigator.wakeLock?.request("screen").then((w) => (wake.current = w)).catch(() => {});
     };
@@ -139,7 +143,17 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
     };
   }, [sb, rid, load, play]);
 
+  // Already clocked in on load: audio needs a user gesture, so unlock on the first tap anywhere.
+  useEffect(() => {
+    if (!clockedIn) return;
+    const once = () => unlock();
+    window.addEventListener("pointerdown", once, { once: true });
+    return () => window.removeEventListener("pointerdown", once);
+  }, [clockedIn, unlock]);
+
   async function toggleShift() {
+    const { error: e } = await sb.rpc(shift ? "clock_out" : "clock_in");
+    if (e) return void toast.error(errorText(lang, e));
     if (shift) {
       shiftRef.current = false;
       setShift(false);
@@ -165,26 +179,13 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
   const live = orders.filter((o) => ["received", "preparing", "ready"].includes(o.status));
   const recent = orders.filter((o) => ["served", "cancelled"].includes(o.status)).reverse().slice(0, 12);
   const soldOut = menu.filter((i) => !i.available).length;
+  const dayStart = Date.parse(dayRange(new Date(now), tz).start);
+  const today = orders.filter((o) => Date.parse(o.created_at) >= dayStart);
+  const titles: Record<StaffTab, string> = { board: tr(lang, "tabBoard"), today: tr(lang, "today"), tables: tr(lang, "tabTables"), menu: tr(lang, "tabMenu") };
 
-  return (
+  const body = (
     <div className={cn("flex flex-col bg-background text-foreground", embedded ? "h-full" : "h-dvh")}>
-      {!embedded && (
-      <StaffHeader
-        venue={pick(lang, restaurant.name, restaurant.name_ar)}
-        tab={tab}
-        onTab={setTab}
-        counts={{ board: live.length, tables: visits.length, soldOut }}
-        online={online}
-        shift={shift}
-        onToggleShift={toggleShift}
-        role={role}
-        can={can}
-        onSignOut={async () => {
-          await sb.auth.signOut();
-          router.replace("/login");
-        }}
-      />
-      )}
+      {!embedded && <StaffTopBar title={titles[tab]} online={online} shift={shift} onToggleShift={toggleShift} />}
       <p aria-live="polite" className="sr-only">
         {announce}
       </p>
@@ -197,7 +198,6 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
             lang={lang}
             now={now}
             loaded={loaded}
-            can={can}
             orders={live}
             recent={recent}
             requests={requests}
@@ -218,7 +218,13 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
         </main>
       )}
 
-      {!embedded && tab === "tables" && can.tables && (
+      {!embedded && tab === "today" && (
+        <main className="relative min-h-0 flex-1 overflow-y-auto">
+          <StaffToday orders={today} />
+        </main>
+      )}
+
+      {!embedded && tab === "tables" && (
         <main className="min-h-0 flex-1 overflow-y-auto">
           <TablesView
             visits={visits}
@@ -231,7 +237,7 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
         </main>
       )}
 
-      {!embedded && tab === "menu" && can.soldOut && (
+      {!embedded && tab === "menu" && (
         <main className="min-h-0 flex-1 overflow-y-auto">
           <MenuToggles
             categories={categories}
@@ -255,5 +261,19 @@ export function StaffBoard({ restaurant: initial, role, embedded }: { restaurant
         }
       />
     </div>
+  );
+
+  if (embedded) return body;
+  return (
+    <SidebarProvider defaultOpen={sidebarOpen} style={{ "--sidebar-width": "232px", "--sidebar": "var(--card)" } as React.CSSProperties}>
+      <StaffSidebar
+        venue={pick(lang, restaurant.name, restaurant.name_ar)}
+        tab={tab}
+        onTab={setTab}
+        counts={{ board: live.length, tables: visits.length, soldOut }}
+        role={role}
+      />
+      <SidebarInset className="min-w-0">{body}</SidebarInset>
+    </SidebarProvider>
   );
 }

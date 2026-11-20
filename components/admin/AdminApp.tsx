@@ -10,13 +10,15 @@ import { Button } from "@/components/ui/button";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
 import { errorText, useLang } from "@/lib/i18n";
-import { VENUE_TZ } from "@/lib/stats";
+import { useVenue } from "@/lib/venue";
 import { staffClient } from "@/lib/supabase/browser";
 import { pick, type Category, type MenuItem, type Restaurant, type TableRow } from "@/lib/types";
 import { AdminSidebar, OWNER_PAGES, type OwnerPage } from "./AdminSidebar";
 import { BottomNav } from "./BottomNav";
 import { MenuAdmin, blankItem } from "./MenuAdmin";
+import { GetLive } from "./GetLive";
 import { OwnerHome, PANEL, type TodayData } from "./OwnerHome";
+import { ProfitPage } from "./ProfitPage";
 import { ORDER_FILTERS, OwnerOrders, type OrderFilter } from "./OwnerOrders";
 import { SettingsForm } from "./SettingsForm";
 import { TablesAdmin, newSlug } from "./TablesAdmin";
@@ -40,6 +42,7 @@ export function AdminApp(props: {
   const path = usePathname();
   const params = useSearchParams();
   const { lang, t } = useLang();
+  const { tz } = useVenue();
   const [editing, setEditing] = useState<MenuItem | null>(null);
   const [pausing, setPausing] = useState(false);
   const [adding, setAdding] = useState(false);
@@ -79,7 +82,7 @@ export function AdminApp(props: {
   const common = { sb, mutate, run };
   const r = props.restaurant;
   const venue = pick(lang, r.name, r.name_ar);
-  const meName = props.team.find((m) => m.user_id === props.me)?.display_name ?? t("roleOwner");
+  const meName = props.team.find((m) => m.user_id === props.me)?.display_name ?? props.email.split("@")[0];
   const live = props.today.orders.filter((o) => ["received", "preparing", "ready"].includes(o.status)).length;
 
   async function setTaking(on: boolean) {
@@ -95,7 +98,7 @@ export function AdminApp(props: {
     setAdding(false);
   }
 
-  const date = new Intl.DateTimeFormat(lang === "ar" ? "ar-AE-u-nu-latn" : "en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: VENUE_TZ }).format(new Date());
+  const date = new Intl.DateTimeFormat(lang === "ar" ? "ar-AE-u-nu-latn" : "en-GB", { weekday: "long", day: "numeric", month: "long", timeZone: tz }).format(new Date());
   const head: Record<OwnerPage, { sub?: string; acts?: ReactNode }> = {
     home: {
       sub: date,
@@ -111,6 +114,7 @@ export function AdminApp(props: {
     },
     board: { sub: t("boardSub") },
     orders: { sub: t("ordersSub") },
+    profit: { sub: t("profitSub") },
     menu: {
       sub: `${props.menu.length} ${t("dishes")}`,
       acts: (
@@ -161,13 +165,19 @@ export function AdminApp(props: {
             </div>
             {head[page].acts && <div className="ms-auto flex flex-wrap items-center gap-4 max-sm:ms-0 max-sm:w-full max-sm:[&>a]:flex-1 max-sm:[&>button]:flex-1">{head[page].acts}</div>}
           </header>
-          {page === "home" && <OwnerHome today={props.today} menu={props.menu} tables={props.tables} onOrders={() => setPage("orders")} />}
+          {page === "home" && (
+            <>
+              <GetLive dishes={props.menu.length > 0} ordered={r.order_counter > 0} team={props.team.length > 1 || props.invites.length > 0} onMenu={() => setPage("menu")} onTeam={() => setPage("team")} />
+              <OwnerHome sb={sb} today={props.today} menu={props.menu} tables={props.tables} onOrders={() => setPage("orders")} onProfit={() => setPage("profit")} />
+            </>
+          )}
+          {page === "profit" && <ProfitPage sb={sb} onMenu={() => setPage("menu")} />}
           {page === "board" && (
             <div className="h-[calc(100dvh-12rem)] min-h-[480px] overflow-hidden rounded-2xl bg-card ring-1 ring-border max-lg:h-[calc(100dvh-17rem)]">
               <StaffBoard restaurant={r} role="owner" embedded />
             </div>
           )}
-          {page !== "home" && page !== "board" && (
+          {page !== "home" && page !== "board" && page !== "profit" && (
             <div className={`${PANEL} ${page === "team" || page === "settings" ? "max-w-3xl" : ""}`}>
               {page === "orders" && <OwnerOrders orders={props.today.orders} filter={filter} onFilter={(f) => go({ filter: f === "all" ? null : f })} />}
               {page === "menu" && <MenuAdmin {...common} restaurant={r} categories={props.categories} menu={props.menu} editing={editing} onEdit={setEditing} />}

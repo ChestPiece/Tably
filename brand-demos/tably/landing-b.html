@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tably · Mockup B (framed hero)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--page:#E9E9E7;--white:#FFFFFF;--ink:#161616;--mute:#64645F;--line:#E3E3DF;--red:#D9342B;--leaf:#3F7A3A;--soft:#F6F5F1}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--page);color:var(--ink);font:400 15px/1.6 Inter,system-ui,sans-serif;padding:16px;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img,svg{display:block}
+.frame{background:var(--white);border-radius:28px;overflow:hidden;max-width:1400px;margin:0 auto}
+.serif{font-family:"Playfair Display",Georgia,serif;font-weight:700;letter-spacing:-.015em;line-height:1.08}
+.red{color:var(--red)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:48px;padding:0 24px;border:1.5px solid var(--ink);font-weight:500;font-size:14.5px;background:transparent;white-space:nowrap}
+.btn.fill{background:var(--ink);color:#fff}
+.btn.sm{height:42px;padding:0 18px;font-size:14px}
+
+/* nav */
+nav{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:26px 44px}
+.logo{display:flex;align-items:center;gap:10px;font-family:"Playfair Display",serif;font-weight:700;font-size:23px}
+.logo svg{width:30px;height:30px}
+nav ul{display:flex;gap:40px;list-style:none;font-size:14.5px;color:var(--mute)}
+nav ul a.on{color:var(--ink);font-weight:500}
+nav .btn{justify-self:end}
+
+/* hero */
+.hero{position:relative;text-align:center;padding:64px 24px 0;height:900px;overflow:hidden}
+.hero h1{font-size:clamp(38px,4.9vw,68px);max-width:1000px;margin:0 auto}
+.hero p.sub{max-width:520px;margin:22px auto 0;color:var(--mute)}
+.hero .btns{display:flex;gap:14px;justify-content:center;margin-top:34px}
+.pizza{position:absolute;left:50%;top:470px;width:780px;height:780px;margin-left:-390px;border-radius:50%;object-fit:cover;box-shadow:0 40px 80px -30px rgba(0,0,0,.4)}
+.ing{position:absolute;filter:drop-shadow(0 10px 12px rgba(0,0,0,.18))}
+.scan{position:absolute;right:9%;top:380px;width:170px;background:var(--white);border:1.5px solid var(--ink);padding:14px;text-align:start;z-index:2}
+.scan img{width:100%;aspect-ratio:1}
+.scan p{font-size:12px;line-height:1.35;margin-top:10px}
+.scan b{font-weight:600}
+.ticket{position:absolute;left:8%;top:420px;width:210px;background:var(--white);border:1.5px solid var(--ink);padding:14px 16px;text-align:start;z-index:2;font-size:13px}
+.ticket .row{display:flex;justify-content:space-between;align-items:baseline}
+.ticket .tb{font-family:"Playfair Display",serif;font-weight:700;font-size:20px}
+.ticket ul{list-style:none;margin:10px 0 12px;display:grid;gap:3px;border-top:1px dashed #bbb;padding-top:10px}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 9px;background:var(--red);color:#fff}
+
+/* sections */
+section.blk{padding:110px 44px}
+.eyebrowless{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:56px}
+.blk h2{font-size:clamp(34px,4vw,54px);max-width:640px}
+.blk .lead{max-width:380px;color:var(--mute)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);border:1.5px solid var(--ink)}
+.step{padding:34px 30px 30px;border-inline-end:1.5px solid var(--ink);display:flex;flex-direction:column;gap:14px;min-height:300px}
+.step:last-child{border-inline-end:0}
+.step .num{font-family:"Playfair Display",serif;font-weight:700;font-size:44px;line-height:1;color:var(--red)}
+.step h3{font-family:"Playfair Display",serif;font-size:25px;font-weight:700;line-height:1.15}
+.step p{color:var(--mute);font-size:14.5px}
+.step .art{margin-top:auto;display:flex;align-items:center;gap:12px;font-size:13px;color:var(--mute)}
+
+/* split: phone + board */
+.split{background:var(--soft)}
+.split-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.phone{width:300px;margin:0 auto;border:1.5px solid var(--ink);border-radius:38px;background:var(--white);padding:12px;box-shadow:16px 16px 0 var(--ink)}
+.screen{border-radius:28px;overflow:hidden;border:1px solid var(--line);background:#FBFAF7}
+.screen .hd{padding:20px 18px 12px}
+.screen .hd small{font-size:11px;color:var(--mute)}
+.screen .hd b{display:block;font-family:"Playfair Display",serif;font-size:22px;line-height:1.1}
+.chips{display:flex;gap:6px;padding:0 18px 12px;font-size:11.5px}
+.chips span{border:1px solid var(--line);padding:4px 10px;border-radius:99px}
+.chips span.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.item{display:grid;grid-template-columns:58px 1fr auto;gap:12px;align-items:center;padding:11px 18px;border-top:1px solid var(--line)}
+.item img{width:58px;height:58px;border-radius:12px;object-fit:cover}
+.item b{display:block;font-weight:600;font-size:13px}
+.item span{font-size:12px;color:var(--mute)}
+.item i{font-style:normal;display:grid;place-items:center;width:28px;height:28px;border:1.5px solid var(--ink);font-size:16px}
+.bar{margin:12px;background:var(--ink);color:#fff;display:flex;justify-content:space-between;padding:13px 16px;font-size:13px;font-weight:500}
+.feats{display:grid;gap:0;border-top:1.5px solid var(--ink)}
+.feat{display:grid;grid-template-columns:48px 1fr;gap:16px;padding:24px 0;border-bottom:1px solid var(--line)}
+.feat svg{width:36px;height:36px}
+.feat h3{font-size:17px;font-weight:600}
+.feat p{color:var(--mute);font-size:14.5px;margin-top:4px}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.card{border:1.5px solid var(--ink)}
+.card img{width:100%;aspect-ratio:4/3;object-fit:cover;border-bottom:1.5px solid var(--ink)}
+.card div{padding:22px 22px 26px}
+.card h3{font-family:"Playfair Display",serif;font-size:23px;font-weight:700}
+.card p{color:var(--mute);font-size:14.5px;margin-top:6px}
+
+/* cta */
+.cta{margin:0 44px 44px;background:var(--red);color:#fff;padding:80px 40px;text-align:center;position:relative;overflow:hidden}
+.cta h2{font-size:clamp(34px,4.4vw,60px);max-width:760px;margin:0 auto}
+.cta p{opacity:.85;margin-top:16px}
+.cta .btns{display:flex;gap:14px;justify-content:center;margin-top:30px}
+.cta .btn{border-color:#fff;color:#fff}
+.cta .btn.fill{background:#fff;color:var(--red)}
+.cta .plate{position:absolute;width:300px;height:300px;border-radius:50%;object-fit:cover;opacity:1}
+footer{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:30px 44px 36px;border-top:1px solid var(--line);font-size:13.5px;color:var(--mute)}
+footer ul{display:flex;gap:28px;list-style:none}
+
+@media (max-width:900px){
+  body{padding:8px}
+  .frame{border-radius:20px}
+  nav{grid-template-columns:1fr auto;padding:18px 16px}
+  nav ul{display:none}
+  .hero{padding:40px 16px 0;height:840px}
+  .hero .btns{flex-direction:column;align-items:stretch;max-width:300px;margin-inline:auto}
+  .pizza{width:460px;height:460px;margin-left:-230px;top:560px}
+  .scan{width:118px;right:12px;top:600px;padding:10px}
+  .scan p{font-size:10.5px}
+  .ticket{display:none}
+  .ing{display:none}
+  section.blk{padding:70px 16px}
+  .eyebrowless{display:block;margin-bottom:32px}
+  .blk .lead{margin-top:14px}
+  .steps,.cards,.split-grid{grid-template-columns:1fr}
+  .step{border-inline-end:0;border-bottom:1.5px solid var(--ink);min-height:0}
+  .step:last-child{border-bottom:0}
+  .phone{width:min(290px,100%);box-shadow:10px 10px 0 var(--ink)}
+  .cta{margin:0 8px 8px;padding:56px 20px}
+  .cta .btns{flex-direction:column}
+  .cta .plate{display:none}
+  footer{flex-direction:column;align-items:flex-start;padding:24px 16px}
+}
+</style>
+</head>
+<body>
+<div class="frame">
+
+<nav>
+  <a class="logo" href="#">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1.5" y="1.5" width="29" height="29" fill="none" stroke="#161616" stroke-width="2"/><rect x="6" y="6" width="8" height="8" fill="#161616"/><rect x="18" y="6" width="8" height="8" fill="#161616"/><rect x="6" y="18" width="8" height="8" fill="#161616"/><circle cx="22" cy="22" r="4.2" fill="#D9342B"/></svg>
+    Tably
+  </a>
+  <ul>
+    <li><a class="on" href="#">Home</a></li>
+    <li><a href="#how">How it works</a></li>
+    <li><a href="#team">For your team</a></li>
+    <li><a href="#">FAQ</a></li>
+  </ul>
+  <a class="btn sm" href="#">Start free</a>
+</nav>
+
+<header class="hero">
+  <h1 class="serif">Your Menu On Every Table, <span class="red">Ordered In Seconds</span></h1>
+  <p class="sub">Guests scan, order and ask for the bill from their own phone. Your kitchen sees it instantly, and your waiters stop running back and forth.</p>
+  <div class="btns">
+    <a class="btn fill" href="#">Start free</a>
+    <a class="btn" href="#how">See how it works</a>
+  </div>
+
+  <img class="pizza" src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1400&h=1400&fit=crop&q=75" alt="A pizza seen from above">
+
+  <div class="ticket" aria-label="Example kitchen ticket">
+    <div class="row"><span class="tb">Table 7</span><span class="pill">New</span></div>
+    <ul><li>1× Margherita, large</li><li>2× Garlic bread</li><li>1× Lemonade</li></ul>
+    <div class="row" style="color:var(--mute);font-size:12px"><span>just now</span><span>Sara · Omar</span></div>
+  </div>
+  <div class="scan">
+    <img src="qr.svg" alt="Example table QR code">
+    <p><b>Table 7</b><br>Scan to see the menu and order</p>
+  </div>
+
+  <!-- ingredients -->
+  <!-- basil -->
+  <svg class="ing" style="left:16%;top:300px;width:78px;transform:rotate(-28deg)" viewBox="0 0 80 50" aria-hidden="true"><path d="M4 26C18 4 54 0 76 24 54 48 18 46 4 26Z" fill="#3F7A3A"/><path d="M4 26C30 22 52 23 76 24" stroke="#2C5A28" stroke-width="2" fill="none"/><path d="M24 24l8-10M40 24l9-12M56 24l7-9M28 25l7 10M46 25l8 11" stroke="#2C5A28" stroke-width="1.4" fill="none"/></svg>
+  <!-- tomato slice -->
+  <svg class="ing" style="right:20%;top:250px;width:70px" viewBox="0 0 70 70" aria-hidden="true"><circle cx="35" cy="35" r="33" fill="#D9342B"/><circle cx="35" cy="35" r="27" fill="#EE5A45"/><g fill="#F8D27A"><ellipse cx="24" cy="26" rx="4" ry="6" transform="rotate(-30 24 26)"/><ellipse cx="46" cy="26" rx="4" ry="6" transform="rotate(30 46 26)"/><ellipse cx="22" cy="44" rx="4" ry="6" transform="rotate(30 22 44)"/><ellipse cx="48" cy="44" rx="4" ry="6" transform="rotate(-30 48 44)"/><ellipse cx="35" cy="50" rx="3.6" ry="5.5"/></g><circle cx="35" cy="35" r="5" fill="#D9342B"/></svg>
+  <!-- chili -->
+  <svg class="ing hide-sm" style="left:6%;top:560px;width:120px;transform:rotate(18deg)" viewBox="0 0 120 50" aria-hidden="true"><path d="M20 22C40 8 80 6 112 30 86 22 52 30 28 38 18 40 12 30 20 22Z" fill="#C8241C"/><path d="M30 20c18-8 40-10 60-4" stroke="#E8574A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M22 24C14 18 8 18 4 12" stroke="#3F7A3A" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+  <!-- olive -->
+  <svg class="ing" style="left:28%;top:250px;width:40px" viewBox="0 0 40 46" aria-hidden="true"><ellipse cx="20" cy="23" rx="17" ry="21" fill="#2A2A26"/><ellipse cx="20" cy="23" rx="6" ry="8" fill="#5A5A50"/><ellipse cx="13" cy="14" rx="4" ry="6" fill="#4A4A44" opacity=".7"/></svg>
+  <!-- garlic -->
+  <svg class="ing hide-sm" style="right:7%;top:640px;width:74px;transform:rotate(-14deg)" viewBox="0 0 74 80" aria-hidden="true"><path d="M37 6c-4 10-26 22-28 42 0 18 14 28 28 28s28-10 28-28C63 28 41 16 37 6Z" fill="#F4EEDD"/><path d="M37 14c-2 14-6 36-4 60M37 14c6 16 12 36 10 58M37 14c-12 14-18 32-16 54" stroke="#DCD2B8" stroke-width="2" fill="none"/><path d="M37 2v8" stroke="#BFAE86" stroke-width="3" stroke-linecap="round"/></svg>
+  <!-- second basil -->
+  <svg class="ing hide-sm" style="right:24%;top:600px;width:60px;transform:rotate(140deg)" viewBox="0 0 80 50" aria-hidden="true"><path d="M4 26C18 4 54 0 76 24 54 48 18 46 4 26Z" fill="#4C8B45"/><path d="M4 26C30 22 52 23 76 24" stroke="#2C5A28" stroke-width="2" fill="none"/></svg>
+  <!-- second olive -->
+  <svg class="ing hide-sm" style="left:24%;top:720px;width:32px;transform:rotate(30deg)" viewBox="0 0 40 46" aria-hidden="true"><ellipse cx="20" cy="23" rx="17" ry="21" fill="#2A2A26"/><ellipse cx="20" cy="23" rx="6" ry="8" fill="#5A5A50"/></svg>
+</header>
+
+<section class="blk" id="how">
+  <div class="eyebrowless">
+    <h2 class="serif">From The Table To The Kitchen, <span class="red">No Waiting</span></h2>
+    <p class="lead">Nothing to install for guests. Nothing new to buy for you: the kitchen board runs on any tablet or laptop.</p>
+  </div>
+  <div class="steps">
+    <article class="step">
+      <span class="num">01</span>
+      <h3>Scan the code on the table</h3>
+      <p>The phone camera opens your menu with photos, prices and options. English, or English and Arabic.</p>
+      <div class="art"><img src="qr.svg" alt="" style="width:46px;height:46px"> Each table has its own code</div>
+    </article>
+    <article class="step">
+      <span class="num">02</span>
+      <h3>Order and follow it live</h3>
+      <p>Friends add to one order from their own phones, then watch it go from received to preparing to ready.</p>
+      <div class="art"><span class="pill" style="background:var(--ink)">Preparing</span> Updates on its own</div>
+    </article>
+    <article class="step">
+      <span class="num">03</span>
+      <h3>Call the waiter, pay the bill</h3>
+      <p>One tap asks for help or the bill. Staff see which table is waiting and for how long.</p>
+      <div class="art"><span class="pill">Table 3 · bill</span> Split by person</div>
+    </article>
+  </div>
+</section>
+
+<section class="blk split" id="team">
+  <div class="split-grid">
+    <div class="phone" aria-label="Guest menu on a phone">
+      <div class="screen">
+        <div class="hd"><small>Table 7 · Sara</small><b>Forno Rosso</b></div>
+        <div class="chips"><span class="on">Pizza</span><span>Starters</span><span>Drinks</span></div>
+        <div class="item"><img src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=160&h=160&fit=crop&q=60" alt=""><div><b>Margherita</b><span>Tomato, mozzarella, basil</span></div><div style="text-align:end"><span>$12.00</span><i style="margin-top:6px">+</i></div></div>
+        <div class="item"><img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=160&h=160&fit=crop&q=60" alt=""><div><b>Pepperoni</b><span>Spicy salami, chili oil</span></div><div style="text-align:end"><span>$14.50</span><i style="margin-top:6px">+</i></div></div>
+        <div class="item"><img src="https://images.unsplash.com/photo-1513104890138-7c749659a591?w=160&h=160&fit=crop&q=60" alt=""><div><b>Garden</b><span>Peppers, olives, onion</span></div><div style="text-align:end"><span>$13.00</span><i style="margin-top:6px">+</i></div></div>
+        <div class="bar"><span>View order · 3 items</span><span>$39.50</span></div>
+      </div>
+    </div>
+    <div>
+      <h2 class="serif" style="margin-bottom:34px">Everything Your Team Needs, <span class="red">On One Screen</span></h2>
+      <div class="feats">
+        <div class="feat"><svg viewBox="0 0 36 36" fill="none" stroke="#161616" stroke-width="1.6" aria-hidden="true"><rect x="3" y="6" width="30" height="21"/><path d="M12 32h12M18 27v5M9 12h8M9 17h12M9 22h6"/></svg><div><h3>Live kitchen board</h3><p>Orders arrive with table, notes and time. Tap to move them along.</p></div></div>
+        <div class="feat"><svg viewBox="0 0 36 36" fill="none" stroke="#161616" stroke-width="1.6" aria-hidden="true"><path d="M8 24V16a10 10 0 0 1 20 0v8l3 4H5z"/><path d="M15 31a3 3 0 0 0 6 0"/></svg><div><h3>Waiter calls</h3><p>Guests ask for help from the seat. No more waving across the room.</p></div></div>
+        <div class="feat"><svg viewBox="0 0 36 36" fill="none" stroke="#161616" stroke-width="1.6" aria-hidden="true"><path d="M8 3h20v30l-4-3-3 3-3-3-3 3-3-3-4 3z"/><path d="M13 11h10M13 16h10M13 21h6"/></svg><div><h3>Bills and splits</h3><p>A running bill per table. Record cash or card and close the visit.</p></div></div>
+        <div class="feat"><svg viewBox="0 0 36 36" fill="none" stroke="#161616" stroke-width="1.6" aria-hidden="true"><path d="M4 31h28M8 26V18M15 26V12M22 26V15M29 26V7"/></svg><div><h3>Profit per dish</h3><p>Add your costs once. See sales, food cost and staff hours for any day.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="blk">
+  <div class="eyebrowless">
+    <h2 class="serif">Made For <span class="red">Your</span> Restaurant</h2>
+    <p class="lead">Guests see your name and your dishes. Tably stays out of the way.</p>
+  </div>
+  <div class="cards">
+    <article class="card"><img src="https://images.unsplash.com/photo-1559847844-5315695dadae?w=800&h=600&fit=crop&q=70" alt=""><div><h3>Your brand</h3><p>Your restaurant's name and colour on every guest page.</p></div></article>
+    <article class="card"><img src="https://images.unsplash.com/photo-1585032226651-759b368d7246?w=800&h=600&fit=crop&q=70" alt=""><div><h3>Any country</h3><p>Your own currency and time zone. Arabic menu with one switch.</p></div></article>
+    <article class="card"><img src="https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=800&h=600&fit=crop&q=70" alt=""><div><h3>Live the same day</h3><p>Sign up, add dishes, print the table codes. Free during the beta.</p></div></article>
+  </div>
+</section>
+
+<section class="cta">
+  <img class="plate" style="left:-90px;top:-90px" src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=600&fit=crop&q=70" alt="">
+  <img class="plate" style="right:-100px;bottom:-110px" src="https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=600&h=600&fit=crop&q=70" alt="">
+  <h2 class="serif">Put Your Menu On Every Table This Week</h2>
+  <p>Free during the beta. No card, no hardware.</p>
+  <div class="btns">
+    <a class="btn fill" href="#">Create free account</a>
+    <a class="btn" href="#">Log in</a>
+  </div>
+</section>
+
+<footer>
+  <a class="logo" href="#" style="font-size:19px">Tably</a>
+  <ul><li><a href="#how">How it works</a></li><li><a href="#">Terms</a></li><li><a href="#">Privacy</a></li></ul>
+  <span>© 2026 Tably</span>
+</footer>
+
+</div>
+</body>
+</html>

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { useLang, type Key } from "@/lib/i18n";
 import type { Restaurant } from "@/lib/types";
+import { isCurrency, timeZones } from "@/lib/venue";
 import type { AdminProps } from "./AdminApp";
 
 // A whole row is the tap target for its switch.
@@ -89,7 +90,9 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
   const [d, setD] = useState(restaurant);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [errs, setErrs] = useState<{ name?: string; name_ar?: string }>({});
+  const [errs, setErrs] = useState<{ name?: string; name_ar?: string; currency?: string }>({});
+  const [zones] = useState(timeZones);
+  const ar = d.second_lang === "ar";
   const set = <K extends keyof Restaurant>(k: K, v: Restaurant[K]) => setD((p) => ({ ...p, [k]: v }));
 
   useEffect(() => {
@@ -120,9 +123,13 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
   };
 
   async function submit() {
-    const e = { name: d.name.trim() ? undefined : t("required"), name_ar: d.name_ar.trim() ? undefined : t("required") };
+    const e = {
+      name: d.name.trim() ? undefined : t("required"),
+      // Arabic stays optional: an empty Arabic name falls back to English for guests.
+      currency: isCurrency(d.currency) ? undefined : t("badCurrency"),
+    };
     setErrs(e);
-    if (e.name || e.name_ar) return void document.querySelector<HTMLElement>("#settings-form [aria-invalid=true]")?.focus();
+    if (e.name || e.currency) return void document.querySelector<HTMLElement>("#settings-form [aria-invalid=true]")?.focus();
     setSaving(true);
     // Success shows on the button (Saved ✓), not as a toast. Errors still toast via mutate.
     const ok = await mutate(() =>
@@ -133,6 +140,9 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
           name_ar: d.name_ar.trim(),
           tagline: d.tagline,
           tagline_ar: d.tagline_ar,
+          currency: d.currency,
+          timezone: d.timezone,
+          second_lang: d.second_lang,
           service_mode: d.service_mode,
           ordering_paused: d.ordering_paused,
           pin_required: d.pin_required,
@@ -155,9 +165,39 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
       }}
     >
       {text("name", "nameEn", 60)}
-      {text("name_ar", "nameAr", 60, true)}
+      {ar ? text("name_ar", "nameAr", 60, true) : <span className="max-sm:hidden" />}
       {text("tagline", "taglineEn", 150)}
-      {text("tagline_ar", "taglineAr", 150, true)}
+      {ar ? text("tagline_ar", "taglineAr", 150, true) : <span className="max-sm:hidden" />}
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="st-currency" className="text-sm font-medium">{t("currencyLabel")}</label>
+        <Input
+          id="st-currency"
+          size="sm"
+          dir="ltr"
+          maxLength={3}
+          autoComplete="off"
+          autoCapitalize="characters"
+          spellCheck={false}
+          className="w-28 uppercase"
+          value={d.currency}
+          aria-invalid={!!errs.currency}
+          aria-describedby="st-currency-hint"
+          onChange={(e) => set("currency", e.target.value.toUpperCase())}
+        />
+        <p id="st-currency-hint" className={errs.currency ? "text-sm text-destructive" : "text-sm text-muted-foreground"}>{errs.currency ?? t("currencyHint")}</p>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="st-tz" className="text-sm font-medium">{t("timezoneLabel")}</label>
+        <Select value={d.timezone} onValueChange={(v) => set("timezone", v)}>
+          <SelectTrigger id="st-tz" size="sm" className="w-full" aria-describedby="st-tz-hint">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="max-h-80">
+            {zones.map((z) => <SelectItem key={z} value={z}>{z.replaceAll("_", " ")}</SelectItem>)}
+          </SelectContent>
+        </Select>
+        <p id="st-tz-hint" className="text-sm text-muted-foreground">{t("timezoneHint")}</p>
+      </div>
       <div className="flex flex-col gap-1.5 sm:col-span-2">
         <label htmlFor="st-service" className="text-sm font-medium">{t("serviceStyle")}</label>
         <Select value={d.service_mode} onValueChange={(v) => set("service_mode", v as Restaurant["service_mode"])}>
@@ -171,6 +211,7 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
         </Select>
       </div>
       <div className="mt-4 border-t sm:col-span-2">
+        <SwitchRow title={t("arabicMenu")} desc={t("arabicMenuDesc")} checked={ar} onChange={(v) => set("second_lang", v ? "ar" : null)} />
         <SwitchRow title={t("pauseOrdering")} desc={t("pauseOrderingDesc")} checked={d.ordering_paused} onChange={(v) => set("ordering_paused", v)} />
         <SwitchRow title={t("requireCode")} desc={t("requireCodeDesc")} checked={d.pin_required} onChange={(v) => set("pin_required", v)} />
       </div>

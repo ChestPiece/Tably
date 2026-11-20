@@ -3,7 +3,7 @@ export type OrderStatus = "received" | "preparing" | "ready" | "served" | "cance
 
 export type Restaurant = {
   id: string; slug: string; name: string; name_ar: string; tagline: string; tagline_ar: string;
-  currency: string; accent: string; service_mode: "table" | "counter"; ordering_paused: boolean; pin_required: boolean;
+  currency: string; timezone: string; second_lang: "ar" | null; accent: string; service_mode: "table" | "counter"; ordering_paused: boolean; pin_required: boolean; order_counter: number;
 };
 export type Category = { id: string; restaurant_id: string; name: string; name_ar: string; position: number };
 export type ItemOption = { id: string; item_id: string; restaurant_id: string; name: string; name_ar: string; price_fils: number; position: number };
@@ -37,13 +37,5 @@ export const pick = (lang: Lang, en: string, ar: string | null | undefined) => (
 export const MENU_SELECT = "*, item_options(*)";
 export const ORDER_SELECT = "*, order_lines(*)";
 
-export type StaffRole = "owner" | "staff" | "kitchen" | "waiter";
+export type StaffRole = "owner" | "staff";
 /** Mirrors private.require_role in the staff RPCs. "staff" is the front desk / counter role. */
-export const can = (role: StaffRole) => ({
-  cook: role !== "waiter", // start + mark ready
-  cancel: role === "owner" || role === "staff",
-  calls: role !== "kitchen",
-  tables: role === "owner" || role === "staff",
-  soldOut: role !== "waiter",
-});
-export type Can = ReturnType<typeof can>;

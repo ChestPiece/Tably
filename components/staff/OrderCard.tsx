@@ -3,11 +3,10 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatAge, tableLabel } from "@/lib/format";
 import { tr } from "@/lib/i18n";
-import { pick, type Can, type Lang, type Order } from "@/lib/types";
+import { pick, type Lang, type Order } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  can: Can;
   order: Order;
   now: number;
   lang: Lang;
@@ -23,7 +22,7 @@ type Props = {
 export const ageTone = (ms: number) => (ms >= 15 * 60e3 ? "late" : ms >= 10 * 60e3 ? "warn" : "");
 
 // A ticket on the kitchen line. New = outlined, cooking = filled; the button names the next step.
-export function OrderCard({ can, order: o, now, lang, onAdvance, onCancel, busy, fresh, highlight }: Props) {
+export function OrderCard({ order: o, now, lang, onAdvance, onCancel, busy, fresh, highlight }: Props) {
   const isNew = o.status === "received";
   const ms = Math.max(0, now - new Date(o.created_at).getTime());
   const tone = ageTone(ms);
@@ -70,27 +69,21 @@ export function OrderCard({ can, order: o, now, lang, onAdvance, onCancel, busy,
         ))}
       </ul>
       {o.note && <p className="rounded-sm bg-danger-bg px-3 py-1.5 text-sm text-destructive">{o.note}</p>}
-      {(can.cook || can.cancel) && (
-        <div className="flex items-center gap-1">
-          {can.cook && (
-            <Button variant="secondary" className="flex-1" disabled={busy} onClick={() => onAdvance(o)}>
-              {busy && <Loader2 aria-hidden className="animate-spin" />}
-              {tr(lang, isNew ? "actStart" : "actReady")}
-            </Button>
-          )}
-          {can.cancel && (
-            <Button
-              variant="link"
-              size="xs"
-              className="h-12 shrink-0 text-muted-foreground"
-              onClick={() => onCancel(o)}
-              aria-label={`${tr(lang, "cancelOrder")}: ${tableLabel(lang, o.table_number)} #${o.number}`}
-            >
-              {tr(lang, "cancel")}
-            </Button>
-          )}
-        </div>
-      )}
+      <div className="flex items-center gap-1">
+        <Button variant="secondary" className="flex-1" disabled={busy} onClick={() => onAdvance(o)}>
+          {busy && <Loader2 aria-hidden className="animate-spin" />}
+          {tr(lang, isNew ? "actStart" : "actReady")}
+        </Button>
+        <Button
+          variant="link"
+          size="xs"
+          className="h-12 shrink-0 text-muted-foreground"
+          onClick={() => onCancel(o)}
+          aria-label={`${tr(lang, "cancelOrder")}: ${tableLabel(lang, o.table_number)} #${o.number}`}
+        >
+          {tr(lang, "cancel")}
+        </Button>
+      </div>
     </article>
   );
 }

@@ -1,55 +1,58 @@
 "use client";
-import { ChartNoAxesColumn, ReceiptText, Timer, Wallet, type LucideIcon } from "lucide-react";
 import { Cell, Pie, PieChart } from "recharts";
 import { Arch } from "@/components/app/arch";
 import { Button } from "@/components/ui/button";
 import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
-import { formatMoney } from "@/lib/format";
+import { useVenue } from "@/lib/venue";
 import { useLang, type Key } from "@/lib/i18n";
 import { dayStats, ordersByHour, topDishes } from "@/lib/stats";
 import { pick, type MenuItem, type Order, type OrderStatus, type TableRow, type Visit } from "@/lib/types";
 import { FloorPlan } from "./FloorPlan";
+import type { AdminProps } from "./AdminApp";
 import { HourChart } from "./HourChart";
 import { OrdersTable } from "./OrdersTable";
+import { useProfit } from "./ProfitPage";
 
 /** White rounded panel on the tinted owner canvas. */
 export const PANEL = "rounded-2xl bg-card p-6 ring-1 ring-border max-sm:p-4";
 
 export type TodayData = { orders: Order[]; lastWeek: Order[]; openVisits: Visit[]; paidVisits: Visit[] };
 
-export function OwnerHome({ today, menu, tables, onOrders }: { today: TodayData; menu: MenuItem[]; tables: TableRow[]; onOrders: () => void }) {
+export function OwnerHome({ sb, today, menu, tables, onOrders, onProfit }: Pick<AdminProps, "sb"> & { today: TodayData; menu: MenuItem[]; tables: TableRow[]; onOrders: () => void; onProfit: () => void }) {
   const { lang, t } = useLang();
+  const venue = useVenue();
   const s = dayStats(today.orders, today.paidVisits);
+  const profit = useProfit(sb, 1).rep;
   const top = topDishes(today.orders);
   const max = top[0]?.qty ?? 1;
-  const money = (fils: number | null) => (fils === null ? "—" : formatMoney(fils, lang));
-  const kpis: [LucideIcon, string, string, string][] = [
-    [ReceiptText, t("kOrders"), String(s.orders), t("kOrdersD")],
-    [Wallet, t("kCollected"), money(s.collectedFils), t("kCollectedD")],
-    [ChartNoAxesColumn, t("kAvg"), money(s.avgTicketFils), t("kAvgD")],
-    [Timer, t("kKitchen"), s.kitchenMedianMin === null ? "—" : `${s.kitchenMedianMin} ${t("minShort")}`, t("kKitchenD")],
+  const money = (fils: number | null) => (fils === null ? "—" : venue.money(fils));
+  const kpis: [string, string, React.ReactNode][] = [
+    [t("kOrders"), String(s.orders), t("kOrdersD")],
+    [t("kCollected"), money(s.collectedFils), t("kCollectedD")],
+    [t("kProfit"), money(profit?.profit_fils ?? null), (
+      <button key="p" type="button" onClick={onProfit} className="underline underline-offset-2 hover:text-foreground">
+        {t("kProfitD")}
+      </button>
+    )],
+    [t("kKitchen"), s.kitchenMedianMin === null ? "—" : `${s.kitchenMedianMin} ${t("minShort")}`, t("kKitchenD")],
   ];
 
   return (
     <div className="flex flex-col gap-5 max-sm:gap-3">
-      <dl className="grid grid-cols-4 gap-5 max-[1100px]:grid-cols-2 max-sm:gap-3">
-        {kpis.map(([Icon, label, value, note]) => (
-          <div key={label} className={`${PANEL} flex items-start gap-4 max-sm:flex-col max-sm:gap-3`}>
-            <span aria-hidden className="grid size-11 shrink-0 place-items-center rounded-xl bg-secondary text-primary [&_svg]:size-5">
-              <Icon />
-            </span>
-            <div className="flex min-w-0 flex-col">
-              <dt className="order-2 mt-2 text-sm font-medium">{label}</dt>
-              <dd className="order-1 text-[28px] leading-none font-semibold whitespace-nowrap tabular-nums max-sm:text-[22px]">{value}</dd>
-              <dd className="order-3 mt-0.5 text-[13px] text-muted-foreground">{note}</dd>
-            </div>
+      {/* One panel, figures lead, hairlines between them (no icon tiles). */}
+      <dl className="grid grid-cols-4 rounded-2xl bg-card ring-1 ring-border max-[1100px]:grid-cols-2">
+        {kpis.map(([label, value, note]) => (
+          <div key={label} className="flex min-w-0 flex-col border-border px-6 py-5 not-first:border-s max-[1100px]:nth-3:border-s-0 max-[1100px]:nth-[n+3]:border-t max-sm:px-4 max-sm:py-4">
+            <dt className="order-2 mt-2 text-sm font-medium">{label}</dt>
+            <dd className="order-1 font-display text-[36px] leading-none font-semibold whitespace-nowrap tabular-nums max-sm:text-[26px]">{value}</dd>
+            <dd className="order-3 mt-0.5 text-[13px] text-muted-foreground">{note}</dd>
           </div>
         ))}
       </dl>
 
       <div className="grid grid-cols-3 gap-5 max-[1100px]:grid-cols-1 max-sm:gap-3">
         <div className={`${PANEL} col-span-2 max-[1100px]:col-span-1`}>
-          <HourChart today={ordersByHour(today.orders)} lastWeek={ordersByHour(today.lastWeek)} />
+          <HourChart today={ordersByHour(today.orders, venue.tz)} lastWeek={ordersByHour(today.lastWeek, venue.tz)} />
         </div>
         <div className="flex flex-col gap-5 max-sm:gap-3">
           <div className={PANEL}>
@@ -113,7 +116,7 @@ const STATUS: [OrderStatus, Key, string][] = [
 ];
 
 /** Today's orders by status: donut plus a legend that carries the counts (colour never alone). */
-function StatusDonut({ orders }: { orders: Order[] }) {
+export function StatusDonut({ orders }: { orders: Order[] }) {
   const { t } = useLang();
   const data = STATUS.map(([id, key, color]) => ({ id, label: t(key), color, n: orders.filter((o) => o.status === id).length }));
   const config: ChartConfig = Object.fromEntries(data.map((d) => [d.id, { label: d.label, color: d.color }]));

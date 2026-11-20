@@ -52,7 +52,7 @@ export function TablesAdmin({ sb, mutate, run, restaurant, tables }: AdminProps 
             )}
             <span dir="ltr" className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
               <BrandMark className="size-3" />
-              Sufra
+              Tably
             </span>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

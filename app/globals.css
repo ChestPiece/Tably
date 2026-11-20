@@ -3,38 +3,41 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* Hallmark · genre: editorial · tone: warm · macrostructure: Long Document (guest) / Workbench (staff, owner)
+ * design-system: design.md · designed-as-app · paper oklch(96.4% 0.011 85) · accent ochre oklch(66% 0.12 81)
+ */
 /*
-  Sufra v2 tokens: docs/brand/sufra/tokens.css via the README mapping.
+  Sufra v2 tokens, warmed by the Hallmark redesign (design.md).
   Ochre goes into --ochre / --ochre-text, never --accent (shadcn hover fill).
-  Contrast measured, see .tastemaker/style-lock.md and contrast-matrix.txt.
+  Contrast measured, see design.md § Contrast.
 */
 :root {
   color-scheme: light;
   --radius: 12px;
-  --background: oklch(96.6% 0.004 106);
+  --background: oklch(96.4% 0.011 85);
   --foreground: oklch(22.2% 0.032 273);
-  --card: oklch(99.4% 0.003 270);
+  --card: oklch(98.9% 0.006 85);
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
   --primary: oklch(30.3% 0.087 270);
-  --primary-foreground: oklch(96.6% 0.004 106);
-  --secondary: oklch(93.8% 0.003 286);
+  --primary-foreground: oklch(96.4% 0.011 85);
+  --secondary: oklch(93.2% 0.012 80);
   --secondary-foreground: var(--foreground);
   --muted: var(--secondary);
-  --muted-foreground: oklch(50.6% 0.031 274);
+  --muted-foreground: oklch(50.5% 0.025 65);
   --accent: var(--secondary);
   --accent-foreground: var(--foreground);
-  --text-2: oklch(44.9% 0.033 274);
-  --border: oklch(89.6% 0.007 286);
-  --input: oklch(50.6% 0.031 274);
+  --text-2: oklch(44.5% 0.025 65);
+  --border: oklch(88.5% 0.014 80);
+  --input: oklch(50.5% 0.025 65);
   --ring: oklch(30.3% 0.087 270);
   --destructive: oklch(49.4% 0.143 31);
   --danger-bg: oklch(92.5% 0.024 34);
-  --ochre: oklch(66.5% 0.120 81);
+  --ochre: oklch(66% 0.120 81);
   --ochre-text: oklch(49.4% 0.094 81);
   --brand: oklch(30.3% 0.087 270);
-  --on-brand: oklch(96.6% 0.004 106);
+  --on-brand: oklch(96.4% 0.011 85);
   --brand-field: oklch(36% 0.08 270);
   --brand-rule: oklch(48% 0.07 270);
   --status-new: oklch(42.5% 0.110 264);
@@ -165,24 +168,35 @@
 
   --ease-sufra: cubic-bezier(0.2, 0, 0, 1);
 
-  /* Fonts stay non-inline so html[dir="rtl"] can swap the stack. */
-  --font-display: var(--nf-display), var(--nf-arabic), sans-serif;
-  --font-sans: var(--nf-sans), var(--nf-arabic), system-ui, sans-serif;
+  /* Fonts stay non-inline so :lang(ar) can swap the stack (see @layer base). */
+  --font-display: var(--nf-display), ui-serif, Georgia, serif;
+  --font-sans: var(--nf-sans), system-ui, sans-serif;
   --font-arabic: var(--nf-arabic), system-ui, sans-serif;
 
 }
+
+/* Printed-menu dotted leader between a name and its price (design.md § Editorial vocabulary). */
+@utility leader { flex: 1 1 0%; min-width: 1rem; border-bottom: 2px dotted var(--border); translate: 0 -0.3em; }
 
 @utility duration-fast { --tw-duration: var(--dur-fast); transition-duration: var(--dur-fast); animation-duration: var(--dur-fast); }
 @utility duration-base { --tw-duration: var(--dur-base); transition-duration: var(--dur-base); animation-duration: var(--dur-base); }
 @utility duration-slow { --tw-duration: var(--dur-slow); transition-duration: var(--dur-slow); animation-duration: var(--dur-slow); }
 
-html[dir="rtl"] {
-  --font-sans: var(--nf-arabic), var(--nf-sans), system-ui, sans-serif;
-}
-
 @layer base {
   *, ::before, ::after { border-color: var(--border); }
+  /* Arabic picks its stacks by language, not by glyph fallback: next/font's "<Latin font> Fallback"
+     face is local Arial over the full Unicode range and would otherwise render Arabic in Arial.
+     :where() keeps specificity 0 so font-display / font-sans utilities still apply (with these stacks). */
+  :where(:lang(ar)) {
+    --font-sans: var(--nf-arabic), system-ui, sans-serif;
+    --font-display: var(--nf-display-ar), var(--nf-arabic), sans-serif;
+    font-family: var(--font-sans);
+  }
+  /* Beiruti's space is 0.11em (Plex Arabic 0.24em): multi-word names read as one word without this. */
+  :where(:lang(ar)) .font-display { word-spacing: 0.12em; }
 }
+
+html, body { overflow-x: clip; }
 
 body {
   background: var(--background);

@@ -1,7 +1,5 @@
 import type { Order, Visit } from "./types.ts";
 
-export const VENUE_TZ = "Asia/Dubai";
-
 const live = (orders: Order[]) => orders.filter((o) => o.status !== "cancelled");
 
 const parts = (d: Date, tz: string) => {
@@ -14,12 +12,22 @@ const parts = (d: Date, tz: string) => {
   return p as Record<"year" | "month" | "day" | "hour" | "minute" | "second", number>;
 };
 
-/** ISO bounds of the local day containing `date`. ponytail: fixed-offset zones only (Dubai has no DST); DST zones would need a second pass. */
-export function dayRange(date: Date, tz = VENUE_TZ): { start: string; end: string } {
+/** Milliseconds the zone is ahead of UTC at instant `t`. */
+const offsetAt = (t: number, tz: string) => {
+  const p = parts(new Date(t), tz);
+  return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(t / 1000) * 1000;
+};
+
+/** UTC instant of local midnight on y-m-d in tz. Two passes so DST days (23 h / 25 h) land right. */
+const midnight = (y: number, m: number, d: number, tz: string) => {
+  const guess = Date.UTC(y, m - 1, d);
+  return guess - offsetAt(guess - offsetAt(guess, tz), tz);
+};
+
+/** ISO bounds of the venue's local day containing `date`. */
+export function dayRange(date: Date, tz: string): { start: string; end: string } {
   const p = parts(date, tz);
-  const offset = Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(date.getTime() / 1000) * 1000;
-  const start = Date.UTC(p.year, p.month - 1, p.day) - offset;
-  return { start: new Date(start).toISOString(), end: new Date(start + 864e5).toISOString() };
+  return { start: new Date(midnight(p.year, p.month, p.day, tz)).toISOString(), end: new Date(midnight(p.year, p.month, p.day + 1, tz)).toISOString() };
 }
 
 export function dayStats(orders: Order[], visits: Visit[]) {
@@ -39,7 +47,7 @@ export function dayStats(orders: Order[], visits: Visit[]) {
   };
 }
 
-export function ordersByHour(orders: Order[], tz = VENUE_TZ): number[] {
+export function ordersByHour(orders: Order[], tz: string): number[] {
   const out = new Array<number>(24).fill(0);
   for (const o of live(orders)) out[parts(new Date(o.created_at), tz).hour]++;
   return out;

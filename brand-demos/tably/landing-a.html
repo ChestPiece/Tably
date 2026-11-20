@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.documentElement.classList.add("js");setTimeout(function(){document.documentElement.classList.add("ready")},3000)</script>
+<title>Tably · Mockup A</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,400..600,100,0&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F6F1E7; --card:#FFFCF5; --ink:#23271F; --mute:#636757; --line:#E3DACA;
+  --olive:#56662A; --olive-2:#E4E8CC; --orange:#E08A3C; --orange-2:#F7E2C6; --wood:#EADCC2; --tomato:#D2533A;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;overflow-x:clip}
+body{background:var(--paper);color:var(--ink);font:400 16px/1.6 Figtree,system-ui,sans-serif}
+a{color:inherit;text-decoration:none}
+svg,img{display:block;max-width:100%}
+.wrap{max-width:1200px;margin-inline:auto;padding-inline:32px}
+.serif,h1,h2,h3{font-family:Fraunces,Georgia,serif;font-weight:500;font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-.02em}
+h1{font-size:clamp(34px,min(3.9vw,6.6vh),50px);line-height:1.06}
+h2{font-size:clamp(28px,min(3vw,5.4vh),40px);line-height:1.1}
+h3{font-size:22px;line-height:1.2;letter-spacing:-.01em}
+p.lead{font-size:18px;color:var(--mute);max-width:470px}
+.muted{color:var(--mute)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 20px;border-radius:99px;font-weight:600;font-size:14.5px;border:1.5px solid var(--ink);white-space:nowrap;transition:background-color .18s cubic-bezier(.2,.7,.2,1),color .18s cubic-bezier(.2,.7,.2,1),transform .12s cubic-bezier(.2,.7,.2,1)}
+.btn:active{transform:scale(.98)}
+.btn.primary:hover{background:#3A3F33}
+.btn.ghost:hover{background:var(--card)}
+.btn:focus-visible,a:focus-visible{outline:2px solid var(--olive);outline-offset:3px}
+.btn.primary{background:var(--ink);color:var(--card)}
+.btn.ghost{background:transparent}
+section.block{padding-block:clamp(44px,9vh,104px)}
+.head{display:grid;grid-template-columns:1.1fr 1fr;gap:16px 64px;align-items:end;margin-bottom:clamp(28px,5vh,48px)}
+.head p{color:var(--mute);font-size:16.5px;max-width:440px}
+
+/* nav */
+nav{display:flex;align-items:center;justify-content:space-between;height:76px}
+.logo{display:flex;align-items:center;gap:10px;font-family:Fraunces,serif;font-variation-settings:"SOFT" 100;font-weight:600;font-size:24px;letter-spacing:-.02em}
+.logo svg{width:28px;height:28px}
+nav ul{display:flex;gap:36px;list-style:none;font-size:15px;color:var(--mute)}
+nav .right{display:flex;align-items:center;gap:22px;font-size:15px;font-weight:500}
+nav .btn{height:38px;padding:0 16px;font-size:13.5px}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;min-height:min(calc(100svh - 76px),760px);padding-block:8px 40px}
+.hero .lead{margin-top:20px;font-size:17px}
+.hero .btns{display:flex;gap:10px;margin-top:28px;flex-wrap:wrap}
+.facts{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:28px;font-size:14px;color:var(--mute);list-style:none}
+.facts li{display:flex;align-items:center;gap:8px}
+.facts svg{width:16px;height:16px;color:var(--olive)}
+.scene{position:relative}
+.scene svg{width:100%;max-height:calc(100svh - 150px);margin-inline:auto}
+.note{position:absolute;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px 6px 6px;font-size:13px;font-weight:500;white-space:nowrap;box-shadow:0 8px 20px -12px rgba(60,48,20,.4)}
+.note i{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;background:var(--ink);color:var(--card);font-style:normal;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.note.n3 i{background:var(--orange);color:var(--ink)}
+
+/* steps */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.step .art{position:relative;border-radius:20px;aspect-ratio:32/22;overflow:hidden}
+.step .art svg{width:100%;height:100%}
+.step .num{display:grid;place-items:center;width:32px;height:32px;border-radius:50%;border:1.5px solid var(--ink);font-weight:600;font-size:14px;margin:18px 0 10px}
+.step p{color:var(--mute);margin-top:8px;max-width:330px}
+.track{position:absolute;left:16px;right:16px;bottom:16px;display:flex;justify-content:space-between;gap:6px;background:var(--card);border-radius:12px;padding:8px 10px;font-size:12px;font-weight:500;white-space:nowrap}
+.track span{display:flex;align-items:center;gap:6px}
+.track i{display:grid;place-items:center;width:16px;height:16px;border-radius:50%;background:var(--olive);color:var(--card);font-style:normal;font-size:10px}
+
+/* team */
+.team{background:var(--card);border-block:1px solid var(--line)}
+.team-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:center}
+.team-grid > svg{max-height:calc(100svh - 136px);width:100%}
+.feats{list-style:none;display:grid;margin-top:24px}
+.feats li{display:grid;grid-template-columns:40px 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
+.feats li:last-child{border-bottom:1px solid var(--line)}
+.feats .ic{display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:var(--olive-2);color:var(--olive)}
+.feats .ic svg{width:22px;height:22px}
+.feats b{font-weight:600;font-size:16.5px}
+.feats p{color:var(--mute);font-size:15px;margin-top:2px}
+
+/* yours */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:18px}
+.card > div:last-child{padding-inline:4px}
+.card .demo{background:var(--paper);border-radius:12px;height:clamp(168px,26vh,196px);display:grid;place-items:center;padding:16px}
+.card p{color:var(--mute);margin-top:6px;font-size:15px}
+.brand-demo{width:100%;max-width:230px;background:var(--card);border-radius:14px;overflow:hidden;border:1px solid var(--line)}
+.brand-demo .top{background:#7A2E2A;color:#FBEBD8;padding:10px 14px}
+.brand-demo .top b{font-family:Fraunces,serif;font-variation-settings:"SOFT" 100;font-weight:500;font-size:20px;display:block;line-height:1.1}
+.brand-demo .top span{font-size:11.5px;opacity:.8}
+.brand-demo .row{display:flex;justify-content:space-between;padding:6px 14px;font-size:13px;border-top:1px solid var(--line)}
+.swatches{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.swatches i{width:18px;height:18px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line)}
+.prices{display:grid;gap:6px;width:100%;max-width:230px}
+.prices div{display:flex;justify-content:space-between;align-items:baseline;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:5px 12px;font-size:13px}
+.prices b{font-weight:600;font-variant-numeric:tabular-nums}
+.lang{width:100%;max-width:230px;text-align:center}
+.seg{display:inline-flex;background:var(--card);border:1px solid var(--line);border-radius:99px;padding:4px;font-weight:600;font-size:14px}
+.seg span{padding:7px 18px;border-radius:99px}
+.seg span.on{background:var(--ink);color:var(--card)}
+.lang .dish{margin-top:14px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;display:flex;justify-content:space-between;font-size:14px}
+.lang [lang=ar]{font-family:"Noto Naskh Arabic",Tahoma,serif;font-size:15px}
+
+/* cta */
+.cta{background:var(--olive);color:#F4F1E2;border-radius:28px;padding:clamp(36px,7vh,72px) clamp(24px,6vw,72px);display:grid;grid-template-columns:1.3fr 1fr;gap:40px;align-items:center;overflow:hidden}
+.cta p{color:rgba(244,241,226,.8);margin-top:14px;font-size:17px}
+.cta .btns{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
+.cta .btn.primary{background:#F4F1E2;color:var(--ink);border-color:#F4F1E2}
+.cta .btn.ghost{border-color:rgba(244,241,226,.6);color:#F4F1E2}
+.cta svg{justify-self:end;width:100%;max-width:300px}
+.foot{background:var(--card);border-top:1px solid var(--line);overflow:hidden}
+.foot-top{display:grid;grid-template-columns:1.4fr repeat(3,1fr);gap:40px;padding-block:56px 40px}
+.foot-brand p{color:var(--mute);font-size:15px;margin:14px 0 20px;max-width:300px}
+.foot h4{font-family:Figtree,sans-serif;font-size:13px;font-weight:600;color:var(--ink);margin-bottom:14px}
+.foot ul{list-style:none;display:grid;gap:10px;font-size:14.5px;color:var(--mute)}
+.foot ul a:hover{color:var(--ink)}
+.foot-mark{display:flex;align-items:center;justify-content:space-between;gap:24px;border-top:1px solid var(--line);padding-top:24px}
+.foot-mark b{font-family:Fraunces,serif;font-variation-settings:"SOFT" 100,"WONK" 0;font-weight:500;letter-spacing:-.045em;font-size:clamp(88px,19vw,248px);line-height:1;color:var(--olive)}
+.foot-mark svg{width:clamp(140px,22vw,280px);flex:none;margin-bottom:8px}
+.foot-base{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-block:20px 28px;font-size:13.5px;color:var(--mute)}
+footer ul{display:flex;gap:26px;list-style:none}
+
+/* motion */
+.js:not(.ready) body{visibility:hidden}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+.note.n3 i{background:var(--ink);color:var(--card)}
+.note{transition:border-color .3s cubic-bezier(.2,.7,.2,1)}
+.note i{transition:background-color .3s cubic-bezier(.2,.7,.2,1),color .3s cubic-bezier(.2,.7,.2,1)}
+.note.on{border-color:#D9C9A8}
+.note.on i{background:var(--orange);color:var(--ink)}
+nav ul a{position:relative}
+nav ul a::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:1.5px;background:currentColor;transform:scaleX(0);transform-origin:right;transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+nav ul a:hover{color:var(--ink)}
+nav ul a:hover::after{transform:scaleX(1);transform-origin:left}
+.swatches button{width:20px;height:20px;border-radius:50%;border:2px solid var(--card);box-shadow:0 0 0 1px var(--line);cursor:pointer;transition:transform .18s cubic-bezier(.2,.7,.2,1),box-shadow .18s cubic-bezier(.2,.7,.2,1)}
+.swatches button[aria-pressed=true]{box-shadow:0 0 0 1.5px var(--ink)}
+.swatches button:active{transform:scale(.9)}
+.swatches button:focus-visible,.seg button:focus-visible{outline:2px solid var(--olive);outline-offset:2px}
+.seg{position:relative}
+.seg button{position:relative;z-index:1;border:0;background:none;font:inherit;color:var(--ink);padding:7px 18px;border-radius:99px;cursor:pointer;transition:color .25s cubic-bezier(.2,.7,.2,1)}
+.seg button[aria-pressed=true]{color:var(--card)}
+.seg .pill{position:absolute;top:4px;bottom:4px;left:0;border-radius:99px;background:var(--ink)}
+.prices div{transition:border-color .3s cubic-bezier(.2,.7,.2,1),transform .3s cubic-bezier(.2,.7,.2,1)}
+.prices div.on{border-color:var(--ink);transform:translateX(4px)}
+@media (hover:hover) and (pointer:fine){
+  .card .demo{transition:transform .3s cubic-bezier(.2,.7,.2,1)}
+  .card:hover .demo{transform:translateY(-2px)}
+  .swatches button:hover{transform:scale(1.12)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.2s!important}
+  .prices div.on{transform:none}
+}
+
+@media (max-width:960px){
+  .wrap{padding-inline:16px}
+  nav{height:64px}
+  h1{font-size:28px;line-height:1.12}
+  nav ul,nav .right a:not(.btn){display:none}
+  .hero{grid-template-columns:1fr;min-height:0;padding-block:20px 40px;gap:28px}
+  .hero .lead{font-size:17px}
+  .hero .btn{flex:1}
+  .chip{font-size:12px;padding:8px 11px}
+  .chip .ic{width:26px;height:26px}
+  .steps,.cards,.team-grid,.cta{grid-template-columns:1fr}
+  .steps{gap:44px}
+  .head{margin-bottom:36px}
+  .team-grid{gap:36px}
+  .cta{border-radius:24px}
+  .cta .btn{flex:1}
+  .cta svg{justify-self:center;max-width:260px}
+  .head{grid-template-columns:1fr}
+  .note{display:none}
+  .foot-top{grid-template-columns:1fr 1fr;gap:32px 24px;padding-block:44px 32px}
+  .foot-brand{grid-column:1/-1}
+  .foot-mark svg{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- shared drawings -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="6" stdDeviation="7" flood-color="#5A4520" flood-opacity=".16"/>
+    </filter>
+    <filter id="lift" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="10" flood-color="#5A4520" flood-opacity=".22"/>
+    </filter>
+    <!-- burger plate, top-down -->
+    <symbol id="plate" viewBox="-120 -120 240 240" overflow="visible">
+      <circle r="112" fill="#FFFCF5"/>
+      <circle r="111" fill="none" stroke="#E6DCC8" stroke-width="2"/>
+      <circle r="86" fill="none" stroke="#EFE6D3" stroke-width="2"/>
+      <g transform="translate(58 6) rotate(14)">
+        <g fill="#F2C14E" stroke="#E0A93A" stroke-width="1">
+          <rect x="-20" y="-50" width="8" height="46" rx="3" transform="rotate(-8)"/>
+          <rect x="-9" y="-56" width="8" height="50" rx="3"/>
+          <rect x="2" y="-52" width="8" height="48" rx="3" transform="rotate(6)"/>
+          <rect x="12" y="-46" width="8" height="42" rx="3" transform="rotate(12)"/>
+        </g>
+        <rect x="-26" y="-14" width="52" height="62" rx="9" fill="#D2533A"/>
+        <rect x="-26" y="-14" width="52" height="10" rx="5" fill="#B9442E"/>
+      </g>
+      <g transform="translate(-22 -8)">
+        <circle r="62" fill="#7E9A3A"/>
+        <circle r="62" fill="none" stroke="#6C8530" stroke-width="3" stroke-dasharray="7 6"/>
+        <circle r="55" fill="#D58E45"/>
+        <ellipse cx="-12" cy="-14" rx="34" ry="26" fill="#E3A35E"/>
+        <ellipse cx="-20" cy="-22" rx="14" ry="9" fill="#EDB878"/>
+        <g fill="#F8E9C6">
+          <ellipse cx="-24" cy="-6" rx="2.6" ry="4.6" transform="rotate(30 -24 -6)"/>
+          <ellipse cx="-6" cy="-30" rx="2.6" ry="4.6" transform="rotate(-20 -6 -30)"/>
+          <ellipse cx="12" cy="-12" rx="2.6" ry="4.6" transform="rotate(60 12 -12)"/>
+          <ellipse cx="22" cy="10" rx="2.6" ry="4.6" transform="rotate(-40 22 10)"/>
+          <ellipse cx="-2" cy="14" rx="2.6" ry="4.6" transform="rotate(10 -2 14)"/>
+          <ellipse cx="-30" cy="20" rx="2.6" ry="4.6" transform="rotate(-60 -30 20)"/>
+          <ellipse cx="6" cy="34" rx="2.6" ry="4.6" transform="rotate(40 6 34)"/>
+          <ellipse cx="30" cy="-30" rx="2.6" ry="4.6" transform="rotate(20 30 -30)"/>
+          <ellipse cx="-36" cy="-24" rx="2.6" ry="4.6" transform="rotate(-10 -36 -24)"/>
+        </g>
+      </g>
+      <g transform="translate(30 70) rotate(-25)">
+        <path d="M0 0c10-6 20-6 30 0-10 6-20 6-30 0z" fill="#8FAA4C"/>
+        <path d="M8 -2c4-10 12-14 22-14-4 9-12 13-22 14z" fill="#7E9A3A"/>
+      </g>
+    </symbol>
+    <!-- lemonade glass, top-down -->
+    <symbol id="glass" viewBox="-50 -50 100 100" overflow="visible">
+      <circle r="44" fill="#FFFFFF" opacity=".85"/>
+      <circle r="44" fill="none" stroke="#E2D7C1" stroke-width="2"/>
+      <circle r="36" fill="#F4D77A"/>
+      <rect x="-22" y="-18" width="18" height="18" rx="4" fill="#FFFFFF" opacity=".55" transform="rotate(14)"/>
+      <rect x="2" y="8" width="16" height="16" rx="4" fill="#FFFFFF" opacity=".5" transform="rotate(-10)"/>
+      <g transform="translate(12 -10)">
+        <circle r="17" fill="#FBE89A" stroke="#E6C445" stroke-width="3"/>
+        <g stroke="#E6C445" stroke-width="1.6"><path d="M0-14V14M-14 0H14M-10-10l20 20M10-10l-20 20"/></g>
+      </g>
+      <path d="M-6 6L40-48" stroke="#D2533A" stroke-width="6" stroke-linecap="round"/>
+    </symbol>
+    <!-- phone with menu -->
+    <symbol id="phone-menu" viewBox="0 0 124 244">
+      <rect width="124" height="244" rx="22" fill="#23271F"/>
+      <rect x="6" y="6" width="112" height="232" rx="17" fill="#FFFCF5"/>
+      <rect x="47" y="12" width="30" height="7" rx="3.5" fill="#23271F"/>
+      <text x="16" y="40" font-family="Fraunces,serif" font-size="13" font-weight="600" fill="#23271F">ChestBest</text>
+      <text x="16" y="53" font-family="Figtree,sans-serif" font-size="7.5" fill="#636757">Table 4</text>
+      <g font-family="Figtree,sans-serif">
+        <rect x="16" y="62" width="30" height="13" rx="6.5" fill="#23271F"/>
+        <text x="31" y="71" font-size="6.5" fill="#FFFCF5" text-anchor="middle">Burgers</text>
+        <rect x="50" y="62" width="26" height="13" rx="6.5" fill="none" stroke="#E3DACA"/>
+        <text x="63" y="71" font-size="6.5" fill="#636757" text-anchor="middle">Sides</text>
+        <rect x="80" y="62" width="28" height="13" rx="6.5" fill="none" stroke="#E3DACA"/>
+        <text x="94" y="71" font-size="6.5" fill="#636757" text-anchor="middle">Drinks</text>
+      </g>
+      <g font-family="Figtree,sans-serif">
+        <g transform="translate(0 86)">
+          <circle cx="29" cy="16" r="13" fill="#D58E45"/><circle cx="29" cy="16" r="13" fill="none" stroke="#7E9A3A" stroke-width="2.5"/>
+          <text x="46" y="13" font-size="7.2" font-weight="600" fill="#23271F">Smash burger</text>
+          <text x="46" y="24" font-size="7" fill="#636757">32.00</text>
+          <circle cx="105" cy="16" r="7" fill="#56662A"/><path d="M101.5 16h7M105 12.5v7" stroke="#FFFCF5" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(0 122)">
+          <circle cx="29" cy="16" r="13" fill="#F2C14E"/><path d="M22 10l3 12M28 8l1 14M34 10l-2 12" stroke="#E0A93A" stroke-width="2.4" stroke-linecap="round"/>
+          <text x="46" y="13" font-size="7.2" font-weight="600" fill="#23271F">Fries</text>
+          <text x="46" y="24" font-size="7" fill="#636757">14.00</text>
+          <circle cx="105" cy="16" r="7" fill="#56662A"/><path d="M101.5 16h7M105 12.5v7" stroke="#FFFCF5" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <g transform="translate(0 158)">
+          <circle cx="29" cy="16" r="13" fill="#F4D77A"/><circle cx="33" cy="12" r="5" fill="#FBE89A" stroke="#E6C445" stroke-width="1.5"/>
+          <text x="46" y="13" font-size="7.2" font-weight="600" fill="#23271F">Mint lemonade</text>
+          <text x="46" y="24" font-size="7" fill="#636757">16.00</text>
+          <circle cx="105" cy="16" r="7" fill="none" stroke="#56662A" stroke-width="1.4"/><path d="M101.5 16h7M105 12.5v7" stroke="#56662A" stroke-width="1.6" stroke-linecap="round"/>
+        </g>
+        <rect x="14" y="200" width="96" height="26" rx="13" fill="#56662A"/>
+        <text x="62" y="216.5" font-size="8" font-weight="600" fill="#FFFCF5" text-anchor="middle">Place order · 3 items</text>
+      </g>
+    </symbol>
+    <!-- table card with QR -->
+    <symbol id="qr-card" viewBox="0 0 132 168">
+      <rect width="132" height="168" rx="14" fill="#FFFCF5"/>
+      <rect x=".75" y=".75" width="130.5" height="166.5" rx="13.25" fill="none" stroke="#E3DACA" stroke-width="1.5"/>
+      <text x="66" y="26" font-family="Fraunces,serif" font-size="12" font-weight="600" fill="#23271F" text-anchor="middle">ChestBest</text>
+      <image href="qr.svg" x="24" y="38" width="84" height="84"/>
+      <text x="66" y="142" font-family="Figtree,sans-serif" font-size="9.5" font-weight="600" fill="#23271F" text-anchor="middle">Table 4</text>
+      <text x="66" y="155" font-family="Figtree,sans-serif" font-size="8" fill="#636757" text-anchor="middle">Scan to see the menu</text>
+    </symbol>
+    <!-- napkin + cutlery -->
+    <symbol id="napkin" viewBox="0 0 110 170">
+      <rect width="110" height="170" rx="10" fill="#DCE3BF"/>
+      <path d="M0 20h110M0 150h110" stroke="#CBD4A8" stroke-width="2"/>
+      <g fill="#A9AC9B">
+        <rect x="32" y="44" width="7" height="104" rx="3.5"/>
+        <path d="M27 18h3v26h3V18h3v26h3V18h3v28a7 7 0 0 1-15 0z"/>
+        <path d="M70 18c10 4 12 22 10 40h-6v90a3.5 3.5 0 0 1-7 0V18z"/>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="wrap">
+  <nav>
+    <a class="logo" href="#">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9.5" fill="#23271F"/><rect x="6.5" y="6.5" width="19" height="19" rx="5.5" fill="#F6F1E7"/><circle cx="16" cy="16" r="5.5" fill="#E08A3C"/></svg>
+      Tably
+    </a>
+    <ul>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="#team">For your team</a></li>
+      <li><a href="#yours">Your restaurant</a></li>
+    </ul>
+    <div class="right">
+      <a href="#">Log in</a>
+      <a class="btn primary" href="#">Start free</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <section class="wrap hero">
+    <div>
+      <h1>Scan the code.<br>Order from your phone.<br>Food comes to your table.</h1>
+      <p class="lead">Tably puts your menu on every table. Guests order when they're ready, your kitchen sees it at once, and nobody waits to catch a waiter's eye.</p>
+      <div class="btns">
+        <a class="btn primary" href="#">Start free</a>
+        <a class="btn ghost" href="#how">See how it works</a>
+      </div>
+      <ul class="facts">
+        <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>No app for guests</li>
+        <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>Any phone, any country</li>
+        <li><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 8.5l3 3 7-7"/></svg>Free during the beta</li>
+      </ul>
+    </div>
+
+    <div class="scene">
+      <svg viewBox="0 0 600 580" role="img" aria-label="A table seen from above with a QR card, a phone showing the menu, a burger and a lemonade">
+        <g class="px" data-depth="4"><g class="h-table">
+          <circle cx="300" cy="290" r="262" fill="#EADCC2"/>
+          <circle cx="300" cy="290" r="244" fill="none" stroke="#DFCDAC" stroke-width="2"/>
+          <circle cx="300" cy="290" r="170" fill="none" stroke="#E2D2B4" stroke-width="1.5" stroke-dasharray="2 9" stroke-linecap="round"/>
+        </g></g>
+        <g class="px" data-depth="6"><g class="h-obj h-napkin"><use href="#napkin" x="96" y="96" width="92" height="142" transform="rotate(-16 142 167)" filter="url(#soft)"/></g></g>
+        <g class="px" data-depth="8"><g class="h-obj h-plate">
+          <use href="#plate" x="196" y="128" width="236" height="236" filter="url(#lift)"/>
+          <g class="h-steam" fill="none" stroke="#FFFCF5" stroke-width="3" stroke-linecap="round" opacity="0"><path d="M280 212c-7-8 7-14 0-24"/><path d="M298 206c-7-8 7-14 0-24"/></g>
+        </g></g>
+        <g class="px" data-depth="10"><g class="h-obj h-glass"><use href="#glass" x="430" y="96" width="96" height="96" filter="url(#soft)"/></g></g>
+        <g class="px" data-depth="12"><g class="h-obj h-card">
+          <use href="#qr-card" x="74" y="290" width="124" height="158" transform="rotate(-9 136 369)" filter="url(#soft)"/>
+          <g transform="rotate(-9 136 369)"><rect class="h-scan" x="92" y="326" width="88" height="3" rx="1.5" fill="#E08A3C" opacity="0"/></g>
+        </g></g>
+        <g class="px" data-depth="14"><g class="h-obj h-phone">
+          <use href="#phone-menu" x="356" y="290" width="124" height="244" transform="rotate(10 418 412)" filter="url(#lift)"/>
+          <g transform="rotate(10 418 412)"><circle class="h-tap" cx="461" cy="392" r="10" fill="none" stroke="#E08A3C" stroke-width="2.5" opacity="0"/></g>
+        </g></g>
+      </svg>
+      <span class="note n1" style="left:1%;top:81%"><i>1</i>Scan the table card</span>
+      <span class="note n2" style="right:0;top:40%"><i>2</i>Order on any phone</span>
+      <span class="note n3" style="left:35%;top:1%"><i>3</i>Served at table 4</span>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="head">
+        <h2>Three steps for your guests. None of them is waiting.</h2>
+        <p>Every table gets its own code. Guests open your menu with the camera, order together from their own phones, and follow the order until it reaches them.</p>
+      </div>
+      <div class="steps">
+        <article class="step">
+          <div class="art" style="background:var(--olive-2)">
+            <svg viewBox="0 0 320 260" aria-hidden="true">
+              <ellipse cx="96" cy="222" rx="70" ry="10" fill="#CBD2AA"/>
+              <use href="#qr-card" x="38" y="70" width="116" height="148" filter="url(#soft)"/>
+              <g class="s1-phone" transform="rotate(-7 232 140)" filter="url(#lift)">
+                <rect x="176" y="34" width="112" height="216" rx="20" fill="#23271F"/>
+                <rect x="182" y="40" width="100" height="204" rx="15" fill="#3A3F33"/>
+                <rect x="216" y="46" width="32" height="7" rx="3.5" fill="#23271F"/>
+                <rect x="202" y="96" width="60" height="60" rx="4" fill="#FFFCF5"/>
+                <image href="qr.svg" x="207" y="101" width="50" height="50"/>
+                <rect class="s1-scan" x="198" y="96" width="68" height="2.5" rx="1.25" fill="#E08A3C" opacity="0"/>
+                <g class="s1-corners" fill="none" stroke="#F4D77A" stroke-width="3.5" stroke-linecap="round">
+                  <path d="M194 104v-16h16M270 104v-16h-16M194 148v16h16M270 148v16h-16"/>
+                </g>
+                <g class="s1-pill">
+                  <rect x="194" y="200" width="76" height="26" rx="13" fill="#FFFCF5"/>
+                  <text x="232" y="217" font-family="Figtree,sans-serif" font-size="9.5" font-weight="600" fill="#23271F" text-anchor="middle">Open menu</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+          <span class="num">1</span>
+          <h3>Scan the code</h3>
+          <p>The phone camera reads the card on the table and opens your menu. Nothing to download, no sign-up.</p>
+        </article>
+        <article class="step">
+          <div class="art" style="background:var(--orange-2)">
+            <svg viewBox="0 0 320 260" aria-hidden="true">
+              <use href="#phone-menu" x="96" y="18" width="128" height="252" filter="url(#lift)"/>
+              <g class="s2-a" filter="url(#soft)">
+                <rect x="208" y="64" width="96" height="30" rx="15" fill="#FFFCF5"/>
+                <text x="256" y="83.5" font-family="Figtree,sans-serif" font-size="10" font-weight="600" fill="#23271F" text-anchor="middle">+1 Smash burger</text>
+              </g>
+              <g class="s2-b" filter="url(#soft)">
+                <rect x="20" y="150" width="90" height="30" rx="15" fill="#FFFCF5"/>
+                <circle cx="36" cy="165" r="8" fill="#E08A3C"/>
+                <text x="36" y="168.5" font-family="Figtree,sans-serif" font-size="9" font-weight="600" fill="#FFFCF5" text-anchor="middle">S</text>
+                <text x="72" y="168.5" font-family="Figtree,sans-serif" font-size="10" font-weight="600" fill="#23271F" text-anchor="middle">Sara added</text>
+              </g>
+            </svg>
+          </div>
+          <span class="num">2</span>
+          <h3>Order from your phone</h3>
+          <p>Photos, prices and options in English or Arabic. Friends add to one table order from their own phones.</p>
+        </article>
+        <article class="step">
+          <div class="art" style="background:var(--wood)">
+            <svg viewBox="0 0 320 260" aria-hidden="true">
+              <circle cx="160" cy="250" r="190" fill="#E2D2B4"/>
+              <g class="s3-plate"><use href="#plate" x="70" y="12" width="180" height="180" filter="url(#lift)"/></g>
+              <use href="#glass" x="236" y="26" width="64" height="64" filter="url(#soft)"/>
+            </svg>
+            <div class="track"><span><i>✓</i>Received</span><span><i>✓</i>Cooking</span><span><i>✓</i>At table 4</span></div>
+          </div>
+          <span class="num">3</span>
+          <h3>Food comes to your table</h3>
+          <p>Guests see each step live. Need anything else? One tap calls a waiter or asks for the bill.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="block team" id="team">
+    <div class="wrap team-grid">
+      <svg viewBox="0 0 600 420" role="img" aria-label="The kitchen board on a tablet with new, preparing and ready orders">
+        <rect x="10" y="14" width="580" height="392" rx="30" fill="#23271F" filter="url(#lift)"/>
+        <rect x="24" y="28" width="552" height="364" rx="18" fill="#F6F1E7"/>
+        <g font-family="Figtree,sans-serif">
+          <text x="48" y="66" font-family="Fraunces,serif" font-size="20" font-weight="600" fill="#23271F">Kitchen</text>
+          <text class="b-clock" x="552" y="66" font-size="13" fill="#636757" text-anchor="end">Today · 19:42</text>
+          <rect x="48" y="84" width="504" height="38" rx="12" fill="#F7E2C6"/>
+          <g class="b-bell">
+            <circle cx="70" cy="103" r="9" fill="#E08A3C"/>
+            <path d="M66 105v-2a4 4 0 0 1 8 0v2zM69 108h2" stroke="#FFFCF5" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          </g>
+          <text x="88" y="107.5" font-size="13.5" font-weight="600" fill="#23271F">Table 2 is asking for a waiter</text>
+          <text x="536" y="107.5" font-size="12.5" fill="#636757" text-anchor="end">1 min</text>
+
+          <text class="b-count" x="48" y="152" font-size="12.5" font-weight="600" fill="#636757">New · 2</text>
+          <text x="222" y="152" font-size="12.5" font-weight="600" fill="#636757">Preparing · 1</text>
+          <text x="396" y="152" font-size="12.5" font-weight="600" fill="#636757">Ready · 1</text>
+
+          <g class="b-new">
+          <rect x="48" y="164" width="156" height="110" rx="12" fill="#FFFCF5" stroke="#E3DACA"/>
+          <rect class="b-bar" x="48" y="176" width="4" height="86" rx="2" fill="#E08A3C"/>
+          <text x="64" y="188" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#23271F">Table 4</text>
+          <text x="192" y="188" font-size="11" fill="#636757" text-anchor="end">now</text>
+          <text x="64" y="212" font-size="12" fill="#23271F">1× Smash burger</text>
+          <text x="64" y="230" font-size="12" fill="#23271F">1× Fries</text>
+          <text x="64" y="248" font-size="12" fill="#23271F">1× Mint lemonade</text>
+          <text x="64" y="264" font-size="10.5" fill="#B9442E">no onion</text>
+          </g>
+
+          <rect x="48" y="284" width="156" height="86" rx="12" fill="#FFFCF5" stroke="#E3DACA"/>
+          <rect x="48" y="296" width="4" height="62" rx="2" fill="#E08A3C"/>
+          <text x="64" y="308" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#23271F">Table 9</text>
+          <text x="192" y="308" font-size="11" fill="#636757" text-anchor="end">2 min</text>
+          <text x="64" y="332" font-size="12" fill="#23271F">2× Chicken wrap</text>
+          <text x="64" y="350" font-size="12" fill="#23271F">2× Iced tea</text>
+
+          <rect x="222" y="164" width="156" height="92" rx="12" fill="#FFFCF5" stroke="#E3DACA"/>
+          <rect x="222" y="176" width="4" height="68" rx="2" fill="#56662A"/>
+          <text x="238" y="188" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#23271F">Table 1</text>
+          <text x="366" y="188" font-size="11" fill="#636757" text-anchor="end">6 min</text>
+          <text x="238" y="212" font-size="12" fill="#23271F">3× Smash burger</text>
+          <text x="238" y="230" font-size="12" fill="#23271F">1× Garden salad</text>
+          <rect x="238" y="238" width="60" height="8" rx="4" fill="#E4E8CC"/>
+          <rect class="b-prog" x="238" y="238" width="40" height="8" rx="4" fill="#56662A"/>
+
+          <g class="b-t7">
+          <rect x="396" y="164" width="156" height="92" rx="12" fill="#E4E8CC" stroke="#CBD2AA"/>
+          <text x="412" y="188" font-family="Fraunces,serif" font-size="15" font-weight="600" fill="#23271F">Table 7</text>
+          <text x="540" y="188" font-size="11" fill="#636757" text-anchor="end">9 min</text>
+          <text x="412" y="212" font-size="12" fill="#23271F">1× Fries</text>
+          <g class="b-served">
+            <rect x="412" y="224" width="92" height="22" rx="11" fill="#56662A"/>
+            <text x="458" y="239" font-size="11" font-weight="600" fill="#FFFCF5" text-anchor="middle">Mark served</text>
+          </g>
+          </g>
+
+          <rect x="396" y="270" width="156" height="100" rx="12" fill="#FFFCF5" stroke="#CBC1AE" stroke-dasharray="4 4"/>
+          <text x="474" y="314" font-size="12" fill="#636757" text-anchor="middle">Table 3 asked</text>
+          <text x="474" y="332" font-size="12" fill="#636757" text-anchor="middle">for the bill</text>
+        </g>
+      </svg>
+      <div>
+        <h2>One board for the kitchen and the floor</h2>
+        <ul class="feats">
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4M7 9h5M7 12h8"/></svg></span><div><b>Orders arrive in seconds</b><p>Table, items and notes on any tablet or laptop you already have.</p></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 21a2 2 0 0 0 4 0"/></svg></span><div><b>Waiter calls, without the waving</b><p>See which table needs someone and how long it has waited.</p></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12v18l-2.5-1.5L13 21l-2-1.5L9 21l-3-1.5z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg></span><div><b>Bills that add themselves up</b><p>Each table keeps a running bill. Split it, record cash or card, close the visit.</p></div></li>
+          <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h16M7 16v-4M12 16V8M17 16V5"/></svg></span><div><b>Profit per dish, for the owner</b><p>Add what each dish costs you. Sales, food cost and staff hours for any day.</p></div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="yours">
+    <div class="wrap">
+      <div class="head">
+        <h2>Your restaurant, not ours</h2>
+        <p>Guests see your name, your colour and your dishes. Tably stays in the background.</p>
+      </div>
+      <div class="cards">
+        <article class="card">
+          <div class="demo">
+            <div style="width:100%;display:grid;justify-items:center">
+              <div class="brand-demo">
+                <div class="top"><b>Forno Rosso</b><span>Table 7 · Sara</span></div>
+                <div class="row"><span>Margherita</span><span class="muted">12.00</span></div>
+                <div class="row"><span>Garlic bread</span><span class="muted">6.50</span></div>
+              </div>
+              <div class="swatches" role="group" aria-label="Try a colour"><button type="button" aria-label="Wine" aria-pressed="true" data-c="#7A2E2A" style="background:#7A2E2A"></button><button type="button" aria-label="Olive" aria-pressed="false" data-c="#56662A" style="background:#56662A"></button><button type="button" aria-label="Navy" aria-pressed="false" data-c="#1F3A5A" style="background:#1F3A5A"></button><button type="button" aria-label="Saffron" aria-pressed="false" data-c="#B8651F" style="background:#B8651F"></button></div>
+            </div>
+          </div>
+          <div><h3>Your name and colour</h3><p>Pick a colour, add your dishes and photos. Every guest page looks like yours.</p></div>
+        </article>
+        <article class="card">
+          <div class="demo">
+            <div class="prices">
+              <div class="on"><span>Dubai</span><b>AED 32.00</b></div>
+              <div><span>London</span><b>£8.50</b></div>
+              <div><span>Kuwait City</span><b>KWD 2.500</b></div>
+              <div><span>Tokyo</span><b>¥1,200</b></div>
+            </div>
+          </div>
+          <div><h3>Any currency, any country</h3><p>Prices and times follow your own currency and time zone.</p></div>
+        </article>
+        <article class="card">
+          <div class="demo">
+            <div class="lang">
+              <div class="seg" role="group" aria-label="Menu language"><span class="pill" aria-hidden="true"></span><button type="button" aria-pressed="true" data-l="en">English</button><button type="button" aria-pressed="false" data-l="ar" lang="ar">العربية</button></div>
+              <div class="dish"><span class="dname">Mint lemonade</span><span class="dprice muted">16.00</span></div>
+            </div>
+          </div>
+          <div><h3>A second menu language</h3><p>Turn on Arabic and guests switch with one tap. Leave it off if you don't need it.</p></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap" style="padding-bottom:clamp(64px,8vw,96px)">
+    <div class="cta">
+      <div>
+        <h2>Put your menu on every table this week</h2>
+        <p>Sign up, add your dishes, print the table cards. Free during the beta, no card needed.</p>
+        <div class="btns">
+          <a class="btn primary" href="#">Create free account</a>
+          <a class="btn ghost" href="#">Log in</a>
+        </div>
+      </div>
+      <svg viewBox="0 0 340 300" aria-hidden="true">
+        <circle class="c-circle" cx="170" cy="160" r="130" fill="#4A5824"/>
+        <g class="c-a"><use href="#qr-card" x="54" y="62" width="132" height="168" transform="rotate(-8 120 146)" filter="url(#lift)"/></g>
+        <g class="c-b"><use href="#qr-card" x="160" y="74" width="132" height="168" transform="rotate(7 226 158)" filter="url(#lift)"/></g>
+      </svg>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="logo" href="#" style="font-size:22px">
+          <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="9.5" fill="#23271F"/><rect x="6.5" y="6.5" width="19" height="19" rx="5.5" fill="#F6F1E7"/><circle cx="16" cy="16" r="5.5" fill="#E08A3C"/></svg>
+          Tably
+        </a>
+        <p>QR menus and table ordering for restaurants and cafés. Free during the beta.</p>
+        <a class="btn primary" href="#">Start free</a>
+      </div>
+      <div><h4>Product</h4><ul><li><a href="#how">How it works</a></li><li><a href="#team">For your team</a></li><li><a href="#yours">Your restaurant</a></li></ul></div>
+      <div><h4>Account</h4><ul><li><a href="#">Create account</a></li><li><a href="#">Log in</a></li><li><a href="#">Reset password</a></li></ul></div>
+      <div><h4>Legal</h4><ul><li><a href="#">Terms</a></li><li><a href="#">Privacy</a></li></ul></div>
+    </div>
+    <div class="foot-mark" aria-hidden="true">
+      <b>Tably</b>
+      <svg viewBox="0 0 300 150">
+        <ellipse cx="150" cy="140" rx="146" ry="10" fill="#EFE6D3"/>
+        <g class="f-obj"><use href="#qr-card" x="8" y="10" width="92" height="117" transform="rotate(-7 54 68)" filter="url(#soft)"/></g>
+        <g class="f-obj"><use href="#plate" x="104" y="18" width="116" height="116" filter="url(#soft)"/></g>
+        <g class="f-obj"><use href="#glass" x="226" y="54" width="62" height="62" filter="url(#soft)"/></g>
+      </svg>
+    </div>
+    <div class="foot-base"><span>© 2026 Tably</span><span>English · <span lang="ar">العربية</span></span></div>
+  </div>
+</footer>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/SplitText.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.20/dist/lenis.min.js"></script>
+<script>
+(function () {
+  var root = document.documentElement;
+  function ready() { root.classList.add('ready'); }
+  if (!window.gsap || !window.ScrollTrigger || !window.SplitText) { ready(); return; }
+  gsap.registerPlugin(ScrollTrigger, SplitText);
+
+  var $ = function (s, c) { return (c || document).querySelector(s); };
+  var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
+  var OUT = 'power3.out';
+
+  /* ------------------------------------------------ interactive cards (every mode) */
+  var touched = { sw: false, lang: false };
+  var swatches = $$('.swatches button');
+  var brandTop = $('.brand-demo .top');
+  function setSwatch(btn) {
+    swatches.forEach(function (b) { b.setAttribute('aria-pressed', b === btn); });
+    gsap.to(brandTop, { backgroundColor: btn.dataset.c, duration: 0.35, ease: 'power2.inOut', overwrite: true });
+  }
+  swatches.forEach(function (b) { b.addEventListener('click', function () { touched.sw = true; setSwatch(b); }); });
+
+  var langBtns = $$('.seg button'), pill = $('.seg .pill'), dish = $('.dish'), dname = $('.dname'), dprice = $('.dprice');
+  var LANG = { en: ['Mint lemonade', '16.00', 'ltr'], ar: ['ليمون بالنعناع', '١٦٫٠٠', 'rtl'] };
+  function setLang(btn, instant) {
+    langBtns.forEach(function (b) { b.setAttribute('aria-pressed', b === btn); });
+    gsap.to(pill, { x: btn.offsetLeft, width: btn.offsetWidth, duration: instant ? 0 : 0.4, ease: 'power3.inOut', overwrite: true });
+    var l = LANG[btn.dataset.l];
+    function apply() { dname.textContent = l[0]; dprice.textContent = l[1]; dish.dir = l[2]; dname.lang = btn.dataset.l; }
+    if (instant) { apply(); return; }
+    gsap.timeline()
+      .to([dname, dprice], { autoAlpha: 0, y: -4, filter: 'blur(2px)', duration: 0.16, ease: 'power2.in' })
+      .add(apply)
+      .fromTo([dname, dprice], { y: 4 }, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.32, ease: OUT });
+  }
+  langBtns.forEach(function (b) { b.addEventListener('click', function () { touched.lang = true; setLang(b); }); });
+
+  var rows = $$('.prices div'), ri = 0;
+  function nextPrice() { rows[ri].classList.remove('on'); ri = (ri + 1) % rows.length; rows[ri].classList.add('on'); }
+
+  /* ------------------------------------------------ helpers */
+  function inView(el, tl) {
+    ScrollTrigger.create({ trigger: el, start: 'top bottom', end: 'bottom top',
+      onToggle: function (s) { s.isActive ? tl.play() : tl.pause(); } });
+  }
+  function rise(targets, trigger, extra) {
+    return gsap.from(targets, Object.assign({ autoAlpha: 0, y: 20, duration: 0.7, ease: OUT, stagger: 0.08,
+      scrollTrigger: { trigger: trigger, start: 'top 84%', once: true } }, extra || {}));
+  }
+
+  document.fonts.ready.then(function () {
+    setLang($('.seg button[aria-pressed=true]'), true);
+    var mm = gsap.matchMedia();
+
+    mm.add({ motion: '(prefers-reduced-motion: no-preference)', fine: '(hover: hover) and (pointer: fine)', wide: '(min-width: 961px)' }, function (ctx) {
+      var c = ctx.conditions;
+      if (!c.motion) {
+        gsap.from('header, main', { autoAlpha: 0, duration: 0.2 });
+        ready();
+        return;
+      }
+
+      /* smooth scroll: Lenis is the only engine */
+      var lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+      lenis.on('scroll', ScrollTrigger.update);
+      function raf(t) { lenis.raf(t * 1000); }
+      gsap.ticker.add(raf);
+      gsap.ticker.lagSmoothing(0);
+      function onAnchor(e) {
+        var id = this.getAttribute('href'), t = id.length > 1 && $(id);
+        if (t) { e.preventDefault(); lenis.scrollTo(t, { duration: 1.1 }); }
+      }
+      var anchors = $$('a[href^="#"]');
+      anchors.forEach(function (a) { a.addEventListener('click', onAnchor); });
+
+      /* hero intro */
+      var h1 = SplitText.create('.hero h1', { type: 'lines', mask: 'lines' });
+      var intro = gsap.timeline({ defaults: { ease: OUT } });
+      intro
+        .from('header nav > *', { autoAlpha: 0, y: -8, duration: 0.6, stagger: 0.06 })
+        .from(h1.lines, { yPercent: 105, duration: 1, stagger: 0.09, onComplete: function () { h1.revert(); } }, 0.1)
+        .from('.hero .lead, .hero .btns, .hero .facts', { autoAlpha: 0, y: 16, duration: 0.7, stagger: 0.07 }, 0.45)
+        .from('.h-table', { autoAlpha: 0, scale: 0.96, transformOrigin: '50% 50%', duration: 1.1 }, 0.15)
+        .from('.h-obj', { autoAlpha: 0, y: -14, rotation: function (i) { return [-4, 3, -3, 4, -3][i]; },
+          transformOrigin: '50% 50%', duration: 0.9, stagger: 0.08 }, 0.4)
+        .from('.note', { autoAlpha: 0, y: 8, scale: 0.96, duration: 0.5, stagger: 0.12 }, 1.05);
+
+      /* hero service loop: scan, order, served */
+      var notes = $$('.note'), card = $('.h-card'), phone = $('.h-phone'), plate = $('.h-plate');
+      function act(i) { return function () { notes.forEach(function (n, k) { n.classList.toggle('on', k === i); }); }; }
+      var loop = gsap.timeline({ repeat: -1, paused: true, defaults: { ease: 'sine.inOut' } });
+      loop
+        .call(act(0), null, 0.01)
+        .to(card, { y: -5, duration: 0.5 }, 0)
+        .fromTo('.h-scan', { y: 0, opacity: 0 }, { opacity: 1, duration: 0.15 }, 0.3)
+        .to('.h-scan', { y: 74, duration: 0.9, ease: 'power1.inOut', yoyo: true, repeat: 1 }, 0.3)
+        .to('.h-scan', { opacity: 0, duration: 0.2 }, 2.1)
+        .to(card, { y: 0, duration: 0.6 }, 2.1)
+        .call(act(1), null, 2.7)
+        .to(phone, { y: -5, duration: 0.5 }, 2.7)
+        .fromTo('.h-tap', { scale: 0.5, opacity: 0.9, transformOrigin: '50% 50%' },
+          { scale: 1.9, opacity: 0, duration: 0.7, ease: 'power2.out', repeat: 1, repeatDelay: 0.25 }, 3.1)
+        .to(phone, { y: 0, duration: 0.6 }, 4.8)
+        .call(act(2), null, 5.4)
+        .to(plate, { y: -6, duration: 0.55, ease: 'power2.out' }, 5.4)
+        .fromTo('.h-steam', { opacity: 0, y: 6 }, { opacity: 0.9, y: -2, duration: 0.9 }, 5.6)
+        .to(plate, { y: 0, duration: 0.7, ease: 'power2.inOut' }, 6.0)
+        .to('.h-steam', { opacity: 0, y: -12, duration: 0.9 }, 6.6)
+        .to({}, { duration: 0.01 }, 8);
+      var introDone = false;
+      var heroST = ScrollTrigger.create({ trigger: '.hero', start: 'top bottom', end: 'bottom top',
+        onToggle: function (s) { if (introDone) s.isActive ? loop.play() : loop.pause(); } });
+      intro.eventCallback('onComplete', function () { introDone = true; if (heroST.isActive) loop.play(); });
+
+      var scene = $('.scene'), cleanups = [];
+      function on(el, ev, fn) { el.addEventListener(ev, fn); cleanups.push(function () { el.removeEventListener(ev, fn); }); }
+      on(scene, 'mouseenter', function () { gsap.to(loop, { timeScale: 0, duration: 0.5, ease: 'power2.out', overwrite: true }); });
+      on(scene, 'mouseleave', function () { gsap.to(loop, { timeScale: 1, duration: 0.5, ease: 'power2.in', overwrite: true }); });
+
+      /* hero pointer parallax, fine pointers only */
+      if (c.fine && c.wide) {
+        var hero = $('.hero');
+        var layers = $$('.px').map(function (el) {
+          return { d: +el.dataset.depth, x: gsap.quickTo(el, 'x', { duration: 0.8, ease: 'power3' }), y: gsap.quickTo(el, 'y', { duration: 0.8, ease: 'power3' }) };
+        });
+        on(hero, 'mousemove', function (e) {
+          var r = hero.getBoundingClientRect();
+          var nx = (e.clientX - r.left) / r.width * 2 - 1, ny = (e.clientY - r.top) / r.height * 2 - 1;
+          layers.forEach(function (l) { l.x(nx * l.d); l.y(ny * l.d); });
+        });
+        function rest() { layers.forEach(function (l) { l.x(0); l.y(0); }); }
+        on(hero, 'mouseleave', rest);
+        on(window, 'blur', rest);
+      }
+
+      /* section headings: words rise inside line masks */
+      $$('section.block h2, .cta h2').forEach(function (h) {
+        var sp = SplitText.create(h, { type: 'words,lines', mask: 'lines' });
+        gsap.from(sp.words, { yPercent: 110, duration: 0.8, ease: OUT, stagger: 0.04,
+          scrollTrigger: { trigger: h, start: 'top 86%', once: true }, onComplete: function () { sp.revert(); } });
+      });
+      $$('.head').forEach(function (hd) { rise($('p', hd), hd, { delay: 0.25 }); });
+
+      /* how it works */
+      rise('.step', '.steps', { stagger: 0.1, y: 24 });
+      var s1 = gsap.timeline({ repeat: -1, paused: true, repeatDelay: 0.6 });
+      s1.fromTo('.s1-scan', { y: 0, opacity: 0 }, { opacity: 1, duration: 0.15 }, 0)
+        .to('.s1-scan', { y: 56, duration: 0.8, ease: 'power1.inOut', yoyo: true, repeat: 1 }, 0)
+        .to('.s1-scan', { opacity: 0, duration: 0.15 }, 1.6)
+        .to('.s1-corners', { scale: 1.06, transformOrigin: '50% 50%', duration: 0.25, ease: 'power2.out', yoyo: true, repeat: 1 }, 1.6)
+        .to('.s1-pill', { scale: 0.92, transformOrigin: '50% 50%', duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, 2.3)
+        .to({}, { duration: 0.8 });
+      inView($('.step:nth-child(1) .art'), s1);
+
+      var s2 = gsap.timeline({ repeat: -1, paused: true, repeatDelay: 0.4 });
+      var pop = { autoAlpha: 1, y: 0, scale: 1, duration: 0.5, ease: 'back.out(1.6)' };
+      var popFrom = { autoAlpha: 0, y: 8, scale: 0.94, transformOrigin: '50% 50%' };
+      s2.fromTo('.s2-a', popFrom, pop, 0.3)
+        .fromTo('.s2-b', popFrom, pop, 1.1)
+        .to(['.s2-a', '.s2-b'], { autoAlpha: 0, y: -6, duration: 0.35, ease: 'power2.in', stagger: 0.08 }, 3.2);
+      inView($('.step:nth-child(2) .art'), s2);
+
+      var spans = $$('.track span');
+      var s3 = gsap.timeline({ repeat: -1, paused: true, repeatDelay: 0.3 });
+      s3.set(spans, { opacity: 0.35 }, 0).set($$('.track i'), { scale: 0.6 }, 0)
+        .to('.s3-plate', { y: -4, duration: 0.4, ease: 'power2.out' }, 0);
+      spans.forEach(function (sp, i) {
+        s3.to(sp, { opacity: 1, duration: 0.3, ease: OUT }, 0.4 + i * 0.8)
+          .to($('i', sp), { scale: 1, duration: 0.45, ease: 'back.out(2.2)' }, 0.4 + i * 0.8);
+      });
+      s3.to('.s3-plate', { y: 0, duration: 0.6, ease: 'power2.inOut' }, 2.2).to({}, { duration: 1.4 });
+      inView($('.step:nth-child(3) .art'), s3);
+
+      /* team: live kitchen board */
+      rise('.team-grid > svg', '.team-grid', { y: 28, duration: 0.9 });
+      rise('.feats li', '.feats', { x: 16, y: 0, stagger: 0.07 });
+      var clock = $('.b-clock'), count = $('.b-count');
+      function txt(el, t) { return function () { el.textContent = t; }; }
+      var board = gsap.timeline({ repeat: -1, paused: true, repeatDelay: 0.6 });
+      board
+        .set('.b-new', { autoAlpha: 0, x: -16 }, 0)
+        .set('.b-bar', { scaleY: 0, transformOrigin: '50% 0%' }, 0)
+        .set('.b-prog', { transformOrigin: '0% 50%' }, 0)
+        .call(txt(count, 'New · 1'), null, 0.01)
+        .to('.b-new', { autoAlpha: 1, x: 0, duration: 0.7, ease: OUT }, 0.4)
+        .call(txt(count, 'New · 2'), null, 0.5)
+        .to('.b-bar', { scaleY: 1, duration: 0.5, ease: OUT }, 0.8)
+        .to('.b-bell', { rotation: 14, transformOrigin: '50% 20%', duration: 0.09, ease: 'sine.inOut', yoyo: true, repeat: 5 }, 1.4)
+        .to('.b-prog', { scaleX: 1.5, duration: 1, ease: 'power2.inOut' }, 2.2)
+        .to(clock, { autoAlpha: 0, duration: 0.15 }, 3.0)
+        .call(txt(clock, 'Today · 19:43'), null, 3.15)
+        .to(clock, { autoAlpha: 1, duration: 0.25 }, 3.16)
+        .to('.b-served', { scale: 0.93, transformOrigin: '50% 50%', duration: 0.12, ease: 'power2.out', yoyo: true, repeat: 1 }, 3.8)
+        .to('.b-t7', { autoAlpha: 0, y: 6, duration: 0.45, ease: 'power2.in' }, 4.15)
+        /* ease everything back so the repeat has no snap */
+        .to('.b-new', { autoAlpha: 0, x: -16, duration: 0.45, ease: 'power2.in' }, 6.2)
+        .to('.b-prog', { scaleX: 1, duration: 0.6, ease: 'power2.inOut' }, 6.2)
+        .to('.b-t7', { autoAlpha: 1, y: 0, duration: 0.6, ease: OUT }, 6.4)
+        .to(clock, { autoAlpha: 0, duration: 0.15 }, 6.4)
+        .call(txt(clock, 'Today · 19:42'), null, 6.55)
+        .to(clock, { autoAlpha: 1, duration: 0.25 }, 6.56);
+      inView($('.team-grid > svg'), board);
+
+      /* your restaurant: cards + gentle auto demo until the visitor takes over */
+      rise('.card', '.cards', { stagger: 0.1, y: 24 });
+      var sw = 0, lt = 0;
+      var demo = gsap.timeline({ repeat: -1, paused: true });
+      demo
+        .call(function () { if (!touched.sw) { sw = (sw + 1) % swatches.length; setSwatch(swatches[sw]); } }, null, 0.8)
+        .call(nextPrice, null, 1.6)
+        .call(function () { if (!touched.lang && (++lt % 2 === 0)) { setLang(langBtns[(lt / 2) % 2]); } }, null, 2.4)
+        .to({}, { duration: 0.01 }, 2.6);
+      inView($('.cards'), demo);
+
+      /* cta: cards fan out with scroll */
+      rise('.cta > div', '.cta', { y: 24 });
+      gsap.timeline({ scrollTrigger: { trigger: '.cta', start: 'top 92%', end: 'center 55%', scrub: 0.6 } })
+        .from('.c-circle', { scale: 0.94, transformOrigin: '50% 50%', ease: 'none' }, 0)
+        .from('.c-a', { rotation: 8, x: 34, svgOrigin: '170 160', ease: 'none' }, 0)
+        .from('.c-b', { rotation: -7, x: -34, svgOrigin: '170 160', ease: 'none' }, 0);
+
+      /* footer */
+      rise('.foot-top > *', '.foot-top', { stagger: 0.06, y: 16 });
+      var fw = SplitText.create('.foot-mark b', { type: 'chars' });
+      gsap.from(fw.chars, { yPercent: 40, autoAlpha: 0, duration: 0.9, ease: OUT, stagger: 0.04,
+        scrollTrigger: { trigger: '.foot-mark', start: 'top 92%', once: true }, onComplete: function () { fw.revert(); } });
+      gsap.from('.f-obj', { autoAlpha: 0, y: -12, duration: 0.8, ease: OUT, stagger: 0.08,
+        scrollTrigger: { trigger: '.foot-mark', start: 'top 92%', once: true } });
+
+      ready();
+      window.addEventListener('load', function () { ScrollTrigger.refresh(); }, { once: true });
+
+      return function () {
+        cleanups.forEach(function (f) { f(); });
+        anchors.forEach(function (a) { a.removeEventListener('click', onAnchor); });
+        gsap.ticker.remove(raf);
+        lenis.destroy();
+      };
+    });
+  });
+})();
+</script>
+
+</body>
+</html>

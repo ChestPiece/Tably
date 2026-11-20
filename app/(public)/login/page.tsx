@@ -1,5 +1,6 @@
 "use client";
 import { Eye, EyeOff, Languages, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BrandLockup } from "@/components/brand";
@@ -12,10 +13,11 @@ import { staffClient } from "@/lib/supabase/browser";
 
 type Mode = "in" | "up" | "forgot";
 
-// One sign-in for owner and staff. Owners land on /admin, everyone else on /staff.
+// One sign-in for owners and staff. Owners land on /admin, staff on /staff,
+// and a new account with no restaurant yet goes to /admin/setup to create one.
 export default function Login() {
   const router = useRouter();
-  const { t, toggle } = useLang();
+  const { lang, t, toggle } = useLang();
   const [mode, setMode] = useState<Mode>("in");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,25 +32,22 @@ export default function Login() {
     setInfo("");
   };
 
-  // Link invites, then route by role. No membership = no access.
+  // Link invites, then route by role. No membership yet = a new restaurant to set up.
   async function enter(sb: ReturnType<typeof staffClient>) {
     await sb.rpc("accept_invites");
     const { data: member } = await sb.from("staff_members").select("role").order("role").limit(1).maybeSingle();
-    if (!member) {
-      await sb.auth.signOut();
-      return setError("noAccess");
-    }
-    router.replace(member.role === "owner" ? "/admin" : "/staff");
+    router.replace(!member ? "/admin/setup" : member.role === "owner" ? "/admin" : "/staff");
     router.refresh();
   }
 
-  // Invite link from the owner (?invite=email): open sign-up with the email filled in.
+  // /signup (?signup) or an owner's invite link (?invite=email): open sign-up, email filled in for invites.
   useEffect(() => {
-    const invited = new URLSearchParams(location.search).get("invite");
-    if (!invited) return;
+    const q = new URLSearchParams(location.search);
+    const invited = q.get("invite");
+    if (!invited && !q.has("signup")) return;
     /* eslint-disable react-hooks/set-state-in-effect -- URL is only readable after hydration */
     setMode("up");
-    setEmail(invited);
+    if (invited) setEmail(invited);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
@@ -115,7 +114,7 @@ export default function Login() {
     <main className="relative grid min-h-dvh place-items-center bg-background p-4">
       <Button type="button" variant="ghost" size="sm" onClick={toggle} className="absolute end-4 top-4">
         <Languages aria-hidden />
-        {t("switchLang")}
+        <span lang={lang === "ar" ? "en" : "ar"}>{t("switchLang")}</span>
       </Button>
       <Card className="w-full max-w-sm rounded-lg shadow-none">
         <CardHeader className="gap-4">
@@ -191,13 +190,21 @@ export default function Login() {
               )}
               {error && <FieldError id="login-error">{t(error)}</FieldError>}
               {info && <p role="status" className="text-sm text-muted-foreground">{t(info)}</p>}
+              {mode === "up" && (
+                <p className="text-sm text-muted-foreground">
+                  {t("agreeTerms")}{" "}
+                  <Link href="/terms" className="underline underline-offset-2 hover:text-foreground">{t("terms")}</Link>
+                  {` ${t("and")} `}
+                  <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">{t("privacy")}</Link>.
+                </p>
+              )}
             </FieldGroup>
             <Button type="submit" size="lg" disabled={busy}>
               {busy && <Loader2 aria-hidden className="animate-spin" />}
               {busy ? t("oneMoment") : t(action)}
             </Button>
             <Button type="button" variant="ghost" size="lg" className="text-muted-foreground" onClick={() => switchTo(mode === "in" ? "up" : "in")}>
-              {t(mode === "in" ? "haveInvite" : mode === "up" ? "haveAccount" : "backToLogin")}
+              {t(mode === "in" ? "newHere" : mode === "up" ? "haveAccount" : "backToLogin")}
             </Button>
           </form>
         </CardContent>

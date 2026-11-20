@@ -48,3 +48,9 @@ next-env.d.ts
 .claude/worktrees/
 *.log
 Thumbs.db
+
+# installed agent skills (vendored by the skills CLI)
+.agents/
+.claude/skills/
+.hallmark/
+skills-lock.json

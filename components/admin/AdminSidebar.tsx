@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ChefHat, House, Languages, ListOrdered, LogOut, MonitorPlay, Moon, QrCode, Settings, Sun, UsersRound, UtensilsCrossed, type LucideIcon } from "lucide-react";
+import { ChefHat, House, Languages, ListOrdered, LogOut, MonitorPlay, Moon, QrCode, Settings, Sun, TrendingUp, UsersRound, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useTheme } from "next-themes";
@@ -12,12 +12,13 @@ import {
 import { useLang, type Key } from "@/lib/i18n";
 import { staffClient } from "@/lib/supabase/browser";
 
-export type OwnerPage = "home" | "board" | "orders" | "menu" | "tables" | "team" | "settings";
+export type OwnerPage = "home" | "board" | "orders" | "profit" | "menu" | "tables" | "team" | "settings";
 
 export const OWNER_PAGES: { id: OwnerPage; label: Key; icon: LucideIcon; group: "main" | "venue" }[] = [
   { id: "home", label: "navHome", icon: House, group: "main" },
   { id: "board", label: "navBoard", icon: MonitorPlay, group: "main" },
   { id: "orders", label: "navOrders", icon: ListOrdered, group: "main" },
+  { id: "profit", label: "navProfit", icon: TrendingUp, group: "main" },
   { id: "menu", label: "menu", icon: UtensilsCrossed, group: "venue" },
   { id: "tables", label: "navTables", icon: QrCode, group: "venue" },
   { id: "team", label: "navTeam", icon: UsersRound, group: "venue" },

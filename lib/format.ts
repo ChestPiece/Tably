@@ -1,14 +1,21 @@
 import type { Lang } from "./types.ts";
 
-const locale = (lang: Lang) => (lang === "ar" ? "ar-AE-u-nu-latn" : "en-AE");
+const locale = (lang: Lang) => (lang === "ar" ? "ar-u-nu-latn" : "en");
 
-/** Integer fils -> "AED 81.00" / "81.00 د.إ.‏" (Western digits in both languages; currency:false -> bare number). */
-export const formatMoney = (fils: number, lang: Lang, opts: { currency?: boolean } = {}) =>
-  new Intl.NumberFormat(locale(lang), {
-    style: opts.currency === false ? "decimal" : "currency",
-    currency: "AED",
-    minimumFractionDigits: 2,
-  }).format(fils / 100);
+/** Decimal places of a currency's minor unit: USD 2, KWD 3, JPY 0. */
+export const currencyDigits = (currency: string) =>
+  new Intl.NumberFormat("en", { style: "currency", currency }).resolvedOptions().maximumFractionDigits ?? 2;
+
+/** Integer minor units -> "AED 81.00" / "81.00 د.إ.‏" (Western digits in both languages; bare -> number only). */
+export const formatMoney = (minor: number, lang: Lang, currency: string, opts: { bare?: boolean } = {}) => {
+  const digits = currencyDigits(currency);
+  return new Intl.NumberFormat(locale(lang), {
+    style: opts.bare ? "decimal" : "currency",
+    currency,
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  }).format(minor / 10 ** digits);
+};
 
 /** Pick a plural form; "#" in the form is replaced by the number formatted for lang. */
 export const plural = (lang: Lang, n: number, forms: Partial<Record<Intl.LDMLPluralRule, string>> & { other: string }) =>
@@ -28,17 +35,19 @@ export function formatAge(ms: number, lang: Lang) {
 
 const latinDigits = (s: string) => s.replace(/[٠-٩]/g, (d) => String(d.charCodeAt(0) - 0x660)).replace("٫", ".").replace(",", ".");
 
-/** Largest price the editor accepts: 10,000 AED. */
-export const MAX_FILS = 1_000_000;
+/** Largest price the editor accepts, in minor units (matches the DB check). */
+export const MAX_MINOR = 1_000_000;
 
-/** "12.5" / "١٢٫٥٠" -> 1250 integer fils; null when not a price with up to 2 decimals. */
-export const parseFils = (input: string) => {
-  const m = /^(\d+)(?:\.(\d{1,2}))?$/.exec(latinDigits(input.trim()));
-  return m ? Number(m[1]) * 100 + Number((m[2] ?? "").padEnd(2, "0")) : null;
+/** "12.5" / "١٢٫٥٠" -> integer minor units for a currency with `digits` decimals; null when not a valid price. */
+export const parseMinor = (input: string, digits: number) => {
+  const m = /^(\d+)(?:\.(\d+))?$/.exec(latinDigits(input.trim()));
+  if (!m || (m[2] ?? "").length > digits) return null;
+  return Number(m[1]) * 10 ** digits + Number((m[2] ?? "").padEnd(digits, "0") || 0);
 };
 
-/** Integer fils -> "12.50" for a price input (always Latin digits, integer math). */
-export const filsToInput = (fils: number) => `${Math.floor(fils / 100)}.${String(fils % 100).padStart(2, "0")}`;
+/** Integer minor units -> "12.50" / "1.250" / "500" for a price input (Latin digits, integer math). */
+export const minorToInput = (minor: number, digits: number) =>
+  digits === 0 ? String(minor) : `${Math.floor(minor / 10 ** digits)}.${String(minor % 10 ** digits).padStart(digits, "0")}`;
 
 /** "T12" / "ط 12" (NBSP). */
 export const tableLabel = (lang: Lang, n: number) => (lang === "ar" ? "ط " : "T") + n;
