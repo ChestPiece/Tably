@@ -66,8 +66,8 @@ export function LandingMotion() {
       if (dead) return;
       setLang($<HTMLButtonElement>(".seg button[aria-pressed=true]"), true);
       mm = gsap.matchMedia();
-      mm.add({ motion: "(prefers-reduced-motion: no-preference)", fine: "(hover: hover) and (pointer: fine)", wide: "(min-width: 961px)" }, (ctx) => {
-        const c = ctx.conditions as { motion: boolean; fine: boolean; wide: boolean };
+      mm.add({ motion: "(prefers-reduced-motion: no-preference)" }, (ctx) => {
+        const c = ctx.conditions as { motion: boolean };
         if (!c.motion) {
           gsap.from($$("header, main"), { autoAlpha: 0, duration: 0.2 });
           ready();
@@ -97,60 +97,7 @@ export function LandingMotion() {
           .from($$("header nav > *"), { autoAlpha: 0, y: -8, duration: 0.6, stagger: 0.06 })
           .from(h1.lines, { yPercent: 105, duration: 1, stagger: 0.09, onComplete: () => h1.revert() }, 0.1)
           .from($$(".hero .lead, .hero .btns, .hero .facts"), { autoAlpha: 0, y: 16, duration: 0.7, stagger: 0.07 }, 0.45)
-          .from($(".h-table"), { autoAlpha: 0, scale: 0.96, transformOrigin: "50% 50%", duration: 1.1 }, 0.15)
-          .from($$(".h-obj"), { autoAlpha: 0, y: -14, rotation: (i: number) => [-4, 3, -3, 4, -3][i], transformOrigin: "50% 50%", duration: 0.9, stagger: 0.08 }, 0.4)
-          .from($$(".note"), { autoAlpha: 0, y: 8, scale: 0.96, duration: 0.5, stagger: 0.12 }, 1.05);
-
-        /* hero service loop: scan, order, served */
-        const notes = $$(".note"), card = $(".h-card"), phone = $(".h-phone"), plate = $(".h-plate");
-        const scan = $(".h-scan"), tap = $(".h-tap"), steam = $(".h-steam");
-        const act = (i: number) => () => notes.forEach((n, k) => n.classList.toggle("on", k === i));
-        const loop = gsap.timeline({ repeat: -1, paused: true, defaults: { ease: "sine.inOut" } });
-        loop
-          .call(act(0), undefined, 0.01)
-          .to(card, { y: -5, duration: 0.5 }, 0)
-          .fromTo(scan, { y: 0, opacity: 0 }, { opacity: 1, duration: 0.15 }, 0.3)
-          .to(scan, { y: 74, duration: 0.9, ease: "power1.inOut", yoyo: true, repeat: 1 }, 0.3)
-          .to(scan, { opacity: 0, duration: 0.2 }, 2.1)
-          .to(card, { y: 0, duration: 0.6 }, 2.1)
-          .call(act(1), undefined, 2.7)
-          .to(phone, { y: -5, duration: 0.5 }, 2.7)
-          .fromTo(tap, { scale: 0.5, opacity: 0.9, transformOrigin: "50% 50%" }, { scale: 1.9, opacity: 0, duration: 0.7, ease: "power2.out", repeat: 1, repeatDelay: 0.25 }, 3.1)
-          .to(phone, { y: 0, duration: 0.6 }, 4.8)
-          .call(act(2), undefined, 5.4)
-          .to(plate, { y: -6, duration: 0.55, ease: "power2.out" }, 5.4)
-          .fromTo(steam, { opacity: 0, y: 6 }, { opacity: 0.9, y: -2, duration: 0.9 }, 5.6)
-          .to(plate, { y: 0, duration: 0.7, ease: "power2.inOut" }, 6.0)
-          .to(steam, { opacity: 0, y: -12, duration: 0.9 }, 6.6)
-          .to({}, { duration: 0.01 }, 8);
-        let introDone = false;
-        const heroST = ScrollTrigger.create({
-          trigger: $(".hero"), start: "top bottom", end: "bottom top",
-          onToggle: (s) => { if (!introDone) return; if (s.isActive) loop.play(); else loop.pause(); },
-        });
-        intro.eventCallback("onComplete", () => { introDone = true; if (heroST.isActive) loop.play(); });
-
-        const scene = $(".scene");
-        lon(scene, "mouseenter", () => { gsap.to(loop, { timeScale: 0, duration: 0.5, ease: "power2.out", overwrite: true }); });
-        lon(scene, "mouseleave", () => { gsap.to(loop, { timeScale: 1, duration: 0.5, ease: "power2.in", overwrite: true }); });
-
-        /* hero pointer parallax, fine pointers only */
-        if (c.fine && c.wide) {
-          const hero = $(".hero");
-          const layers = $$(".px").map((el) => ({
-            d: Number(el.dataset.depth),
-            x: gsap.quickTo(el, "x", { duration: 0.8, ease: "power3" }),
-            y: gsap.quickTo(el, "y", { duration: 0.8, ease: "power3" }),
-          }));
-          lon(hero, "mousemove", (ev) => {
-            const e = ev as MouseEvent, r = hero.getBoundingClientRect();
-            const nx = ((e.clientX - r.left) / r.width) * 2 - 1, ny = ((e.clientY - r.top) / r.height) * 2 - 1;
-            layers.forEach((l) => { l.x(nx * l.d); l.y(ny * l.d); });
-          });
-          const rest = () => layers.forEach((l) => { l.x(0); l.y(0); });
-          lon(hero, "mouseleave", rest);
-          lon(window, "blur", rest);
-        }
+          .from($(".hero .scene"), { autoAlpha: 0, y: 24, duration: 1.1 }, 0.25);
 
         /* section headings: words rise inside line masks */
         $$("section.block h2, .cta h2").forEach((h) => {
@@ -189,35 +136,8 @@ export function LandingMotion() {
         s3.to(s3plate, { y: 0, duration: 0.6, ease: "power2.inOut" }, 2.2).to({}, { duration: 1.4 });
         inView($(".step:nth-child(3) .art"), s3);
 
-        /* team: live kitchen board */
-        rise($(".team-grid > svg"), $(".team-grid"), { y: 28, duration: 0.9 });
+        /* team: the board demo plays itself (components/landing/demos) */
         rise($$(".feats li"), $(".feats"), { x: 16, y: 0, stagger: 0.07 });
-        const clock = $(".b-clock"), count = $(".b-count"), bNew = $(".b-new"), bBar = $(".b-bar"), bProg = $(".b-prog"), bT7 = $(".b-t7");
-        const txt = (el: Element, t: string) => () => { el.textContent = t; };
-        const board = gsap.timeline({ repeat: -1, paused: true, repeatDelay: 0.6 });
-        board
-          .set(bNew, { autoAlpha: 0, x: -16 }, 0)
-          .set(bBar, { scaleY: 0, transformOrigin: "50% 0%" }, 0)
-          .set(bProg, { transformOrigin: "0% 50%" }, 0)
-          .call(txt(count, "New · 1"), undefined, 0.01)
-          .to(bNew, { autoAlpha: 1, x: 0, duration: 0.7, ease: OUT }, 0.4)
-          .call(txt(count, "New · 2"), undefined, 0.5)
-          .to(bBar, { scaleY: 1, duration: 0.5, ease: OUT }, 0.8)
-          .to($(".b-bell"), { rotation: 14, transformOrigin: "50% 20%", duration: 0.09, ease: "sine.inOut", yoyo: true, repeat: 5 }, 1.4)
-          .to(bProg, { scaleX: 1.5, duration: 1, ease: "power2.inOut" }, 2.2)
-          .to(clock, { autoAlpha: 0, duration: 0.15 }, 3.0)
-          .call(txt(clock, "Today · 19:43"), undefined, 3.15)
-          .to(clock, { autoAlpha: 1, duration: 0.25 }, 3.16)
-          .to($(".b-served"), { scale: 0.93, transformOrigin: "50% 50%", duration: 0.12, ease: "power2.out", yoyo: true, repeat: 1 }, 3.8)
-          .to(bT7, { autoAlpha: 0, y: 6, duration: 0.45, ease: "power2.in" }, 4.15)
-          /* ease everything back so the repeat has no snap */
-          .to(bNew, { autoAlpha: 0, x: -16, duration: 0.45, ease: "power2.in" }, 6.2)
-          .to(bProg, { scaleX: 1, duration: 0.6, ease: "power2.inOut" }, 6.2)
-          .to(bT7, { autoAlpha: 1, y: 0, duration: 0.6, ease: OUT }, 6.4)
-          .to(clock, { autoAlpha: 0, duration: 0.15 }, 6.4)
-          .call(txt(clock, "Today · 19:42"), undefined, 6.55)
-          .to(clock, { autoAlpha: 1, duration: 0.25 }, 6.56);
-        inView($(".team-grid > svg"), board);
 
         /* your restaurant: cards + gentle auto demo until the visitor takes over */
         rise($$(".card"), $(".cards"), { stagger: 0.1, y: 24 });

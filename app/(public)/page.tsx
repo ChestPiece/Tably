@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Figtree, Fraunces } from "next/font/google";
+import { LandingDemos } from "@/components/landing/LandingDemos";
 import { LandingMotion } from "@/components/landing/LandingMotion";
 import { LANDING_HTML } from "@/components/landing/markup";
 import "@/components/landing/landing.css";
@@ -23,6 +24,7 @@ export default function Home() {
     <>
       <div className={`tl ${serif.variable} ${sans.variable}`} data-wait="" dangerouslySetInnerHTML={{ __html: LANDING_HTML }} />
       <LandingMotion />
+      <LandingDemos />
     </>
   );
 }

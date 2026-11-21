@@ -42,10 +42,16 @@
 .tl .facts li{display:flex;align-items:center;gap:8px}
 .tl .facts svg{width:16px;height:16px;color:var(--olive)}
 .tl .scene{position:relative}
-.tl .scene svg{width:100%;max-height:calc(100svh - 150px);margin-inline:auto}
-.tl .note{position:absolute;display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px 12px 6px 6px;font-size:13px;font-weight:500;white-space:nowrap;box-shadow:0 8px 20px -12px rgba(60,48,20,.4)}
-.tl .note i{display:grid;place-items:center;width:22px;height:22px;border-radius:7px;background:var(--ink);color:var(--card);font-style:normal;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
-.tl .note.n3 i{background:var(--orange);color:var(--ink)}
+/* Demo slots (components/landing/LandingDemos.tsx) hold their stage's shape before it loads */
+.tl [data-demo]{min-width:0}
+.tl [data-demo]:empty{aspect-ratio:600/460}
+.tl .demo-slot:empty{aspect-ratio:480/420}
+.tl [data-demo=hero]:empty{aspect-ratio:600/584}
+.tl .menu-slot{margin:0 0 clamp(24px,3vw,40px)}
+.tl .menu-slot:empty{aspect-ratio:880/560}
+@media (max-width:640px){.tl .menu-slot:empty{aspect-ratio:358/806}}
+@media (max-width:480px){.tl [data-demo=hero]:empty{aspect-ratio:358/770}}
+@media (max-width:480px){.tl [data-demo=board]:empty{aspect-ratio:358/350}}
 
 /* steps */
 .tl .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
@@ -60,7 +66,6 @@
 /* team */
 .tl .team{background:var(--card);border-block:1px solid var(--line)}
 .tl .team-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:56px;align-items:center}
-.tl .team-grid > svg{max-height:calc(100svh - 136px);width:100%}
 .tl .feats{list-style:none;display:grid;margin-top:24px}
 .tl .feats li{display:grid;grid-template-columns:40px 1fr;gap:16px;padding:12px 0;border-top:1px solid var(--line)}
 .tl .feats li:last-child{border-bottom:1px solid var(--line)}
