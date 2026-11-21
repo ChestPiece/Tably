@@ -16,6 +16,8 @@ const eslintConfig = defineConfig([
     // Installed agent skills (vendored, not app code).
     ".agents/**",
     ".claude/**",
+    // Vendored Stageshow kit (MIT, see components/landing/kit/LICENSE).
+    "components/landing/kit/**",
   ]),
 ]);
 
