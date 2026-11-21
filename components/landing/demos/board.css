@@ -1,0 +1,144 @@
+/* Board demo: the staff board window on the card section's ground, inside
+   one gutter, fading out at its foot. */
+.bd .ss-stage {
+  --gutter: 32px;
+  overflow: hidden;
+  background: transparent;
+}
+
+.bd-mask {
+  position: absolute;
+  inset: 0;
+  padding: var(--gutter) var(--gutter) 0;
+  mask-image: linear-gradient(to bottom, #000 72%, transparent 98%);
+}
+
+.bd-board {
+  position: relative;
+  width: 100%;
+  height: 420px;
+  border-radius: 12px;
+  box-shadow: var(--ss-shadow-hero);
+}
+
+.bd-board .ss-window__body {
+  background: var(--t-bg);
+}
+
+/* A waiter call: a quiet band across the top of the board */
+.bd-call {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 388px;
+  margin: 12px 14px 0;
+  padding: 8px 8px 8px 14px;
+  border-radius: 10px;
+  background: color-mix(in oklch, var(--t-cooking) 16%, var(--t-bg));
+  color: var(--t-cooking);
+}
+
+.bd-call__text {
+  flex: 1;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--t-fg);
+  white-space: nowrap;
+}
+
+.bd-call__btn.ss-button {
+  --ss-button-height: 36px;
+  padding-inline: 14px;
+  border-radius: 8px;
+  background: var(--t-cooking);
+  color: oklch(20% 0.03 70);
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.bd-cols {
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr);
+}
+
+.bd-col {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0 14px;
+}
+
+.bd-pass {
+  border-inline-start: 1px solid var(--t-border);
+}
+
+.bd-col-head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  height: 46px;
+  padding-top: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--t-fg);
+}
+
+.bd-col-count {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--t-muted);
+}
+
+.bd-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.bd-list > *,
+.bd-slot {
+  width: 100%;
+}
+
+.bd-list > .td-ticket,
+.bd-slot {
+  margin-bottom: 12px;
+}
+
+.bd-pass .td-ticket {
+  background: var(--t-card);
+}
+
+.bd-pass .td-ticket__num {
+  display: none;
+}
+
+.bd .ss-stage[data-layout='compact'] {
+  --gutter: 16px;
+}
+
+.bd .ss-stage[data-layout='compact'] .bd-board {
+  height: 360px;
+}
+
+.bd .ss-stage[data-layout='compact'] .bd-cols {
+  grid-template-columns: 238px minmax(0, 1fr);
+}
+
+/* Narrow: the call band and the pass head stay inside the crop */
+.bd .ss-stage[data-layout='compact'] .bd-call {
+  width: 296px;
+  will-change: transform;
+}
+
+.bd .ss-stage[data-layout='compact'] .bd-col {
+  padding: 0 12px;
+}
+
+.bd .ss-stage[data-layout='compact'] .bd-col-head {
+  font-size: 14px;
+}
+
+.bd .ss-stage[data-layout='compact'] .bd-call__text b {
+  display: block;
+}

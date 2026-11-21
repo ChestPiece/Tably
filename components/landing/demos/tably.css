@@ -1,0 +1,176 @@
+/* Tably app tokens for the landing demos. Values mirror app/globals.css
+   (light = guest and owner, dark = staff board). Each demo scopes them on its
+   own surface: the phone screen, the board window, the admin window. */
+.td-light {
+  --t-bg: oklch(96.4% 0.011 85);
+  --t-card: oklch(98.9% 0.006 85);
+  --t-fg: oklch(22.2% 0.032 273);
+  --t-text-2: oklch(44.5% 0.025 65);
+  --t-muted: oklch(50.5% 0.025 65);
+  --t-secondary: oklch(93.2% 0.012 80);
+  --t-border: oklch(88.5% 0.014 80);
+  --t-primary: oklch(30.3% 0.087 270);
+  --t-on-primary: oklch(96.4% 0.011 85);
+  --t-ochre: oklch(66% 0.12 81);
+  --t-ready: oklch(47.3% 0.089 154);
+  --t-bar: oklch(89.5% 0.013 80);
+  --t-bar-2: oklch(84% 0.016 78);
+  color: var(--t-fg);
+  font-family: var(--nf-sans), system-ui, sans-serif;
+}
+
+.td-dark {
+  --t-bg: oklch(18.7% 0.029 274);
+  --t-card: oklch(22.3% 0.034 273);
+  --t-fg: oklch(94.7% 0.008 279);
+  --t-text-2: oklch(76.6% 0.025 275);
+  --t-muted: oklch(64.6% 0.032 275);
+  --t-secondary: oklch(26.1% 0.037 272);
+  --t-border: oklch(31.5% 0.044 273);
+  --t-new: oklch(77% 0.083 268);
+  --t-cooking: oklch(79.9% 0.111 79);
+  --t-ready: oklch(77.4% 0.091 155);
+  --t-danger-bg: oklch(28.4% 0.044 29);
+  --t-danger: oklch(75% 0.12 30);
+  --t-bar: oklch(29% 0.04 273);
+  --t-bar-2: oklch(35% 0.045 273);
+  color: var(--t-fg);
+  font-family: var(--nf-sans), system-ui, sans-serif;
+  /* The kit's own parts (window chrome, bars, buttons) take the dark board's colors */
+  --ss-surface: var(--t-bg);
+  --ss-canvas: var(--t-bg);
+  --ss-chrome: oklch(15.5% 0.026 274);
+  --ss-line: var(--t-border);
+  --ss-line-faint: oklch(26% 0.038 273);
+  --ss-text-strong: var(--t-fg);
+  --ss-text: var(--t-text-2);
+  --ss-text-faint: var(--t-muted);
+  --ss-ink-1: oklch(24.5% 0.036 273);
+  --ss-ink-2: oklch(28% 0.04 273);
+  --ss-ink-3: oklch(32% 0.044 273);
+  --ss-ink-4: oklch(40% 0.045 273);
+  --ss-ink-5: oklch(55% 0.04 275);
+  --ss-icon: var(--t-muted);
+}
+
+.td-display {
+  font-family: var(--nf-display), Georgia, serif;
+  font-weight: 600;
+}
+
+.td-num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Leader dots between a dish name and its price, as the guest menu draws them */
+.td-leader {
+  flex: 1;
+  min-width: 12px;
+  align-self: baseline;
+  height: 0;
+  border-bottom: 2px dotted var(--t-border);
+  transform: translateY(-0.28em);
+}
+
+/* A Tably ticket, as components/staff/OrderCard.tsx draws it */
+.td-ticket {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--t-border);
+  border-radius: 12px;
+  background: transparent;
+  transition: background-color 240ms ease, border-color 240ms ease;
+}
+
+.td-ticket[data-state='new'] {
+  border-color: color-mix(in oklch, var(--t-new) 55%, var(--t-border));
+}
+
+.td-ticket[data-state='cooking'] {
+  background: var(--t-card);
+}
+
+.td-ticket__head {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+/* The table number takes the quantity column's width, so the meta and the dish
+   names start on one edge */
+.td-ticket__num {
+  flex: none;
+  width: 30px;
+  font-size: 28px;
+  line-height: 0.9;
+}
+
+.td-ticket__meta {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--t-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.td-ticket__age {
+  margin-inline-start: auto;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--t-muted);
+}
+
+.td-ticket__lines {
+  display: grid;
+  gap: 2px;
+  font-size: 15px;
+  line-height: 1.35;
+}
+
+.td-ticket__line {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  align-items: center;
+}
+
+.td-ticket__line b {
+  font-weight: 600;
+}
+
+.td-ticket__note {
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: var(--t-danger-bg);
+  color: var(--t-danger);
+  font-size: 13px;
+}
+
+/* The step button at its own width; Cancel is a quiet link at the far end */
+.td-ticket__acts {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.td-ticket__cancel {
+  flex: none;
+  margin-inline-start: auto;
+  padding: 0 10px;
+  font-size: 13px;
+  color: var(--t-muted);
+}
+
+/* The board's secondary button (shadcn secondary, 40px) */
+.td-ticket .ss-button {
+  --ss-button-height: 40px;
+  border-radius: 8px;
+  background: var(--t-secondary);
+  color: var(--t-fg);
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+}

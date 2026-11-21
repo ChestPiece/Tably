@@ -1,0 +1,276 @@
+/* Menu demo: the owner's Menu page on the section's paper, fading out at its
+   foot; the guest phone, whole, straddles the window's right margin (empty,
+   the columns stop short of it), never the figures. */
+.md .ss-stage {
+  --gutter: 32px;
+  --ss-accent: var(--t-primary, oklch(30.3% 0.087 270));
+  --ss-accent-soft: oklch(30.3% 0.087 270 / 0.1);
+  overflow: hidden;
+  background: transparent;
+}
+
+.md-mask {
+  position: absolute;
+  inset: 0;
+  padding: var(--gutter) 0 0 var(--gutter);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent 97%);
+}
+
+.md-admin {
+  position: relative;
+  width: 640px;
+  height: 528px;
+  border-radius: 12px;
+  box-shadow: var(--ss-shadow-hero);
+}
+
+.md-admin .ss-window__body {
+  background: var(--t-bg);
+}
+
+.md-body {
+  --md-end: 120px;
+  padding-top: 8px;
+}
+
+.md-top {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 64px;
+  padding: 0 var(--md-end) 0 24px;
+}
+
+.md-title {
+  font-size: 24px;
+  line-height: 1;
+  color: var(--t-fg);
+}
+
+.md-tabs {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex: 1;
+}
+
+.md-add.ss-button {
+  --ss-button-height: 36px;
+  padding: 0 14px 0 10px;
+  border-radius: 8px;
+  background: var(--t-primary);
+  color: var(--t-on-primary);
+  box-shadow: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  gap: 6px;
+}
+
+.md-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 104px 80px 84px;
+  align-items: center;
+  column-gap: 16px;
+  height: 56px;
+  margin: 0 var(--md-end) 0 24px;
+  border-bottom: 1px solid var(--t-border);
+  font-size: 14px;
+  color: var(--t-fg);
+}
+
+.md-row--head {
+  height: 36px;
+  border-top: 1px solid var(--t-border);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--t-muted);
+}
+
+.md-dish {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+/* The app's arch thumbnail */
+.md-thumb {
+  flex: none;
+  width: 28px;
+  height: 34px;
+  border-radius: 14px 14px 4px 4px;
+  background: var(--t-bar);
+}
+
+.md-name {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.md-cat {
+  color: var(--t-muted);
+}
+
+.md-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.md-avail {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.md-avail .ss-toggle {
+  --ss-ink-5: var(--t-bar-2);
+}
+
+/* The price cell: an inset ring while editing, one wash on commit */
+.md-cell {
+  position: relative;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 32px;
+}
+
+.md-ring {
+  position: absolute;
+  inset: 0 -8px;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1.5px var(--ss-accent), 0 0 0 3px var(--ss-accent-soft);
+  background: var(--t-card);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.md-cell[data-edit] .md-ring {
+  opacity: 1;
+}
+
+.md-cell::before {
+  content: '';
+  position: absolute;
+  inset: -6px -8px;
+  border-radius: 6px;
+  background: var(--ss-accent-soft);
+  opacity: 0;
+  transition: opacity 0.9s ease;
+}
+
+.md-cell[data-wash]::before {
+  opacity: 1;
+  transition-duration: 0.1s;
+}
+
+.md-text {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.md-sel[data-on] {
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--ss-accent) 22%, transparent);
+}
+
+.md-caret {
+  width: 1.5px;
+  height: 16px;
+  margin-left: 1px;
+  margin-right: -2.5px;
+  background: var(--ss-accent);
+  animation: ss-caret 1.06s steps(1) 0.5s infinite;
+}
+
+.md-caret[data-hide] {
+  visibility: hidden;
+}
+
+/* The phone: a level above the window, whole, inside the gutter */
+.md-phone {
+  position: absolute;
+  right: var(--gutter);
+  top: 44px;
+  box-shadow: var(--ss-shadow-satellite), 0 24px 32px -16px rgb(30 32 60 / 0.3);
+}
+
+.md-dish--phone {
+  transition: opacity 0.3s ease;
+}
+
+.md-dish--phone[data-off] .hd-dish__name,
+.md-dish--phone[data-off] .hd-dish__desc {
+  opacity: 0.45;
+  transition: opacity 0.35s ease;
+}
+
+.md-avail-note {
+  font-size: 18px;
+  color: var(--t-muted);
+}
+
+.md-avail-note--off {
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--t-secondary);
+  color: var(--t-fg);
+  font-weight: 500;
+}
+
+/* Narrow: the window on top, whole, showing only the two rows the story
+   touches; the phone whole below it, centred. Category goes. */
+.md .ss-stage[data-layout='compact'] {
+  --gutter: 16px;
+}
+
+.md .ss-stage[data-layout='compact'] .md-mask {
+  padding: var(--gutter) var(--gutter) 0;
+  mask-image: none;
+}
+
+.md .ss-stage[data-layout='compact'] .md-admin {
+  width: 100%;
+  height: auto;
+}
+
+.md .ss-stage[data-layout='compact'] .md-body {
+  --md-end: 16px;
+  padding-bottom: 8px;
+}
+
+.md .ss-stage[data-layout='compact'] .md-top {
+  justify-content: space-between;
+  padding-inline-start: 16px;
+}
+
+.md .ss-stage[data-layout='compact'] .md-tabs,
+.md .ss-stage[data-layout='compact'] .md-cat,
+.md .ss-stage[data-layout='compact'] .md-row:nth-child(n + 5) {
+  display: none;
+}
+
+.md .ss-stage[data-layout='compact'] .md-row {
+  grid-template-columns: minmax(0, 1fr) 64px 44px;
+  column-gap: 12px;
+  margin-inline-start: 16px;
+}
+
+.md .ss-stage[data-layout='compact'] .md-row:nth-child(4) {
+  border-bottom: 0;
+}
+
+.md .ss-stage[data-layout='compact'] .md-phone {
+  right: auto;
+  left: 63px;
+  top: 274px;
+}
+
+.md .ss-stage[data-layout='compact'] .md-top {
+  height: 56px;
+}
+
+.md .ss-stage[data-layout='compact'] .md-row:not(.md-row--head) {
+  height: 48px;
+}
