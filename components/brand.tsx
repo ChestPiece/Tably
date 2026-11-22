@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +27,23 @@ export function BrandLockup({ size = "md", order, className }: { size?: "sm" | "
       {arFirst ? ar : en}
       <span aria-hidden className="h-[1em] w-px bg-border" />
       {arFirst ? en : ar}
+    </span>
+  );
+}
+
+/** A restaurant's own mark: its uploaded logo, or the first letter of its name in a circle. Never a dish photo. */
+export function VenueMark({ name, logo, className }: { name: string; logo?: string | null; className?: string }) {
+  if (logo) {
+    return (
+      <span className={cn("relative size-16 shrink-0 overflow-hidden rounded-full bg-card ring-1 ring-border", className)}>
+        <Image src={logo} alt="" fill sizes="128px" className="object-cover" />
+      </span>
+    );
+  }
+  const initial = Array.from(name.trim())[0]?.toUpperCase() ?? "";
+  return (
+    <span aria-hidden className={cn("grid size-16 shrink-0 place-items-center rounded-full bg-primary font-display text-3xl font-semibold text-primary-foreground", className)}>
+      {initial}
     </span>
   );
 }

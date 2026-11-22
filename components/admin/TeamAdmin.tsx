@@ -1,5 +1,5 @@
 "use client";
-import { Copy, Loader2, Mail, MessageCircle, Send } from "lucide-react";
+import { Check, Copy, Loader2, Mail, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { ConfirmAction } from "@/components/app/confirm-action";
@@ -10,9 +10,10 @@ import { MAX_MINOR, minorToInput, parseMinor } from "@/lib/format";
 import { useLang, type Key } from "@/lib/i18n";
 import { useVenue } from "@/lib/venue";
 import type { AdminProps } from "./AdminApp";
+import { Qr } from "./TablesAdmin";
 
 export type Member = { user_id: string; role: string; display_name: string | null };
-export type Invite = { email: string; role: string };
+export type Invite = { email: string; role: string; token: string; opened_at: string | null };
 
 // Two roles: owner and staff. Invites always make staff.
 const roleKey = (r: string): Key => (r === "owner" ? "roleOwner" : "roleStaff");
@@ -62,9 +63,10 @@ export function TeamAdmin({ sb, me, rid, venue, team, invites, mutate, run }: Ad
     }
     setErr("");
     setInviting(true);
-    if (await mutate(() => sb.from("staff_invites").insert({ restaurant_id: rid, email: v, role: "staff" }), t("inviteSaved"))) {
+    const { data, error } = await sb.from("staff_invites").insert({ restaurant_id: rid, email: v, role: "staff" }).select("email, role, token, opened_at").single();
+    if (await mutate(async () => ({ error }), t("inviteSaved"))) {
       setEmail("");
-      setSharing({ email: v, role: "staff" });
+      setSharing(data as Invite);
     }
     setInviting(false);
   }
@@ -124,12 +126,12 @@ export function TeamAdmin({ sb, me, rid, venue, team, invites, mutate, run }: Ad
           );
         })}
         {invites.map((i) => (
-          <li key={i.email} className="flex items-center gap-4 border-b py-3">
+          <li key={i.token} className="flex items-center gap-4 border-b py-3">
             <Avatar c="@" />
             <span className="min-w-0 flex-1">
               <span className="block truncate" dir="ltr">{i.email}</span>
               <span className="block text-sm text-muted-foreground">
-                {t(roleKey(i.role))} · {t("inviteWaiting")}
+                {t(roleKey(i.role))} · {t(i.opened_at ? "inviteOpened" : "inviteWaiting")}
               </span>
             </span>
             <Button variant="secondary" size="sm" aria-label={n(t("sendInviteN"), i.email)} onClick={() => setSharing(i)}>
@@ -140,7 +142,7 @@ export function TeamAdmin({ sb, me, rid, venue, team, invites, mutate, run }: Ad
               variant="link"
               size="sm"
               aria-label={n(t("cancelInviteN"), i.email)}
-              onClick={() => mutate(() => sb.from("staff_invites").delete().eq("restaurant_id", rid).eq("email", i.email), t("inviteCancelled"))}
+              onClick={() => mutate(() => sb.from("staff_invites").delete().eq("token", i.token), t("inviteCancelled"))}
             >
               {t("cancel")}
             </Button>
@@ -192,48 +194,59 @@ export function TeamAdmin({ sb, me, rid, venue, team, invites, mutate, run }: Ad
   );
 }
 
-/** The app sends no invite email (built-in Supabase mail only reaches project members), so the owner sends the link. */
+/** The app sends no invite email, so the owner shares a one-person link: copy, WhatsApp, email or a QR to scan in person. */
 function ShareInvite({ invite, venue, roleName, onClose }: { invite: Invite | null; venue: string; roleName: string; onClose: () => void }) {
   const { t } = useLang();
+  const [copied, setCopied] = useState(false);
   if (!invite) return <Dialog open={false} />;
-  const link = `${location.origin}/login?invite=${encodeURIComponent(invite.email)}`;
+  const path = `/join/${invite.token}`;
+  const link = `${location.origin}${path}`;
   const msg = `${t("inviteMsg").replace("{v}", venue).replace("{r}", roleName)}
 ${link}`;
   const subject = t("inviteSubject").replace("{v}", venue);
   return (
-    <Dialog open onOpenChange={(o) => !o && onClose()}>
+    <Dialog open onOpenChange={(o) => !o && (setCopied(false), onClose())}>
       <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
         <DialogHeader>
           <DialogTitle>{t("sendInviteTitle").replace("{n}", invite.email)}</DialogTitle>
           <DialogDescription>{t("sendInviteBody")}</DialogDescription>
         </DialogHeader>
-        <label className="flex flex-col gap-1.5 text-sm font-medium">
-          {t("inviteLink")}
-          <Input readOnly dir="ltr" size="sm" value={link} onClick={(e) => e.currentTarget.select()} />
-        </label>
-        <div className="grid grid-cols-3 gap-2 max-sm:grid-cols-1">
-          <Button
-            type="button"
-            onClick={async () => {
-              await navigator.clipboard.writeText(link);
-              toast.success(t("linkCopied"));
-            }}
-          >
-            <Copy aria-hidden />
-            {t("copyLink")}
-          </Button>
-          <Button variant="secondary" asChild>
-            <a href={`mailto:${invite.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`}>
-              <Mail aria-hidden />
-              {t("byEmail")}
-            </a>
-          </Button>
-          <Button variant="secondary" asChild>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="invite-link" className="text-sm font-medium">{t("inviteLink")}</label>
+          <div className="flex gap-2">
+            <Input id="invite-link" readOnly dir="ltr" size="sm" value={link} onClick={(e) => e.currentTarget.select()} className="min-w-0 flex-1" />
+            <Button
+              type="button"
+              size="sm"
+              className="w-28 shrink-0"
+              onClick={async () => {
+                await navigator.clipboard.writeText(link);
+                setCopied(true);
+                window.setTimeout(() => setCopied(false), 2000);
+              }}
+            >
+              {copied ? <Check aria-hidden /> : <Copy aria-hidden />}
+              <span aria-live="polite">{t(copied ? "copied" : "copyLink")}</span>
+            </Button>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="secondary" size="sm" asChild>
             <a href={`https://wa.me/?text=${encodeURIComponent(msg)}`} target="_blank" rel="noreferrer">
               <MessageCircle aria-hidden />
               {t("byWhatsApp")}
             </a>
           </Button>
+          <Button variant="secondary" size="sm" asChild>
+            <a href={`mailto:${invite.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(msg)}`}>
+              <Mail aria-hidden />
+              {t("byEmail")}
+            </a>
+          </Button>
+        </div>
+        <div className="flex items-center gap-4 border-t pt-4">
+          <Qr path={path} label={t("scanToJoin")} />
+          <p className="text-sm text-muted-foreground">{t("scanToJoin")}</p>
         </div>
       </DialogContent>
     </Dialog>

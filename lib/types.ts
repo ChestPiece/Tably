@@ -4,6 +4,7 @@ export type OrderStatus = "received" | "preparing" | "ready" | "served" | "cance
 export type Restaurant = {
   id: string; slug: string; name: string; name_ar: string; tagline: string; tagline_ar: string;
   currency: string; timezone: string; second_lang: "ar" | null; accent: string; service_mode: "table" | "counter"; ordering_paused: boolean; pin_required: boolean; order_counter: number;
+  logo_url: string | null;
 };
 export type Category = { id: string; restaurant_id: string; name: string; name_ar: string; position: number };
 export type ItemOption = { id: string; item_id: string; restaurant_id: string; name: string; name_ar: string; price_fils: number; position: number };
@@ -29,6 +30,7 @@ export type Visit = {
 export type ServiceRequest = {
   id: string; visit_id: string; table_number: number; guest_name: string | null; guest_seq: number | null;
   kind: "waiter" | "bill"; created_at: string; resolved_at: string | null;
+  acknowledged_at: string | null; ack_name: string | null; nudged_at: string | null; pay_method: "cash" | "card" | null;
 };
 export type TableRow = { id: string; restaurant_id: string; number: number; qr_slug: string; pin: string | null };
 

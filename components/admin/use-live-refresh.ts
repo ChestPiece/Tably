@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { staffClient } from "@/lib/supabase/browser";
 
-/** Re-fetch the owner page's server data when orders or visits change (debounced 300 ms). */
+/** Re-fetch the owner page's server data when orders, visits, requests or the team change (debounced 300 ms). */
 export function useLiveRefresh(rid: string) {
   const router = useRouter();
   useEffect(() => {
@@ -19,6 +19,8 @@ export function useLiveRefresh(rid: string) {
       .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter }, kick)
       .on("postgres_changes", { event: "*", schema: "public", table: "visits", filter }, kick)
       .on("postgres_changes", { event: "*", schema: "public", table: "service_requests", filter }, kick)
+      .on("postgres_changes", { event: "*", schema: "public", table: "staff_members", filter }, kick)
+      .on("postgres_changes", { event: "*", schema: "public", table: "staff_invites", filter }, kick)
       .subscribe();
     return () => {
       window.clearTimeout(timer);
