@@ -44,7 +44,7 @@ export function OwnerHome({ sb, today, menu, tables, onOrders, onProfit }: Pick<
         {kpis.map(([label, value, note]) => (
           <div key={label} className="flex min-w-0 flex-col border-border px-6 py-5 not-first:border-s max-[1100px]:nth-3:border-s-0 max-[1100px]:nth-[n+3]:border-t max-sm:px-4 max-sm:py-4">
             <dt className="order-2 mt-2 text-sm font-medium">{label}</dt>
-            <dd className="order-1 font-display text-[36px] leading-none font-semibold whitespace-nowrap tabular-nums max-sm:text-[26px]">{value}</dd>
+            <dd className="order-1 font-display text-[36px] leading-none font-semibold tracking-tight whitespace-nowrap tabular-nums max-sm:text-[26px]">{value}</dd>
             <dd className="order-3 mt-0.5 text-[13px] text-muted-foreground">{note}</dd>
           </div>
         ))}

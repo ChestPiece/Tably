@@ -32,7 +32,11 @@ export default async function QrSheet() {
   );
 
   return (
-    <main className="mx-auto max-w-[340mm] p-4 sm:p-6 print:max-w-none print:p-0">
+    <main
+      className="mx-auto max-w-[340mm] p-4 sm:p-6 print:max-w-none print:p-0"
+      // Printed cards are guest-facing: keep the editorial type, not the owner UI's Inter.
+      style={{ "--font-display": "var(--nf-display), ui-serif, Georgia, serif", "--font-sans": "var(--nf-sans), system-ui, sans-serif" } as React.CSSProperties}
+    >
       <style>{`@media print { @page { size: A4 landscape; margin: 5mm; } html, body { background: #fff !important; } }`}</style>
       <QrToolbar origin={origin} />
       <div className="flex flex-wrap justify-center gap-6 print:gap-[3mm] print:[zoom:0.93]">

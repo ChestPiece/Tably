@@ -207,51 +207,18 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
       <form
         id="item-editor"
         noValidate
-        className="flex flex-col gap-6"
+        className="grid gap-8 md:grid-cols-[200px_minmax(0,1fr)]"
         onSubmit={(e) => {
           e.preventDefault();
           save();
         }}
       >
-        <Tabs value={tab} onValueChange={(v) => setTab(v as LangId)} className="gap-4">
-          <TabsList className={langs.length > 1 ? "w-full" : "hidden"} aria-label={t("language")}>
-            {langs.map((l) => (
-              <TabsTrigger key={l.id} value={l.id} lang={l.id} className="gap-2">
-                {l.label}
-                {flag[l.id] && <i role="img" aria-label={t("needsAttention")} className="size-1.5 rounded-full bg-ochre" />}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-          {langs.map((l) => (
-            <TabsContent key={l.id} value={l.id} forceMount id={`ie-${l.id}`} className="flex flex-col gap-4 data-[state=inactive]:hidden">
-              <Field data-invalid={!!errs[l.name]}>
-                <FieldLabel htmlFor={`ie-name-${l.id}`}>{t("fName")}</FieldLabel>
-                <Input id={`ie-name-${l.id}`} size="sm" dir={l.dir} maxLength={80} value={d[l.name]} aria-invalid={!!errs[l.name]} onChange={(e) => set(l.name, e.target.value)} />
-                {err(l.name)}
-              </Field>
-              <Field>
-                <FieldLabel htmlFor={`ie-desc-${l.id}`}>
-                  {t("fDesc")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
-                </FieldLabel>
-                <Textarea id={`ie-desc-${l.id}`} dir={l.dir} rows={2} maxLength={400} className="min-h-16" value={d[l.desc]} onChange={(e) => set(l.desc, e.target.value)} />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor={`ie-tag-${l.id}`}>
-                  {t("fTag")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
-                </FieldLabel>
-                <Input id={`ie-tag-${l.id}`} size="sm" dir={l.dir} maxLength={40} value={d[l.tag] ?? ""} aria-describedby="ie-tag-hint" onChange={(e) => set(l.tag, e.target.value)} />
-              </Field>
-            </TabsContent>
-          ))}
-          <p id="ie-tag-hint" className="-mt-2 text-sm text-muted-foreground">{t("tagHint")}</p>
-        </Tabs>
-
-        <div className="grid grid-cols-[96px_minmax(0,1fr)] gap-x-4 gap-y-2">
-          <div className="flex flex-col gap-1">
+        <div className="md:sticky md:top-0 md:self-start">
+          <div className="flex flex-col gap-1.5">
             <label
               onDragOver={(e) => e.preventDefault()}
               onDrop={onDrop}
-              className="relative grid size-24 cursor-pointer place-items-center overflow-hidden rounded-lg border border-dashed border-input text-center text-xs text-muted-foreground transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+              className="relative grid aspect-square w-32 cursor-pointer place-items-center md:w-full overflow-hidden rounded-lg border border-dashed border-input text-center text-xs text-muted-foreground transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
             >
               <input
                 type="file"
@@ -265,7 +232,7 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
                   e.target.value = "";
                 }}
               />
-              {d.image_url && <Image src={d.image_url} alt="" fill sizes="96px" className="object-cover" />}
+              {d.image_url && <Image src={d.image_url} alt="" fill sizes="(min-width: 768px) 200px, 128px" className="object-cover" />}
               {(uploading || !d.image_url) && (
                 <span className="relative flex flex-col items-center gap-1 px-1">
                   {uploading ? <Loader2 aria-hidden className="size-4 animate-spin" /> : <ImagePlus aria-hidden className="size-4" />}
@@ -279,25 +246,44 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
               </Button>
             )}
           </div>
-          <div className="flex min-w-0 flex-col gap-4">
-            <Field data-invalid={!!errs.price}>
-              <FieldLabel htmlFor="ie-price">{t("basePrice")}</FieldLabel>
-              <div className="relative">
-                <Input id="ie-price" size="sm" inputMode="decimal" autoComplete="off" dir="ltr" className="pe-14 text-start tabular-nums" value={price} aria-invalid={!!errs.price} onChange={(e) => setPrice(e.target.value)} />
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground">{currency}</span>
-              </div>
-              {err("price")}
-            </Field>
-            <Field data-invalid={!!errs.cost}>
-              <FieldLabel htmlFor="ie-cost">
-                {t("costToMake")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
-              </FieldLabel>
-              <div className="relative">
-                <Input id="ie-cost" size="sm" inputMode="decimal" autoComplete="off" dir="ltr" className="pe-14 text-start tabular-nums" value={cost} aria-invalid={!!errs.cost} aria-describedby="ie-cost-hint" onChange={(e) => setCost(e.target.value)} />
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground">{currency}</span>
-              </div>
-              {err("cost") ?? <p id="ie-cost-hint" className="text-sm text-muted-foreground">{marginHint}</p>}
-            </Field>
+          {photoErr && <FieldError className="mt-1.5">{photoErr}</FieldError>}
+        </div>
+
+        <div className="flex min-w-0 flex-col gap-8">
+          <section aria-labelledby="ie-sec-basics" className="flex flex-col gap-4">
+            <h3 id="ie-sec-basics" className="text-sm font-semibold">{t("secBasics")}</h3>
+            <Tabs value={tab} onValueChange={(v) => setTab(v as LangId)} className="gap-4">
+              <TabsList className={langs.length > 1 ? "w-full" : "hidden"} aria-label={t("language")}>
+                {langs.map((l) => (
+                  <TabsTrigger key={l.id} value={l.id} lang={l.id} className="gap-2">
+                    {l.label}
+                    {flag[l.id] && <i role="img" aria-label={t("needsAttention")} className="size-1.5 rounded-full bg-ochre" />}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+              {langs.map((l) => (
+                <TabsContent key={l.id} value={l.id} forceMount id={`ie-${l.id}`} className="flex flex-col gap-4 data-[state=inactive]:hidden">
+                  <Field data-invalid={!!errs[l.name]}>
+                    <FieldLabel htmlFor={`ie-name-${l.id}`}>{t("fName")}</FieldLabel>
+                    <Input id={`ie-name-${l.id}`} size="sm" dir={l.dir} maxLength={80} value={d[l.name]} aria-invalid={!!errs[l.name]} onChange={(e) => set(l.name, e.target.value)} />
+                    {err(l.name)}
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor={`ie-desc-${l.id}`}>
+                      {t("fDesc")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
+                    </FieldLabel>
+                    <Textarea id={`ie-desc-${l.id}`} dir={l.dir} rows={2} maxLength={400} className="min-h-16" value={d[l.desc]} onChange={(e) => set(l.desc, e.target.value)} />
+                  </Field>
+                  <Field>
+                    <FieldLabel htmlFor={`ie-tag-${l.id}`}>
+                      {t("fTag")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
+                    </FieldLabel>
+                    <Input id={`ie-tag-${l.id}`} size="sm" dir={l.dir} maxLength={40} value={d[l.tag] ?? ""} aria-describedby="ie-tag-hint" onChange={(e) => set(l.tag, e.target.value)} />
+                  </Field>
+                </TabsContent>
+              ))}
+              <p id="ie-tag-hint" className="-mt-2 text-sm text-muted-foreground">{t("tagHint")}</p>
+            </Tabs>
             <Field>
               <FieldLabel htmlFor="ie-cat">{t("categoryLabel")}</FieldLabel>
               <Select value={d.category_id} onValueChange={(v) => set("category_id", v)}>
@@ -309,11 +295,33 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
                 </SelectContent>
               </Select>
             </Field>
-          </div>
-          {photoErr && <FieldError className="col-span-2">{photoErr}</FieldError>}
-        </div>
+          </section>
 
-        <details open={optsOpen} onToggle={(e) => setOptsOpen(e.currentTarget.open)} className="group border-t pt-4">
+          <section aria-labelledby="ie-sec-price" className="flex flex-col gap-4 border-t pt-6">
+            <h3 id="ie-sec-price" className="text-sm font-semibold">{t("secPrice")}</h3>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field data-invalid={!!errs.price}>
+                <FieldLabel htmlFor="ie-price">{t("basePrice")}</FieldLabel>
+                <div className="relative">
+                  <Input id="ie-price" size="sm" inputMode="decimal" autoComplete="off" dir="ltr" className="pe-14 text-start tabular-nums" value={price} aria-invalid={!!errs.price} onChange={(e) => setPrice(e.target.value)} />
+                  <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground">{currency}</span>
+                </div>
+                {err("price")}
+              </Field>
+              <Field data-invalid={!!errs.cost}>
+                <FieldLabel htmlFor="ie-cost">
+                  {t("costToMake")} <span className="font-normal text-muted-foreground">{t("optional")}</span>
+                </FieldLabel>
+                <div className="relative">
+                  <Input id="ie-cost" size="sm" inputMode="decimal" autoComplete="off" dir="ltr" className="pe-14 text-start tabular-nums" value={cost} aria-invalid={!!errs.cost} aria-describedby="ie-cost-hint" onChange={(e) => setCost(e.target.value)} />
+                  <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-sm text-muted-foreground">{currency}</span>
+                </div>
+                {err("cost") ?? <p id="ie-cost-hint" className="text-sm text-muted-foreground">{marginHint}</p>}
+              </Field>
+            </div>
+          </section>
+
+        <details open={optsOpen} onToggle={(e) => setOptsOpen(e.currentTarget.open)} className="group border-t pt-6">
           <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 font-medium [&::-webkit-details-marker]:hidden">
             <ChevronRight aria-hidden className="size-4 text-muted-foreground transition-transform group-open:rotate-90 rtl:-scale-x-100" />
             {t("sizesExtras")}
@@ -357,6 +365,7 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
             </Button>
           </div>
         </details>
+        </div>
       </form>
       <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
         <AlertDialogContent>

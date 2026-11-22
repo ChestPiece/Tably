@@ -44,7 +44,7 @@ export function TablesAdmin({ sb, mutate, run, restaurant, tables }: AdminProps 
           >
             <span className="font-display text-[44px] leading-none font-semibold tabular-nums">{tb.number}</span>
             <span lang="ar" className="font-display text-lg text-muted-foreground">{n(tr("ar", "tableWord"), tb.number)}</span>
-            <Qr slug={tb.qr_slug} label={`QR · ${t("colTable")} ${tb.number}`} />
+            <Qr path={`/t/${tb.qr_slug}`} label={`QR · ${t("colTable")} ${tb.number}`} />
             <span className="text-sm leading-snug">{tr("en", "scanCta")}</span>
             <span lang="ar" dir="rtl" className="text-sm">{tr("ar", "scanCta")}</span>
             {restaurant.pin_required && (
@@ -121,15 +121,15 @@ const Help = ({ title, hint }: { title: string; hint: string }) => (
 );
 
 // QR drawn in currentColor so it follows the theme on screen; the print sheet draws its own.
-function Qr({ slug, label }: { slug: string; label: string }) {
+export function Qr({ path, label }: { path: string; label: string }) {
   const [svg, setSvg] = useState("");
   useEffect(() => {
     let live = true;
-    QRCode.toString(`${window.location.origin}/t/${slug}`, { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark: "#000000", light: "#0000" } }).then(
+    QRCode.toString(`${window.location.origin}${path}`, { type: "svg", margin: 0, errorCorrectionLevel: "M", color: { dark: "#000000", light: "#0000" } }).then(
       (s) => live && setSvg(s.replace(/#000000(?![0-9a-f])/gi, "currentColor")),
     );
     return () => void (live = false);
-  }, [slug]);
+  }, [path]);
   return (
     <span
       role="img"

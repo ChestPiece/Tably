@@ -65,7 +65,7 @@ export function ProfitPage({ sb, onMenu }: Pick<AdminProps, "sb"> & { onMenu: ()
           return (
             <div key={k} className="flex min-w-0 flex-col border-border px-6 py-5 not-first:border-s max-[1100px]:nth-3:border-s-0 max-[1100px]:nth-[n+3]:border-t max-sm:px-4 max-sm:py-4">
               <dt className="order-2 mt-2 text-sm font-medium">{t(label)}</dt>
-              <dd className={`order-1 font-display text-[32px] leading-none font-semibold whitespace-nowrap tabular-nums max-sm:text-[24px] ${k === "profit_fils" && v !== null && v < 0 ? "text-destructive" : ""}`}>
+              <dd className={`order-1 font-display text-[32px] leading-none font-semibold tracking-tight whitespace-nowrap tabular-nums max-sm:text-[24px] ${k === "profit_fils" && v !== null && v < 0 ? "text-destructive" : ""}`}>
                 {v === null ? "—" : money(v)}
               </dd>
               <dd className="order-3 mt-0.5 text-[13px] text-muted-foreground">{note}</dd>
