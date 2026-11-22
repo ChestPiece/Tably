@@ -1,5 +1,5 @@
 "use client";
-import { Plus, Printer } from "lucide-react";
+import { ListPlus, Plus, Printer } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
@@ -15,6 +15,7 @@ import { staffClient } from "@/lib/supabase/browser";
 import { pick, type Category, type MenuItem, type Restaurant, type TableRow } from "@/lib/types";
 import { AdminSidebar, OWNER_PAGES, type OwnerPage } from "./AdminSidebar";
 import { BottomNav } from "./BottomNav";
+import { BulkDishes } from "./BulkDishes";
 import { MenuAdmin, blankItem } from "./MenuAdmin";
 import { GetLive } from "./GetLive";
 import { OwnerHome, PANEL, type TodayData } from "./OwnerHome";
@@ -44,6 +45,7 @@ export function AdminApp(props: {
   const { lang, t } = useLang();
   const { tz } = useVenue();
   const [editing, setEditing] = useState<MenuItem | null>(null);
+  const [bulk, setBulk] = useState(false);
   const [pausing, setPausing] = useState(false);
   const [adding, setAdding] = useState(false);
   useLiveRefresh(props.restaurant.id);
@@ -118,10 +120,16 @@ export function AdminApp(props: {
     menu: {
       sub: `${props.menu.length} ${t("dishes")}`,
       acts: (
-        <Button size="sm" disabled={!props.categories.length} onClick={() => setEditing(blankItem(r.id, props.categories, props.menu))}>
-          <Plus aria-hidden />
-          {t("addDish")}
-        </Button>
+        <>
+          <Button variant="secondary" size="sm" disabled={!props.categories.length} onClick={() => setBulk(true)}>
+            <ListPlus aria-hidden />
+            {t("addSeveral")}
+          </Button>
+          <Button size="sm" disabled={!props.categories.length} onClick={() => setEditing(blankItem(r.id, props.categories, props.menu))}>
+            <Plus aria-hidden />
+            {t("addDish")}
+          </Button>
+        </>
       ),
     },
     tables: {
@@ -181,6 +189,9 @@ export function AdminApp(props: {
             <div className={`${PANEL} ${page === "team" || page === "settings" ? "max-w-3xl" : ""}`}>
               {page === "orders" && <OwnerOrders orders={props.today.orders} filter={filter} onFilter={(f) => go({ filter: f === "all" ? null : f })} />}
               {page === "menu" && <MenuAdmin {...common} restaurant={r} categories={props.categories} menu={props.menu} editing={editing} onEdit={setEditing} />}
+              {page === "menu" && (
+                <BulkDishes {...common} rid={r.id} open={bulk} onClose={() => setBulk(false)} categories={props.categories} startPosition={props.menu.length + 1} />
+              )}
               {page === "tables" && <TablesAdmin {...common} restaurant={r} tables={props.tables} />}
               {page === "settings" && <SettingsForm {...common} restaurant={r} email={props.email} />}
               {page === "team" && <TeamAdmin {...common} me={props.me} rid={r.id} venue={venue} team={props.team} invites={props.invites} />}
