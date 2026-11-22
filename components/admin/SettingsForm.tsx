@@ -10,6 +10,7 @@ import { useLang, type Key } from "@/lib/i18n";
 import type { Restaurant } from "@/lib/types";
 import { isCurrency, timeZones } from "@/lib/venue";
 import type { AdminProps } from "./AdminApp";
+import { LogoField, logoProblem, uploadLogo } from "./LogoField";
 
 // A whole row is the tap target for its switch.
 function SwitchRow({ title, desc, checked, onChange }: { title: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) {
@@ -86,7 +87,9 @@ function PasswordForm({ sb, email }: { sb: AdminProps["sb"]; email: string }) {
 }
 
 export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { restaurant: Restaurant; email: string }) {
-  const { t } = useLang();
+  const { lang, t } = useLang();
+  const [logoBusy, setLogoBusy] = useState(false);
+  const [logoErr, setLogoErr] = useState("");
   const [d, setD] = useState(restaurant);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -122,6 +125,17 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
     );
   };
 
+  async function pickLogo(file: File) {
+    const bad = logoProblem(file);
+    setLogoErr(bad ? t(bad) : "");
+    if (bad) return;
+    setLogoBusy(true);
+    const r = await uploadLogo(sb, d.id, file, lang);
+    setLogoBusy(false);
+    if (r.error) return setLogoErr(r.error);
+    set("logo_url", r.url!);
+  }
+
   async function submit() {
     const e = {
       name: d.name.trim() ? undefined : t("required"),
@@ -140,6 +154,7 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
           name_ar: d.name_ar.trim(),
           tagline: d.tagline,
           tagline_ar: d.tagline_ar,
+          logo_url: d.logo_url,
           currency: d.currency,
           timezone: d.timezone,
           second_lang: d.second_lang,
@@ -164,6 +179,9 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
         submit();
       }}
     >
+      <div className="mb-6 sm:col-span-2">
+        <LogoField name={d.name} src={d.logo_url} busy={logoBusy} error={logoErr} onPick={pickLogo} onRemove={() => set("logo_url", null)} />
+      </div>
       {text("name", "nameEn", 60)}
       {ar ? text("name_ar", "nameAr", 60, true) : <span className="max-sm:hidden" />}
       {text("tagline", "taglineEn", 150)}

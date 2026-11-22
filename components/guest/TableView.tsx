@@ -1,6 +1,6 @@
 "use client";
-import { useState } from "react";
-import { ArrowLeft, Bell, Check, ReceiptText } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { ArrowLeft, Banknote, Bell, Check, CreditCard, ReceiptText } from "lucide-react";
 import { useLang, type Key } from "@/lib/i18n";
 import { pick, type Lang, type MenuItem, type Order, type OrderLine, type ServiceRequest, type Visit } from "@/lib/types";
 import { Arch } from "@/components/app/arch";
@@ -25,6 +25,7 @@ export function TableView({
   serviceMode,
   busy,
   onRequest,
+  onNudge,
   onOrderMore,
 }: {
   me: Me | null;
@@ -34,26 +35,52 @@ export function TableView({
   requests: ServiceRequest[];
   serviceMode: "table" | "counter";
   busy: boolean;
-  onRequest: (k: "waiter" | "bill") => void;
+  onRequest: (k: "waiter" | "bill", method?: Method) => void;
+  onNudge: (id: string) => void;
   onOrderMore: () => void;
 }) {
   const { lang, t } = useLang();
   const { tz } = useVenue();
   const [billView, setBillView] = useState(false);
-  const waiter = requests.some((r) => r.kind === "waiter");
-  const billAsked = requests.some((r) => r.kind === "bill") || !!visit?.bill_requested_at;
+  const open = requests.filter((r) => !r.resolved_at);
+  const waiter = open.some((r) => r.kind === "waiter");
+  const billReq = open.find((r) => r.kind === "bill");
+  const billAsked = !!billReq || !!visit?.bill_requested_at;
   const live = orders.filter((o) => o.status !== "cancelled");
   const total = live.reduce((n, o) => n + o.total_fils, 0);
   const newest = [...orders].reverse();
   const focus = newest.find((o) => o.guest_id === me?.guest_id) ?? newest[0];
 
-  if (billView)
+  if (billView) {
+    const method = billReq?.pay_method ?? null;
     return (
       <div className="flex flex-1 flex-col gap-2 p-6">
         <h2 className="font-display text-[28px] leading-[1.15] font-semibold">{t("yourBill")}</h2>
         <Lines lines={live.flatMap((o) => o.order_lines)} menu={menu} className="my-5" />
         <Total label={t("tableTotal")} fils={total} />
-        <p className="rounded-md bg-muted p-4 text-[15px]">{visit?.paid_at ? t("paidNote") : t("billNote")}</p>
+        {visit?.paid_at ? (
+          <p className="rounded-md bg-muted p-4 text-[15px]">{t("paidNote")}</p>
+        ) : (
+          <fieldset className="grid gap-3">
+            <legend className="mb-1 font-medium">{t("payHow")}</legend>
+            <div className="grid grid-cols-2 gap-3">
+              {(["cash", "card"] as const).map((m) => (
+                <Button
+                  key={m}
+                  variant={method === m ? "default" : "secondary"}
+                  aria-pressed={method === m}
+                  disabled={busy}
+                  onClick={() => onRequest("bill", m)}
+                >
+                  {m === "cash" ? <Banknote aria-hidden /> : <CreditCard aria-hidden />}
+                  {t(m)}
+                </Button>
+              ))}
+            </div>
+            <p className="text-sm text-text-2">{method ? t("payingBy").replace("{m}", t(method).toLowerCase()) : t("payHowNote")}</p>
+          </fieldset>
+        )}
+        {billReq && <RequestStatus r={billReq} onNudge={onNudge} />}
         <div className="mt-auto pt-4">
           <Button variant="secondary" className="w-full" onClick={() => setBillView(false)}>
             <ArrowLeft className="rtl:rotate-180" aria-hidden />
@@ -62,6 +89,7 @@ export function TableView({
         </div>
       </div>
     );
+  }
 
   const idx = focus ? STEPS.indexOf(focus.status as (typeof STEPS)[number]) : -1;
   const times = focus ? [focus.created_at, focus.preparing_at, focus.ready_at, focus.served_at] : [];
@@ -132,22 +160,24 @@ export function TableView({
         <p className="py-6 text-text-2">{t("noOrdersYet")}</p>
       )}
 
-      <div className="mt-auto grid grid-cols-2 gap-3 pt-4">
+      <div className="mt-auto grid gap-2 pt-4 empty:hidden" aria-live="polite">
+        {requests.map((r) => (
+          <RequestStatus key={r.id} r={r} onNudge={onNudge} />
+        ))}
+      </div>
+      <div className="grid grid-cols-2 gap-3 pt-2">
         <Button className="col-span-2" onClick={onOrderMore}>
           {t("orderMore")}
         </Button>
         <Button variant="secondary" className="min-w-0 px-2" disabled={busy || waiter} onClick={() => onRequest("waiter")}>
           <Bell aria-hidden />
-          <span className="truncate">{t(waiter ? "waiterComing" : "callWaiter")}</span>
+          <span className="truncate">{t("callWaiter")}</span>
         </Button>
         <Button
           variant="secondary"
           className="min-w-0 px-2"
-          disabled={!orders.length || (busy && !billAsked)}
-          onClick={() => {
-            if (!billAsked && !visit?.paid_at) onRequest("bill");
-            setBillView(true);
-          }}
+          disabled={!orders.length}
+          onClick={() => setBillView(true)}
         >
           <ReceiptText aria-hidden />
           <span className="truncate">{t(billAsked || visit?.paid_at ? "yourBill" : "requestBill")}</span>
@@ -192,5 +222,59 @@ function Total({ label, fils }: { label: string; fils: number }) {
       <span>{label}</span>
       <span className="font-display text-[22px] tabular-nums">{money(fils)}</span>
     </div>
+  );
+}
+
+type Method = "cash" | "card";
+const RING = 15000;
+const DONE_FOR = 6000;
+
+/** One waiter or bill request, live: sending (15 s ring), nudged, on the way (with the staff name), done. */
+function RequestStatus({ r, onNudge }: { r: ServiceRequest; onNudge: (id: string) => void }) {
+  const { t } = useLang();
+  const [now, setNow] = useState(() => Date.now());
+  const nudged = useRef(false);
+  const age = now - Date.parse(r.created_at);
+  const waiting = !r.resolved_at && !r.acknowledged_at;
+  // Tick only while something on the card is still counting.
+  useEffect(() => {
+    if (!waiting && !r.resolved_at) return;
+    const id = window.setInterval(() => setNow(Date.now()), 250);
+    return () => window.clearInterval(id);
+  }, [waiting, r.resolved_at]);
+  // Nobody answered in 15 s: ask the server to chime the board again (once; the server enforces it too).
+  useEffect(() => {
+    if (waiting && !r.nudged_at && age >= RING && !nudged.current) {
+      nudged.current = true;
+      onNudge(r.id);
+    }
+  }, [waiting, r.nudged_at, r.id, age, onNudge]);
+
+  if (r.resolved_at && now - Date.parse(r.resolved_at) > DONE_FOR) return null;
+  const bill = r.kind === "bill";
+  const text = r.resolved_at
+    ? t("reqDone")
+    : r.acknowledged_at
+      ? r.ack_name
+        ? t(bill ? "reqBillComing" : "reqComing").replace("{n}", r.ack_name)
+        : t(bill ? "billComing" : "reqComingAnon")
+      : r.nudged_at || age >= RING
+        ? t("reqNudged")
+        : t(bill ? "reqBillSending" : "reqSending");
+  const progress = Math.min(1, age / RING);
+  return (
+    <p className={cn("flex min-h-12 items-center gap-3 rounded-md px-4 py-3 text-[15px] transition-opacity duration-base", r.resolved_at ? "bg-muted text-text-2" : "bg-ochre/15")}>
+      {waiting && !r.nudged_at && age < RING ? (
+        <svg viewBox="0 0 20 20" aria-hidden className="size-5 shrink-0 -rotate-90 motion-reduce:hidden">
+          <circle cx="10" cy="10" r="8" fill="none" strokeWidth="2.5" className="stroke-border" />
+          <circle cx="10" cy="10" r="8" fill="none" strokeWidth="2.5" strokeLinecap="round" pathLength={1} strokeDasharray={`${progress} 1`} className="stroke-foreground" />
+        </svg>
+      ) : r.acknowledged_at || r.resolved_at ? (
+        <Check aria-hidden className="size-5 shrink-0" />
+      ) : (
+        <Bell aria-hidden className="size-5 shrink-0" />
+      )}
+      <span className="min-w-0 flex-1">{text}</span>
+    </p>
   );
 }

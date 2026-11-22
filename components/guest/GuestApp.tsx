@@ -53,6 +53,7 @@ export function GuestApp(props: {
 
   const [phase, setPhase] = useState<Phase>("boot");
   const [ended, setEnded] = useState(false);
+  const [paidMethod, setPaidMethod] = useState<"cash" | "card" | null>(null);
   const [me, setMe] = useState<Me | null>(null);
   const [visit, setVisit] = useState<Visit | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -85,7 +86,8 @@ export function GuestApp(props: {
       const [v, o, r] = await Promise.all([
         sb.from("visits").select("*").eq("id", id).maybeSingle(),
         sb.from("orders").select(ORDER_SELECT).eq("visit_id", id).order("created_at").order("position", { referencedTable: "order_lines" }),
-        sb.from("service_requests").select("*").eq("visit_id", id).is("resolved_at", null),
+        // Open requests, plus ones just resolved so the guest sees "Done" for a moment.
+        sb.from("service_requests").select("*").eq("visit_id", id).or(`resolved_at.is.null,resolved_at.gt.${new Date(Date.now() - 10000).toISOString()}`),
       ]);
       if (v.error || o.error) {
         setOnline(false);
@@ -93,16 +95,18 @@ export function GuestApp(props: {
       }
       setOnline(true);
       if (!v.data) {
-        // RLS hides closed visits from guests.
+        // RLS hides closed visits from guests; guest_session says whether (and how) it was paid.
         visitId.current = null;
         setPhase("closed");
+        const { data: s } = await sb.rpc("guest_session", { p_slug: slug });
+        setPaidMethod(s?.paid_method ?? null);
         return;
       }
       setVisit(v.data as Visit);
       setOrders((o.data ?? []) as Order[]);
       setRequests((r.data ?? []) as ServiceRequest[]);
     },
-    [sb],
+    [sb, slug],
   );
 
   const enter = useCallback(
@@ -126,7 +130,10 @@ export function GuestApp(props: {
         return setPhase("welcome");
       }
       if (s?.visit_id) await enter(s);
-      else {
+      else if (s?.paid_method) {
+        setPaidMethod(s.paid_method);
+        setPhase("closed");
+      } else {
         setEnded(!!s?.ended);
         setPhase("welcome");
       }
@@ -151,8 +158,9 @@ export function GuestApp(props: {
         setRestaurant((r) => ({ ...r, ...(p.new as Partial<Restaurant>) })),
       )
       .subscribe((status) => setOnline(status === "SUBSCRIBED"));
-    // A closed visit stops matching RLS, so realtime can't tell us. Poll as a fallback.
-    const poll = window.setInterval(refresh, 15000);
+    // A closed visit stops matching RLS, so realtime can't tell us. Poll as a fallback,
+    // faster while the bill is asked for so "Paid, thank you" shows soon after staff settle it.
+    const poll = window.setInterval(refresh, visit.bill_requested_at ? 5000 : 15000);
     const onVisible = () => document.visibilityState === "visible" && refresh();
     document.addEventListener("visibilitychange", onVisible);
     return () => {
@@ -160,7 +168,7 @@ export function GuestApp(props: {
       window.clearInterval(poll);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [phase, visit?.id, restaurant.id, sb, loadVisit]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, visit?.id, visit?.bill_requested_at, restaurant.id, sb, loadVisit]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function join(name: string, pin: string) {
     setBusy(true);
@@ -236,10 +244,10 @@ export function GuestApp(props: {
     }
   }
 
-  async function request(kind: "waiter" | "bill") {
+  async function request(kind: "waiter" | "bill", method?: "cash" | "card") {
     setBusy(true);
     setError("");
-    const { error: e } = await sb.rpc(kind === "waiter" ? "call_waiter" : "request_bill");
+    const { error: e } = kind === "waiter" ? await sb.rpc("call_waiter") : await sb.rpc("request_bill", { p_method: method ?? null });
     setBusy(false);
     if (e) {
       if (e.message === "VISIT_CLOSED") setPhase("closed");
@@ -247,6 +255,15 @@ export function GuestApp(props: {
     }
     if (visitId.current) loadVisit(visitId.current);
   }
+
+  // The 15 s ring ran out with no answer: the board chimes again. Quiet on failure (the card already says "nudged").
+  const nudge = useCallback(
+    async (id: string) => {
+      await sb.rpc("nudge_request", { p_request: id });
+      if (visitId.current) loadVisit(visitId.current);
+    },
+    [sb, loadVisit],
+  );
 
   const cartCount = cart.reduce((n, l) => n + l.quantity, 0);
   const cartTotal = cart.reduce((n, l) => n + l.unit * l.quantity, 0);
@@ -261,7 +278,6 @@ export function GuestApp(props: {
         restaurant={restaurant}
         tableNumber={tableNumber}
         pinRequired={props.pinRequired}
-        featured={menu.find((i) => i.badge && i.image_url) ?? menu.find((i) => i.image_url)}
         ended={ended}
         busy={busy}
         error={error}
@@ -272,6 +288,7 @@ export function GuestApp(props: {
   if (phase === "closed") {
     return (
       <ClosedVisit
+        paidMethod={paidMethod}
         onNew={() => {
           setCart([]);
           setPending(null);
@@ -327,6 +344,7 @@ export function GuestApp(props: {
           serviceMode={restaurant.service_mode}
           busy={busy}
           onRequest={request}
+          onNudge={nudge}
           onOrderMore={() => {
             setView("menu");
             window.scrollTo({ top: 0 });

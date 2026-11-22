@@ -4,7 +4,7 @@ import { ArrowDown, Inbox, Loader2 } from "lucide-react";
 import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CallsTray } from "@/components/staff/CallsTray";
+import { CallsTray, type CallAction } from "@/components/staff/CallsTray";
 import { OrderCard, ageTone } from "@/components/staff/OrderCard";
 import { StatusTag } from "@/components/app/status-badge";
 import { formatAge, tableLabel } from "@/lib/format";
@@ -23,7 +23,7 @@ type Props = {
   busyId: string;
   onAdvance: (o: Order) => void;
   onCancel: (o: Order) => void;
-  onResolve: (id: string) => void;
+  onCall: CallAction;
 };
 
 const COL_MIN = 248; // px, one ticket column; narrower clips the action row and the guest line
@@ -70,7 +70,7 @@ function totals(list: Order[], lang: Lang) {
   return [...m].sort((a, b) => b[1].q - a[1].q);
 }
 
-export function Board({ lang, now, loaded, orders, recent, requests, fresh, busyId, onAdvance, onCancel, onResolve }: Props) {
+export function Board({ lang, now, loaded, orders, recent, requests, fresh, busyId, onAdvance, onCancel, onCall }: Props) {
   const line = orders.filter((o) => o.status === "received" || o.status === "preparing");
   const pass = orders.filter((o) => o.status === "ready").sort((a, b) => (a.ready_at ?? "").localeCompare(b.ready_at ?? ""));
   const late = line.filter((o) => ageTone(now - new Date(o.created_at).getTime()) === "late").length;
@@ -100,7 +100,7 @@ export function Board({ lang, now, loaded, orders, recent, requests, fresh, busy
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <CallsTray requests={requests} lang={lang} now={now} busyId={busyId} fresh={fresh} onResolve={onResolve} />
+      <CallsTray requests={requests} lang={lang} now={now} busyId={busyId} fresh={fresh} onCall={onCall} />
 
       {/* Phone / narrow: one pane at a time. */}
       <div role="tablist" aria-label={tr(lang, "jumpTo")} className="flex shrink-0 gap-1 border-b p-2 lg:hidden">

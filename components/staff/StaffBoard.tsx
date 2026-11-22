@@ -18,10 +18,11 @@ import { useVenue } from "@/lib/venue";
 
 function useChime() {
   const ctx = useRef<AudioContext | null>(null);
-  const play = useCallback((kind: "order" | "call") => {
+  const play = useCallback((kind: "order" | "call" | "nudge") => {
     const a = ctx.current;
     if (!a) return;
-    const notes = kind === "order" ? [880, 1175] : [660, 660];
+    // A nudge (guest waited 15 s with no answer) is the call chime, longer and higher.
+    const notes = kind === "order" ? [880, 1175] : kind === "call" ? [660, 660] : [784, 784, 988];
     notes.forEach((f, i) => {
       const o = a.createOscillator();
       const g = a.createGain();
@@ -73,6 +74,7 @@ export function StaffBoard({ restaurant: initial, role, embedded, sidebarOpen = 
   const { play, unlock } = useChime();
   const shiftRef = useRef(clockedIn);
   const wake = useRef<{ release: () => Promise<void> } | null>(null);
+  const nudged = useRef(new Set<string>());
 
   const load = useCallback(async () => {
     // Whole venue day: the board shows live tickets, the Today page counts the rest.
@@ -119,7 +121,16 @@ export function StaffBoard({ restaurant: initial, role, embedded, sidebarOpen = 
         setAnnounce(tr(langRef.current, "announceCall").replace("{n}", String(p.new.table_number)));
         load();
       })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "service_requests", filter }, load)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "service_requests", filter }, (p) => {
+        const r = p.new as ServiceRequest;
+        if (r.nudged_at && !r.acknowledged_at && !r.resolved_at && !nudged.current.has(r.id)) {
+          nudged.current.add(r.id);
+          if (shiftRef.current) play("nudge");
+          markFresh(r.id);
+          setAnnounce(tr(langRef.current, "announceCall").replace("{n}", String(r.table_number)));
+        }
+        load();
+      })
       .on("postgres_changes", { event: "*", schema: "public", table: "visits", filter }, load)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "restaurants", filter: `id=eq.${rid}` }, (p) =>
         setRestaurant((r) => ({ ...r, ...(p.new as Partial<Restaurant>) })),
@@ -213,7 +224,15 @@ export function StaffBoard({ restaurant: initial, role, embedded, sidebarOpen = 
               });
             }}
             onCancel={setCancelling}
-            onResolve={(id) => run(id, () => sb.rpc("resolve_request", { p_request: id }))}
+            onCall={(r, act) =>
+              run(r.id, () =>
+                act === "ack"
+                  ? sb.rpc("acknowledge_request", { p_request: r.id })
+                  : act === "done"
+                    ? sb.rpc("resolve_request", { p_request: r.id })
+                    : sb.rpc("settle_bill", { p_visit: r.visit_id, p_method: act }),
+              )
+            }
           />
         </main>
       )}

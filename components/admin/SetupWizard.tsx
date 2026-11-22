@@ -1,7 +1,7 @@
 "use client";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BrandLockup } from "@/components/brand";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
@@ -13,6 +13,7 @@ import { currencyDigits, formatMoney } from "@/lib/format";
 import { errorText, useLang, type Key } from "@/lib/i18n";
 import { staffClient } from "@/lib/supabase/browser";
 import { isCurrency, timeZones } from "@/lib/venue";
+import { LogoField, logoProblem, uploadLogo } from "./LogoField";
 
 // Best guess from the browser's region; the owner can change it before saving.
 const REGION_CURRENCY: Record<string, string> = {
@@ -47,6 +48,11 @@ export function SetupWizard({ email }: { email: string }) {
   const [errs, setErrs] = useState<{ name?: Key; currency?: Key; tables?: Key }>({});
   const [formErr, setFormErr] = useState("");
   const [busy, setBusy] = useState(false);
+  // The logo waits on this device until the restaurant exists (its folder is the restaurant id).
+  const [logo, setLogo] = useState<File | null>(null);
+  const [logoErr, setLogoErr] = useState("");
+  const preview = useMemo(() => (logo ? URL.createObjectURL(logo) : null), [logo]);
+  useEffect(() => () => void (preview && URL.revokeObjectURL(preview)), [preview]);
 
   const okCurrency = isCurrency(currency);
   const sample = okCurrency ? formatMoney(Math.round(12.5 * 10 ** currencyDigits(currency)), lang, currency) : "";
@@ -63,7 +69,12 @@ export function SetupWizard({ email }: { email: string }) {
     if (e.name || e.currency || e.tables) return void document.querySelector<HTMLElement>("#setup-form [aria-invalid=true]")?.focus();
     setBusy(true);
     const sb = staffClient();
-    const { error } = await sb.rpc("create_restaurant", { p_name: name.trim(), p_currency: currency, p_timezone: tz, p_second_lang: arabic ? "ar" : null, p_tables: n });
+    const { data: rid, error } = await sb.rpc("create_restaurant", { p_name: name.trim(), p_currency: currency, p_timezone: tz, p_second_lang: arabic ? "ar" : null, p_tables: n });
+    // A failed logo upload never blocks setup: it can be added again in Settings.
+    if (!error && logo) {
+      const r = await uploadLogo(sb, rid as string, logo, lang);
+      if (r.url) await sb.from("restaurants").update({ logo_url: r.url }).eq("id", rid as string);
+    }
     if (!error || error.message === "ALREADY_OWNER") {
       router.replace("/admin");
       return router.refresh();
@@ -103,6 +114,17 @@ export function SetupWizard({ email }: { email: string }) {
                 <Input id="su-name" size="lg" maxLength={60} autoComplete="organization" value={name} aria-invalid={!!errs.name} aria-describedby="su-name-err" onChange={(e) => setName(e.target.value)} />
                 {errs.name && <FieldError id="su-name-err">{t(errs.name)}</FieldError>}
               </Field>
+              <LogoField
+                name={name}
+                src={preview}
+                error={logoErr}
+                onPick={(f) => {
+                  const bad = logoProblem(f);
+                  setLogoErr(bad ? t(bad) : "");
+                  if (!bad) setLogo(f);
+                }}
+                onRemove={() => setLogo(null)}
+              />
               <div className="grid gap-4 sm:grid-cols-[8rem_minmax(0,1fr)]">
                 <Field data-invalid={!!errs.currency}>
                   <FieldLabel htmlFor="su-currency">{t("currencyLabel")}</FieldLabel>

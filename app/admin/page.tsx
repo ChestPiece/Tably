@@ -24,7 +24,7 @@ export default async function AdminPage() {
     sb.from("menu_items").select(MENU_SELECT).eq("restaurant_id", rid).order("position").order("position", { referencedTable: "item_options" }),
     sb.from("tables").select("*").eq("restaurant_id", rid).order("number"),
     sb.from("staff_members").select("user_id, role, display_name").eq("restaurant_id", rid),
-    sb.from("staff_invites").select("email, role").eq("restaurant_id", rid),
+    sb.from("staff_invites").select("email, role, token, opened_at").eq("restaurant_id", rid).order("created_at"),
     sb.from("orders").select(ORDER_SELECT).eq("restaurant_id", rid).gte("created_at", today.start).lt("created_at", today.end).order("created_at", { ascending: false }),
     sb.from("orders").select("created_at, status").eq("restaurant_id", rid).gte("created_at", lastWeek.start).lt("created_at", lastWeek.end),
     sb.from("visits").select("*").eq("restaurant_id", rid).is("closed_at", null),
