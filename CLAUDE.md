@@ -31,6 +31,9 @@ Design spec (source of truth): `docs/superpowers/specs/2026-11-16-qr-ordering-de
 - Arabic fonts are chosen by language: `:where(:lang(ar))` in `app/globals.css` swaps `--font-sans` / `--font-display`. next/font's "<font> Fallback" face is local Arial over all of Unicode (Turbopack ignores `adjustFontFallback: false`), so Arabic inside an English page needs `lang="ar"` or it renders in Arial.
 - Beiruti's space is 0.11em, so Arabic `.font-display` gets `word-spacing: 0.12em` (globals.css). Leader rows (`.leader`) use `items-baseline-last` so the dots sit on a wrapped name's last line.
 - Dev only: the Turbopack Tailwind loader can miss a new `@utility` class used in TSX until `globals.css` content changes (touch is not enough). Prod build is fine.
+- Flow upgrade (2026-11-22, spec `docs/superpowers/specs/2026-11-22-flow-upgrade-design.md`, migration `20261122000001_flow_upgrade.sql`): invites are `/join/<token>` links; one account = one restaurant; service requests have ack / nudge / `pay_method`, staff settle bills with `settle_bill`; `restaurants.logo_url` (no logo = monogram `VenueMark`). Tests: `supabase/tests/invites.sql`, `requests_flow.sql`.
+- Owner and staff UI use Inter (`components/ops-font.tsx` sets `--font-sans`/`--font-display` on `:root:not(:lang(ar))`); `/admin/qr` resets them to Fraunces/Plex for the printed cards.
+- `ResponsiveSheet` `full` = right side panel on desktop (`grid` = wide, for `BulkDishes`), Drawer below 768px. Ctrl/Cmd+Enter clicks the submit or `data-primary` button.
 
 ## Target stack and commands
 - Next.js latest, TypeScript, Tailwind v4, shadcn/ui, `@supabase/ssr`.

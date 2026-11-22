@@ -34,7 +34,8 @@ Rules: ochre never goes in `--accent`. Accent (ochre) under 5 % of any viewport.
 fg/bg 15.6 · text-2/bg 6.9 · text-2/muted 6.3 · muted-fg/card 5.7 · muted-fg/muted 4.8 · primary/bg 12.4 · ochre-text/card 6.0 · ochre/card 3.05 (shape) · destructive/danger-bg 5.3 · status vs card 5.7–8.2. Text ≥ 4.5, shapes and focus ≥ 3. Border is decorative; inputs use `--input`.
 
 ## Typography
-- Display Latin: **Fraunces** (variable, opsz axis), 600, roman. Venue names, dish names, section heads, table numbers, big figures.
+- Display Latin: **Fraunces** (variable, opsz axis), 600, roman. Venue names, dish names, section heads, table numbers, big figures. Guest pages and printed QR cards only.
+- Owner and staff UI (2026-11-22): **Inter** for display and body (`components/ops-font.tsx`, set on `:root:not(:lang(ar))` by the admin and staff layouts). Figures are Inter semibold `tabular-nums`. Arabic keeps Beiruti / IBM Plex Sans Arabic.
 - Display Arabic: **Beiruti** 700.
 - Body: **IBM Plex Sans** 400/500/600 + **IBM Plex Sans Arabic**. Every interface word, prices (`tabular-nums`).
 - Arabic picks its stacks by language: `:where(:lang(ar))` in `app/globals.css` swaps `--font-sans` / `--font-display`. Any Arabic text inside an English page needs `lang="ar"`, or it renders in the Latin font's Arial fallback.
