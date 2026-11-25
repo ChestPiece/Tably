@@ -9,11 +9,11 @@ import { cn } from "@/lib/utils";
 type Props = {
   categories: Category[];
   menu: MenuItem[];
-  busyId: string;
+  busy: ReadonlySet<string>;
   onToggle: (item: MenuItem) => void;
 };
 
-export function MenuToggles({ categories, menu, busyId, onToggle }: Props) {
+export function MenuToggles({ categories, menu, busy, onToggle }: Props) {
   const { lang, t } = useLang();
   if (menu.length === 0) return <EmptyState icon={UtensilsCrossed} title={t("menuEmpty")} />;
   const known = new Set(categories.map((c) => c.id));
@@ -38,7 +38,7 @@ export function MenuToggles({ categories, menu, busyId, onToggle }: Props) {
                   <span className={cn("min-w-0 flex-1", !i.available && "text-muted-foreground line-through")}>{name}</span>
                   <Switch
                     checked={i.available}
-                    disabled={busyId === i.id}
+                    disabled={!!busy?.has(i.id)}
                     onCheckedChange={() => onToggle(i)}
                     aria-label={`${name} ${t("availableSuffix")}`}
                     label={<span className="w-20 text-sm text-text-2">{t(i.available ? "available" : "soldOut")}</span>}

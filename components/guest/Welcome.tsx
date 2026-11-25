@@ -8,9 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { LangButton } from "./Chrome";
 
-const onBrandInput =
-  "border-brand-rule bg-brand-field text-on-brand placeholder:text-on-brand/60 hover:border-on-brand/60 focus-visible:ring-on-brand focus-visible:ring-offset-brand aria-invalid:border-on-brand";
-
 export function Welcome({
   restaurant,
   tableNumber,
@@ -38,39 +35,44 @@ export function Welcome({
     }
   });
   const [pin, setPin] = useState("");
-  const pinError = pinRequired && error === errorText(lang, { message: "BAD_PIN" });
+  const pinError = pinRequired && (error === errorText(lang, { message: "BAD_PIN" }) || error === errorText(lang, { message: "PIN_LOCKED" }));
   const venue = pick(lang, restaurant.name, restaurant.name_ar);
 
+  const tagline = pick(lang, restaurant.tagline, restaurant.tagline_ar);
+
   return (
-    <main className="mx-auto flex min-h-dvh max-w-[560px] flex-col items-center bg-brand px-6 pt-10 pb-[max(24px,env(safe-area-inset-bottom))] text-center text-on-brand">
-      <div className="flex w-full justify-end">
-        <LangButton className="-mt-6 text-on-brand hover:bg-brand-field" />
+    // Cream page with one indigo venue card (a printed menu cover), then the form. Phone: form in the thumb zone; larger screens: centred.
+    <main className="mx-auto flex min-h-dvh w-full max-w-[440px] flex-col px-5 pt-3 pb-[max(20px,env(safe-area-inset-bottom))] sm:justify-center">
+      <div className="flex min-h-10 justify-end">
+        <LangButton />
       </div>
-      <VenueMark name={venue} logo={restaurant.logo_url} className="mt-6 size-40 bg-brand-field text-7xl text-on-brand ring-brand-rule" />
-      <div className="mt-8 w-full text-start">
-        <h1 className="font-display text-[44px] leading-[1.05] font-semibold [overflow-wrap:anywhere]">{venue}</h1>
-        <p className="mt-4 flex items-baseline-last gap-2 border-t border-brand-rule pt-3 [--border:var(--brand-rule)]">
-          <span className="opacity-85">{t("welcomeKicker")}</span>
+
+      <section className="mt-3 rounded-2xl bg-brand px-6 pt-6 pb-5 text-on-brand shadow-float">
+        <VenueMark name={venue} logo={restaurant.logo_url} className="h-[72px] w-[60px] rounded-arch bg-brand-field text-[28px] text-on-brand ring-1 ring-brand-rule" />
+        <h1 className="mt-5 font-display text-[32px] leading-[1.1] font-semibold [overflow-wrap:anywhere]">{venue}</h1>
+        {tagline && <p className="mt-1.5 text-[15px] opacity-85">{tagline}</p>}
+        <p className="mt-6 flex items-baseline-last gap-2 border-t border-brand-rule pt-3 [--border:var(--brand-rule)]">
+          <span className="text-[15px] opacity-85">{t("welcomeKicker")}</span>
           <span aria-hidden className="leader" />
-          <span className="font-display text-[22px] leading-none font-semibold whitespace-nowrap tabular-nums">
+          <span className="font-display text-xl leading-none font-semibold whitespace-nowrap tabular-nums">
             {t("table")} {tableNumber}
           </span>
         </p>
-      </div>
+      </section>
 
       <form
         noValidate
-        className="mt-auto grid w-full gap-3 pt-8 text-start"
+        className="grid gap-3 pt-8 max-sm:mt-auto sm:mt-2"
         onSubmit={(e) => {
           e.preventDefault();
           onJoin(name, pin);
         }}
       >
-        {ended && <p className="rounded-md bg-brand-field px-4 py-3 text-sm">{t("visitEnded")}</p>}
-        {restaurant.ordering_paused && <p className="rounded-md bg-brand-field px-4 py-3 text-sm">{t("paused")}</p>}
+        {ended && <p className="rounded-md bg-muted px-4 py-3 text-sm">{t("visitEnded")}</p>}
+        {restaurant.ordering_paused && <p className="rounded-md bg-muted px-4 py-3 text-sm">{t("paused")}</p>}
 
-        <label className="grid gap-2">
-          <span className="font-medium">{t("yourName")}</span>
+        <label className="grid gap-1.5">
+          <span className="text-sm font-medium">{t("yourName")}</span>
           <Input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -78,13 +80,12 @@ export function Welcome({
             autoComplete="given-name"
             enterKeyHint="go"
             placeholder={t("nameOptional")}
-            className={onBrandInput}
           />
         </label>
 
         {pinRequired && (
-          <label className="grid gap-2">
-            <span className="font-medium">{t("tablePin")}</span>
+          <label className="grid gap-1.5">
+            <span className="text-sm font-medium">{t("tablePin")}</span>
             <Input
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, "").slice(0, 4))}
@@ -93,26 +94,26 @@ export function Welcome({
               maxLength={4}
               aria-invalid={pinError || undefined}
               aria-describedby="pin-hint"
-              className={`${onBrandInput} tabular-nums`}
+              className="tabular-nums"
             />
-            <small id="pin-hint" role={pinError ? "alert" : undefined} className={`min-h-[1lh] text-sm ${pinError ? "font-medium" : "opacity-85"}`}>
+            <small id="pin-hint" role={pinError ? "alert" : undefined} className={`min-h-[1lh] text-sm ${pinError ? "font-medium text-destructive" : "text-muted-foreground"}`}>
               {pinError ? error : t("pinHelp")}
             </small>
           </label>
         )}
 
         {error && !pinError && (
-          <p role="alert" className="rounded-md bg-brand-field px-4 py-3 text-sm font-medium">
+          <p role="alert" className="rounded-md bg-danger-bg px-4 py-3 text-sm font-medium text-destructive">
             {error}
           </p>
         )}
 
-        <Button type="submit" disabled={busy} className="w-full bg-on-brand text-brand hover:bg-on-brand/90 focus-visible:ring-on-brand focus-visible:ring-offset-brand">
+        <Button type="submit" disabled={busy} className="mt-1 w-full">
           {busy ? t("joining") : t("startOrdering")}
         </Button>
       </form>
 
-      <p className="mt-4 flex items-center justify-center gap-2 text-sm opacity-85">
+      <p className="mt-5 flex items-center justify-center gap-2 text-sm text-muted-foreground">
         <BrandMark className="size-4" />
         {t("servedBy")}
       </p>

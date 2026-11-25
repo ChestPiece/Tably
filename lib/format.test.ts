@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { ageLevel, currencyDigits, formatAge, formatMoney, MAX_MINOR, minorToInput, parseMinor, plural, tableLabel } from "./format.ts";
+import { ageLevel, cached, currencyDigits, formatAge, formatClock, formatMoney, MAX_MINOR, minorToInput, parseMinor, plural, tableLabel } from "./format.ts";
 
 test("formatMoney en has number and AED", () => {
   const s = formatMoney(8100, "en", "AED");
@@ -67,3 +67,10 @@ test("tableLabel en/ar", () => {
   assert.equal(tableLabel("en", 12), "T12");
   assert.equal(tableLabel("ar", 12), "ط 12");
 });
+
+test("formatClock uses the venue zone, not the machine's", () => {
+  assert.match(formatClock("2026-11-25T10:05:00Z", "en", "Asia/Dubai"), /2:05/);
+  assert.match(formatClock("2026-11-25T10:05:00Z", "en", "UTC"), /10:05/);
+  assert.equal(formatClock(null, "en", "UTC"), "");
+});
+test("cached formatters are reused", () => assert.equal(cached("k", () => ({})), cached("k", () => ({}))));

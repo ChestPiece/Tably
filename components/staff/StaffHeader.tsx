@@ -1,10 +1,9 @@
 "use client";
-import Link from "next/link";
 import { ChartNoAxesColumn, LayoutGrid, Settings, Table2, UtensilsCrossed, type LucideIcon } from "lucide-react";
-import { BrandMark } from "@/components/brand";
+import { SidebarBrand, SidebarUserMenu } from "@/components/ops/SidebarChrome";
 import { useOwnerActions } from "@/components/admin/AdminSidebar";
 import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuBadge,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarMenu, SidebarMenuBadge,
   SidebarMenuButton, SidebarMenuItem, SidebarRail, SidebarTrigger, useSidebar,
 } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
@@ -12,10 +11,11 @@ import { useLang, type Key } from "@/lib/i18n";
 import type { StaffRole } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export type StaffTab = "board" | "today" | "tables" | "menu";
+export const STAFF_TABS = ["board", "today", "tables", "menu"] as const;
+export type StaffTab = (typeof STAFF_TABS)[number];
 
 const ROLE_LABEL: Record<StaffRole, Key> = { owner: "roleOwner", staff: "roleStaff" };
-const ACTIVE = "h-12 data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary data-[active=true]:hover:text-primary-foreground";
+const ACTIVE = "h-12 group-data-[collapsible=icon]:size-12! group-data-[collapsible=icon]:p-4! data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary data-[active=true]:hover:text-primary-foreground";
 
 type SidebarProps = {
   venue: string;
@@ -23,9 +23,10 @@ type SidebarProps = {
   onTab: (t: StaffTab) => void;
   counts: { board: number; tables: number; soldOut: number };
   role: StaffRole;
+  me: string;
 };
 
-export function StaffSidebar({ venue, tab, onTab, counts, role }: SidebarProps) {
+export function StaffSidebar({ venue, tab, onTab, counts, role, me }: SidebarProps) {
   const { t } = useLang();
   const { setOpenMobile } = useSidebar();
   // Same footer as the owner sidebar, minus the link back to this board; owners get Admin instead.
@@ -39,15 +40,7 @@ export function StaffSidebar({ venue, tab, onTab, counts, role }: SidebarProps) 
   ];
   return (
     <Sidebar collapsible="icon" aria-label={t("boardSections")}>
-      <SidebarHeader className="px-3 pt-4 pb-5">
-        <div className="flex items-center gap-3 px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-          <BrandMark className="size-7 shrink-0 text-primary" />
-          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <b className="block truncate font-semibold">{venue}</b>
-            <small className="text-sm text-muted-foreground">{t(ROLE_LABEL[role])}</small>
-          </div>
-        </div>
-      </SidebarHeader>
+      <SidebarBrand venue={venue} role={t(ROLE_LABEL[role])} />
       <SidebarContent>
         <SidebarGroup className="py-0">
           <SidebarGroupContent>
@@ -76,25 +69,7 @@ export function StaffSidebar({ venue, tab, onTab, counts, role }: SidebarProps) 
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t">
-        <SidebarMenu>
-          {actions.map((a) => (
-            <SidebarMenuItem key={a.id}>
-              {a.href ? (
-                <SidebarMenuButton asChild tooltip={a.label} className="h-11">
-                  <Link href={a.href}>
-                    {a.icon}
-                    <span>{a.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              ) : (
-                <SidebarMenuButton tooltip={a.label} lang={a.lang} onClick={a.onClick} className="h-11">
-                  {a.icon}
-                  <span>{a.label}</span>
-                </SidebarMenuButton>
-              )}
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
+        <SidebarUserMenu name={me} role={t(ROLE_LABEL[role])} actions={actions} tall />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
@@ -103,16 +78,23 @@ export function StaffSidebar({ venue, tab, onTab, counts, role }: SidebarProps) 
 
 type BarProps = { title: string; online: boolean; shift: boolean; onToggleShift: () => void };
 
-/** Thin top bar: sidebar toggle, page title, connection and shift switch. */
+/** Thin top bar: sidebar toggle (phones only; desktop has it in the sidebar header), page title, connection and shift switch. */
 export function StaffTopBar({ title, online, shift, onToggleShift }: BarProps) {
   const { t } = useLang();
   return (
     <header className="z-20 flex h-15 shrink-0 items-center gap-3 border-b bg-card px-3">
-      <SidebarTrigger className="size-10 text-muted-foreground" />
+      <SidebarTrigger className="size-10 text-muted-foreground lg:hidden" />
       <h1 className="truncate text-lg font-semibold">{title}</h1>
       <div className="ms-auto flex shrink-0 items-center gap-5 max-[600px]:gap-3">
-        <span role="status" className="inline-flex items-center gap-2 text-sm whitespace-nowrap text-text-2">
-          <i aria-hidden className={cn("size-2 rounded-full", online ? "bg-status-ready" : "bg-ochre")} />
+        {/* A chip, not a lone dot: reconnecting must be noticed (new orders may be missing until it recovers). */}
+        <span
+          role="status"
+          className={cn(
+            "inline-flex h-8 items-center gap-2 rounded-full px-3 text-sm font-medium whitespace-nowrap ring-1 ring-border max-[600px]:px-2.5",
+            online ? "text-text-2" : "bg-[color-mix(in_oklch,var(--ochre)_14%,transparent)] text-ochre-text ring-ochre",
+          )}
+        >
+          <i aria-hidden className={cn("size-2 rounded-full", online ? "bg-status-ready" : "bg-ochre motion-safe:animate-pulse")} />
           <span className="max-[600px]:sr-only">{t(online ? "connLive" : "connReconnecting")}</span>
         </span>
         <span title={t("shiftHint")}>

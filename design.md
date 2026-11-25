@@ -1,4 +1,4 @@
-# Design — ChestBest (Sufra)
+# Design — Tably (Sufra v2)
 
 The locked design system for this app. Every page and component reads this file before it changes UI. Extend or amend this file when the system needs to grow; never override it per page. Tokens live once in `app/globals.css`. Replaces `.tastemaker/style-lock.md` (Hallmark redesign, 2026-11-17).
 
@@ -7,8 +7,8 @@ Editorial, warm. The guest menu reads like a printed menu card. Staff and owner 
 
 ## Macrostructure family
 - Guest (`/t/[slug]`): **Long Document**. One continuous menu, sticky category index, section heads over hairlines, dish rows with dotted leaders to the price. Bill and cart are receipts.
-- Staff (`/staff`): **Workbench**. Line + pass kitchen board (`components/staff/Board.tsx`), structure fixed by the KDS mockups in `brand-demos/kds/`.
-- Owner (`/admin`): **Workbench**. Panels on the paper canvas, figures lead, labels under them. No icon tiles.
+- Staff (`/staff`): **Workbench** in the ops shell (see "Ops shell"). Line + pass kitchen board (`components/staff/Board.tsx`), structure fixed by the KDS mockups in `brand-demos/kds/`.
+- Owner (`/admin`): **Workbench** in the ops shell (see "Ops shell"). Panels on the paper canvas, figures lead, labels under them. No icon tiles.
 - Public (`/`, `/login`): plain, left-biased, typography only.
 
 ## Theme (light; Tailwind names)
@@ -65,6 +65,18 @@ Silent success. Toasts only for failures and async effects the guest cannot see.
 
 ## Themes per surface
 Guest `/t/*`: always light, no ThemeProvider. Staff: dark default, key `sufra-staff-theme`. Owner: light default, key `sufra-owner-theme`. `enableSystem={false}` everywhere.
+
+## Ops shell (owner + staff, 2026-11-25)
+Spec: `docs/superpowers/specs/2026-11-25-ops-dashboard-layout-design.md`.
+- **Fit the screen.** The shell is `h-dvh overflow-hidden`: sidebar, main, right rail. Only panels scroll, never the page. Owner Home (once first-run steps are done) and Profit fill the height from 1280px (`fit` in `AdminApp.tsx`); other pages flow inside main. Below 1280px pages stack and scroll inside main. Check: `document.documentElement.scrollHeight === innerHeight` at 1280x800 and 1440x900.
+- **Sidebar.** Icon-collapsible. The collapse button sits in the header beside the venue name (`components/ops/SidebarChrome.tsx`); collapsed, the mark expands it. Ctrl/Cmd+B and the edge rail also toggle. The footer is one user row with a menu (theme, Arabic, switch app, sign out). Owner below `lg` uses `BottomNav`.
+- **Right rail = selected item's detail.** 400px `<aside>` (`RailSlot`), hidden while empty. Sheets opt in with `ResponsiveSheet rail` and portal into it from 1280px; below that they stay sheets/drawers. Used by Orders (detail, undo last step within 2 min, cancel; `?sel=`), Menu (`ItemEditor`), Tables (live visit, QR, actions) and Team (rate, shifts, remove). Home and Profit have no rail.
+- **URL state.** Owner: `?page=`, `?filter=`, `?sel=`. Staff: `?tab=` (`STAFF_TABS`; Board is bare `/staff`). Reload and back land on the same view.
+- **Owner Home bento.** 12 columns: hourly chart (8) + status donut (4); latest orders (6, rows open Orders with `sel`) + floor (3) + top dishes (3). Panels use `PANEL`, one containment layer.
+- **Density.** Owner: 40px controls, 44px table rows, sticky table heads. Staff: 48px everywhere, calls strip included. Short labels (legends, chips, times) never wrap: `whitespace-nowrap` and let the row wrap instead.
+- **Empty, loading, failed are three different states.** Skeletons only before the first load. Empty = an `EmptyState` or a dashed block saying what fills it. Failed first load = `EmptyState` with a WifiOff icon and Try again, never a false "All clear".
+- **Connection status** is a pill in the staff top bar: neutral "Live", ochre "Reconnecting" with a pulsing dot (reduced motion: no pulse).
+- **Counts** use singular and plural keys (`dishOne` / `dishes`), never "1 dishes".
 
 ## Exports
 ### tokens.css (canonical: `app/globals.css` `:root`)

@@ -25,14 +25,14 @@ export function FloorPlan({ tables, visits }: { tables: TableRow[]; visits: Visi
   ];
 
   return (
-    <section aria-labelledby="floor-h">
+    <section aria-labelledby="floor-h" className="flex h-full min-h-0 flex-col">
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <h2 id="floor-h" className="text-[15px] font-semibold">
           {t("floor")}
         </h2>
-        <div className="flex gap-4 text-sm text-text-2">
+        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-text-2">
           {legend.map(([c, label, outline]) => (
-            <span key={label} className="inline-flex items-center gap-2">
+            <span key={label} className="inline-flex items-center gap-2 whitespace-nowrap">
               <i aria-hidden className="size-2 rounded-[2px]" style={outline ? { boxShadow: `inset 0 0 0 1.5px ${c}` } : { background: c }} />
               {label}
             </span>
@@ -42,7 +42,7 @@ export function FloorPlan({ tables, visits }: { tables: TableRow[]; visits: Visi
       {tables.length === 0 ? (
         <p className="py-12 text-center text-sm text-text-2">—</p>
       ) : (
-        <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t("floor")} className="block h-auto w-full max-w-[360px]" direction="ltr">
+        <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t("floor")} className="mx-auto block w-full max-w-[360px] xl:min-h-0 xl:flex-1" direction="ltr">
           {tables.map((tb, i) => {
             const x = 12 + (i % COLS) * GAP_X;
             const y = 4 + Math.floor(i / COLS) * GAP_Y;

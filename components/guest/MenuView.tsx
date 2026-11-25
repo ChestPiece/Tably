@@ -38,14 +38,20 @@ export function MenuView({
   const tapLock = useRef(0);
   useEffect(() => {
     const els = [...document.querySelectorAll<HTMLElement>("section[id^='cat-']")];
-    const onScroll = () => {
+    let frame = 0; // one layout read per frame, not per scroll event
+    const check = () => {
+      frame = 0;
       if (performance.now() < tapLock.current) return;
       const atEnd = innerHeight + scrollY >= document.documentElement.scrollHeight - 2;
       const el = atEnd ? els.at(-1) : els.findLast((s) => s.getBoundingClientRect().top <= 130);
       if (el ?? els[0]) setCat((el ?? els[0]).id.slice(4));
     };
+    const onScroll = () => void (frame ||= requestAnimationFrame(check));
     addEventListener("scroll", onScroll, { passive: true });
-    return () => removeEventListener("scroll", onScroll);
+    return () => {
+      removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(frame);
+    };
   }, [sections.length]);
 
   const jump = (id: string, at: number) => {

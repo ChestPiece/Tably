@@ -16,7 +16,7 @@
       "port": 4321
     },
     {
-      "name": "chestbest",
+      "name": "tably",
       "runtimeExecutable": "npm.cmd",
       "runtimeArgs": [
         "run",

@@ -4,7 +4,8 @@ import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } f
 import { useLang } from "@/lib/i18n";
 
 /** Orders per venue hour: today as bars (counts are whole numbers; a smooth curve faked orders between hours), same weekday last week as a dashed step line. */
-export function HourChart({ today, lastWeek }: { today: number[]; lastWeek: number[] }) {
+/** `fill`: from 1280px the chart takes its panel's height (Home bento) instead of a fixed ratio. */
+export function HourChart({ today, lastWeek, fill }: { today: number[]; lastWeek: number[]; fill?: boolean }) {
   const { t } = useLang();
   const config = {
     today: { label: t("today"), color: "var(--primary)" },
@@ -20,7 +21,7 @@ export function HourChart({ today, lastWeek }: { today: number[]; lastWeek: numb
   const hasLastWeek = lastWeek.some(Boolean);
 
   return (
-    <section aria-labelledby="hour-h">
+    <section aria-labelledby="hour-h" className={fill ? "xl:flex xl:h-full xl:flex-col" : undefined}>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <h2 id="hour-h" className="text-[15px] font-semibold">
           {t("byHour")}
@@ -36,8 +37,8 @@ export function HourChart({ today, lastWeek }: { today: number[]; lastWeek: numb
           </span>}
         </div>
       </div>
-      <div className="relative" dir="ltr">
-        <ChartContainer config={config} className="aspect-[640/240] w-full">
+      <div className={fill ? "relative xl:min-h-0 xl:flex-1" : "relative"} dir="ltr">
+        <ChartContainer config={config} className={fill ? "aspect-[640/240] w-full xl:aspect-auto xl:h-full" : "aspect-[640/240] w-full"}>
           <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -20 }} accessibilityLayer>
             <CartesianGrid vertical={false} strokeDasharray="0" />
             <XAxis dataKey="hour" tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(h: number) => String(h).padStart(2, "0")} />

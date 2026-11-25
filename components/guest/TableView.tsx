@@ -2,19 +2,19 @@
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Banknote, Bell, Check, CreditCard, ReceiptText } from "lucide-react";
 import { useLang, type Key } from "@/lib/i18n";
-import { pick, type Lang, type MenuItem, type Order, type OrderLine, type ServiceRequest, type Visit } from "@/lib/types";
+import { pick, type MenuItem, type Order, type OrderLine, type ServiceRequest, type Visit } from "@/lib/types";
 import { Arch } from "@/components/app/arch";
 import { StatusTag } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { formatClock } from "@/lib/format";
 import type { Me } from "./GuestApp";
 import { useVenue } from "@/lib/venue";
 
 const STEPS = ["received", "preparing", "ready", "served"] as const;
 const HEAD: Record<Order["status"], Key> = { received: "hReceived", preparing: "hPreparing", ready: "hReady", served: "hServed", cancelled: "hCancelled" };
 
-const clock = (iso: string | null, lang: Lang, tz: string) =>
-  iso ? new Intl.DateTimeFormat(lang === "ar" ? "ar-AE-u-nu-latn" : "en-AE", { hour: "numeric", minute: "2-digit", timeZone: tz }).format(new Date(iso)) : "";
+const clock = formatClock;
 
 export function TableView({
   me,

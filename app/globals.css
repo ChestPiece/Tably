@@ -182,6 +182,14 @@
 @utility duration-base { --tw-duration: var(--dur-base); transition-duration: var(--dur-base); animation-duration: var(--dur-base); }
 @utility duration-slow { --tw-duration: var(--dur-slow); transition-duration: var(--dur-slow); animation-duration: var(--dur-slow); }
 
+/* Inner panel scroller: thin bar with its own gutter, so it never sits on top of row content. */
+@utility panel-scroll {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-gutter: stable;
+  padding-inline-end: 0.5rem;
+}
+
 @layer base {
   *, ::before, ::after { border-color: var(--border); }
   /* Arabic picks its stacks by language, not by glyph fallback: next/font's "<Latin font> Fallback"

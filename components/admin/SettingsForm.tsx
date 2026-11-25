@@ -61,16 +61,13 @@ function PasswordForm({ sb, email }: { sb: AdminProps["sb"]; email: string }) {
   return (
     <form
       noValidate
-      className="grid max-w-[760px] gap-x-5 gap-y-4 border-t pt-8 sm:grid-cols-2"
+      className="grid max-w-[640px] gap-x-5 gap-y-4 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
         submit();
       }}
     >
-      <div className="sm:col-span-2">
-        <h2 className="text-xl font-semibold">{t("accountTitle")}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{t("accountDesc").replace("{n}", email)}</p>
-      </div>
+      <p className="text-sm text-muted-foreground sm:col-span-2">{t("accountDesc").replace("{n}", email)}</p>
       <input type="email" autoComplete="username" value={email} readOnly hidden />
       <div className="sm:col-span-2 sm:max-w-[calc(50%-10px)]">{field("pw-cur", "currentPassword", cur, setCur, "current-password")}</div>
       {field("pw-new", "newPassword", next, setNext, "new-password")}
@@ -86,11 +83,21 @@ function PasswordForm({ sb, email }: { sb: AdminProps["sb"]; email: string }) {
   );
 }
 
+type Section = "general" | "ordering" | "branding" | "language" | "account";
+const SECTIONS: [Section, Key][] = [
+  ["general", "secGeneral"],
+  ["ordering", "secOrdering"],
+  ["branding", "secBranding"],
+  ["language", "secLanguage"],
+  ["account", "accountTitle"],
+];
+
 export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { restaurant: Restaurant; email: string }) {
   const { lang, t } = useLang();
   const [logoBusy, setLogoBusy] = useState(false);
   const [logoErr, setLogoErr] = useState("");
   const [d, setD] = useState(restaurant);
+  const [sec, setSec] = useState<Section>("general");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [errs, setErrs] = useState<{ name?: string; name_ar?: string; currency?: string }>({});
@@ -143,7 +150,10 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
       currency: isCurrency(d.currency) ? undefined : t("badCurrency"),
     };
     setErrs(e);
-    if (e.name || e.currency) return void document.querySelector<HTMLElement>("#settings-form [aria-invalid=true]")?.focus();
+    if (e.name || e.currency) {
+      setSec("general");
+      return void setTimeout(() => document.querySelector<HTMLElement>("#settings-form [aria-invalid=true]")?.focus());
+    }
     setSaving(true);
     // Success shows on the button (Saved ✓), not as a toast. Errors still toast via mutate.
     const ok = await mutate(() =>
@@ -168,79 +178,113 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
     setSaved(ok);
   }
 
+  const show = (id: Section) => (sec === id ? undefined : true);
   return (
-    <div className="flex flex-col gap-10">
-    <form
-      id="settings-form"
-      noValidate
-      className="grid max-w-[760px] gap-x-5 gap-y-2 sm:grid-cols-2"
-      onSubmit={(e) => {
-        e.preventDefault();
-        submit();
-      }}
-    >
-      <div className="mb-6 sm:col-span-2">
-        <LogoField name={d.name} src={d.logo_url} busy={logoBusy} error={logoErr} onPick={pickLogo} onRemove={() => set("logo_url", null)} />
+    // One section at a time. All sections share one draft, so switching never loses edits; Save writes them all.
+    <div className="grid gap-8 md:grid-cols-[176px_minmax(0,1fr)]">
+      <nav aria-label={t("settingsSections")} className="max-md:-mx-1 max-md:overflow-x-auto">
+        <ul className="flex gap-1 md:flex-col">
+          {SECTIONS.map(([id, label]) => (
+            <li key={id}>
+              <button
+                type="button"
+                aria-current={sec === id || undefined}
+                onClick={() => setSec(id)}
+                className="h-10 w-full rounded-md px-3 text-start text-sm font-medium whitespace-nowrap text-muted-foreground outline-none hover:bg-muted hover:text-foreground focus-visible:ring-2 focus-visible:ring-ring aria-[current]:bg-muted aria-[current]:text-foreground"
+              >
+                {t(label)}
+              </button>
+            </li>
+          ))}
+        </ul>
+      </nav>
+      <div className="min-w-0">
+        <form
+          id="settings-form"
+          noValidate
+          hidden={sec === "account"}
+          className="grid max-w-[640px] gap-x-5 gap-y-2 sm:grid-cols-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            submit();
+          }}
+        >
+          <div hidden={show("general")} className="contents">
+            {text("name", "nameEn", 60)}
+            {text("tagline", "taglineEn", 150)}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="st-currency" className="text-sm font-medium">{t("currencyLabel")}</label>
+              <Input
+                id="st-currency"
+                size="sm"
+                dir="ltr"
+                maxLength={3}
+                autoComplete="off"
+                autoCapitalize="characters"
+                spellCheck={false}
+                className="w-28 uppercase"
+                value={d.currency}
+                aria-invalid={!!errs.currency}
+                aria-describedby="st-currency-hint"
+                onChange={(e) => set("currency", e.target.value.toUpperCase())}
+              />
+              <p id="st-currency-hint" className={errs.currency ? "text-sm text-destructive" : "text-sm text-muted-foreground"}>{errs.currency ?? t("currencyHint")}</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="st-tz" className="text-sm font-medium">{t("timezoneLabel")}</label>
+              <Select value={d.timezone} onValueChange={(v) => set("timezone", v)}>
+                <SelectTrigger id="st-tz" size="sm" className="w-full" aria-describedby="st-tz-hint">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  {zones.map((z) => <SelectItem key={z} value={z}>{z.replaceAll("_", " ")}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <p id="st-tz-hint" className="text-sm text-muted-foreground">{t("timezoneHint")}</p>
+            </div>
+          </div>
+          <div hidden={show("ordering")} className="contents">
+            <div className="flex flex-col gap-1.5 sm:col-span-2">
+              <label htmlFor="st-service" className="text-sm font-medium">{t("serviceStyle")}</label>
+              <Select value={d.service_mode} onValueChange={(v) => set("service_mode", v as Restaurant["service_mode"])}>
+                <SelectTrigger id="st-service" size="sm" className="w-full sm:max-w-[calc(50%-10px)]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="table">{t("serviceTable")}</SelectItem>
+                  <SelectItem value="counter">{t("serviceCounter")}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="mt-4 border-t sm:col-span-2">
+              <SwitchRow title={t("pauseOrdering")} desc={t("pauseOrderingDesc")} checked={d.ordering_paused} onChange={(v) => set("ordering_paused", v)} />
+              <SwitchRow title={t("requireCode")} desc={t("requireCodeDesc")} checked={d.pin_required} onChange={(v) => set("pin_required", v)} />
+            </div>
+          </div>
+          <div hidden={show("branding")} className="sm:col-span-2">
+            <LogoField name={d.name} src={d.logo_url} busy={logoBusy} error={logoErr} onPick={pickLogo} onRemove={() => set("logo_url", null)} />
+          </div>
+          <div hidden={show("language")} className="contents">
+            <div className="border-t sm:col-span-2">
+              <SwitchRow title={t("arabicMenu")} desc={t("arabicMenuDesc")} checked={ar} onChange={(v) => set("second_lang", v ? "ar" : null)} />
+            </div>
+            {ar && (
+              <>
+                <div className="h-4 sm:col-span-2" />
+                {text("name_ar", "nameAr", 60, true)}
+                {text("tagline_ar", "taglineAr", 150, true)}
+              </>
+            )}
+          </div>
+          <div className="mt-4 sm:col-span-2">
+            <Button type="submit" size="sm" disabled={saving}>
+              {saving ? <Loader2 aria-hidden className="animate-spin" /> : saved && <Check aria-hidden />}
+              <span aria-live="polite">{t(saving ? "saving" : saved ? "saved" : "save")}</span>
+            </Button>
+          </div>
+        </form>
+        {sec === "account" && <PasswordForm sb={sb} email={email} />}
       </div>
-      {text("name", "nameEn", 60)}
-      {ar ? text("name_ar", "nameAr", 60, true) : <span className="max-sm:hidden" />}
-      {text("tagline", "taglineEn", 150)}
-      {ar ? text("tagline_ar", "taglineAr", 150, true) : <span className="max-sm:hidden" />}
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="st-currency" className="text-sm font-medium">{t("currencyLabel")}</label>
-        <Input
-          id="st-currency"
-          size="sm"
-          dir="ltr"
-          maxLength={3}
-          autoComplete="off"
-          autoCapitalize="characters"
-          spellCheck={false}
-          className="w-28 uppercase"
-          value={d.currency}
-          aria-invalid={!!errs.currency}
-          aria-describedby="st-currency-hint"
-          onChange={(e) => set("currency", e.target.value.toUpperCase())}
-        />
-        <p id="st-currency-hint" className={errs.currency ? "text-sm text-destructive" : "text-sm text-muted-foreground"}>{errs.currency ?? t("currencyHint")}</p>
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="st-tz" className="text-sm font-medium">{t("timezoneLabel")}</label>
-        <Select value={d.timezone} onValueChange={(v) => set("timezone", v)}>
-          <SelectTrigger id="st-tz" size="sm" className="w-full" aria-describedby="st-tz-hint">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="max-h-80">
-            {zones.map((z) => <SelectItem key={z} value={z}>{z.replaceAll("_", " ")}</SelectItem>)}
-          </SelectContent>
-        </Select>
-        <p id="st-tz-hint" className="text-sm text-muted-foreground">{t("timezoneHint")}</p>
-      </div>
-      <div className="flex flex-col gap-1.5 sm:col-span-2">
-        <label htmlFor="st-service" className="text-sm font-medium">{t("serviceStyle")}</label>
-        <Select value={d.service_mode} onValueChange={(v) => set("service_mode", v as Restaurant["service_mode"])}>
-          <SelectTrigger id="st-service" size="sm" className="w-full sm:max-w-[calc(50%-10px)]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="table">{t("serviceTable")}</SelectItem>
-            <SelectItem value="counter">{t("serviceCounter")}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <div className="mt-4 border-t sm:col-span-2">
-        <SwitchRow title={t("arabicMenu")} desc={t("arabicMenuDesc")} checked={ar} onChange={(v) => set("second_lang", v ? "ar" : null)} />
-        <SwitchRow title={t("pauseOrdering")} desc={t("pauseOrderingDesc")} checked={d.ordering_paused} onChange={(v) => set("ordering_paused", v)} />
-        <SwitchRow title={t("requireCode")} desc={t("requireCodeDesc")} checked={d.pin_required} onChange={(v) => set("pin_required", v)} />
-      </div>
-      <div className="mt-4 sm:col-span-2">
-        <Button type="submit" size="sm" disabled={saving}>
-          {saving ? <Loader2 aria-hidden className="animate-spin" /> : saved && <Check aria-hidden />}
-          <span aria-live="polite">{t(saving ? "saving" : saved ? "saved" : "save")}</span>
-        </Button>
-      </div>
-    </form>
-    <PasswordForm sb={sb} email={email} />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { dayRange, dayStats, ordersByHour, topDishes } from "./stats.ts";
+import { dayRange, dayStats, dishMargins, ordersByHour, salesCostSeries, topDishes } from "./stats.ts";
 import type { Order, Visit } from "./types.ts";
 
 const mk = (o: Partial<Order>, lines: { name: string; name_ar?: string; quantity: number }[] = []) =>
@@ -58,4 +58,25 @@ test("topDishes merges, sorts, excludes cancelled", () => {
   assert.equal(top[0].qty, 3);
   assert.equal(top[1].name, "Fries");
   assert.equal(topDishes([]).length, 0);
+});
+
+const line = (name: string, quantity: number, unit_price_fils: number, cost_fils: number | null) => ({ name, name_ar: "", quantity, unit_price_fils, cost_fils });
+test("dishMargins sums per dish and flags missing costs", () => {
+  const m = dishMargins([
+    { created_at: "2026-11-16T08:00:00Z", order_lines: [line("Burger", 2, 3000, 2400), line("Fries", 1, 1000, null)] },
+    { created_at: "2026-11-16T09:00:00Z", order_lines: [line("Burger", 1, 3000, 1200)] },
+  ]);
+  assert.deepEqual(m.map((d) => [d.name, d.qty, d.sales, d.cost, d.missing]), [["Burger", 3, 9000, 3600, false], ["Fries", 1, 1000, 0, true]]);
+});
+test("salesCostSeries buckets by venue day and keeps empty days", () => {
+  const now = Date.parse("2026-11-16T12:00:00Z");
+  const s = salesCostSeries([
+    { created_at: "2026-11-15T21:30:00Z", order_lines: [line("A", 1, 500, 200)] }, // 16 Nov 01:30 in Dubai
+    { created_at: "2026-11-14T10:00:00Z", order_lines: [line("A", 2, 500, null)] },
+  ], "Asia/Dubai", 3, now);
+  assert.deepEqual(s, [
+    { key: "2026-11-14", sales: 1000, cost: 0 },
+    { key: "2026-11-15", sales: 0, cost: 0 },
+    { key: "2026-11-16", sales: 500, cost: 200 },
+  ]);
 });

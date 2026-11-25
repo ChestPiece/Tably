@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tably showcase frames</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600&family=Fraunces:opsz,wght,SOFT@9..144,500;9..144,600&display=swap" rel="stylesheet">
+<style>
+  /* Tably landing tokens (components/landing/landing.css) */
+  :root {
+    --paper: #F6F1E7; --card: #FFFCF5; --ink: #23271F; --mute: #636757; --line: #E3DACA;
+    --olive: #56662A; --orange: #E08A3C; --orange-2: #F7E2C6; --wood: #EADCC2;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scrollbar-width: none; }
+  ::-webkit-scrollbar { display: none; }
+  body { background: #d9d2c4; font-family: Figtree, system-ui, sans-serif; color: var(--ink); }
+  .frame {
+    position: relative; width: 1600px; height: 1000px; overflow: hidden;
+    background: var(--paper); margin: 0 0 40px;
+  }
+  .serif { font-family: Fraunces, Georgia, serif; font-variation-settings: "SOFT" 100; font-weight: 500; letter-spacing: -0.02em; }
+  h1, h2 { font-family: Fraunces, Georgia, serif; font-variation-settings: "SOFT" 100; font-weight: 500; letter-spacing: -0.025em; text-wrap: balance; }
+  p { text-wrap: pretty; }
+
+  .logo { display: flex; align-items: center; gap: 12px; font-family: Fraunces, Georgia, serif; font-variation-settings: "SOFT" 100; font-weight: 600; font-size: 30px; letter-spacing: -0.02em; }
+  .logo img { width: 40px; height: 40px; }
+
+  /* Browser window */
+  .win { position: absolute; background: var(--card); border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+         box-shadow: 0 40px 80px -40px rgba(35,39,31,.35), 0 2px 6px rgba(35,39,31,.06); }
+  .win .bar { height: 34px; display: flex; align-items: center; gap: 7px; padding: 0 14px; border-bottom: 1px solid var(--line); background: var(--card); }
+  .win .bar i { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .win .bar span { margin-inline-start: 14px; font-size: 13px; color: var(--mute); }
+  .win img { display: block; width: 100%; height: auto; clip-path: inset(2px); }
+
+  /* Phone */
+  .phone { position: absolute; background: var(--ink); border-radius: 46px; padding: 11px;
+           box-shadow: 0 40px 80px -36px rgba(35,39,31,.45), 0 2px 6px rgba(35,39,31,.1); }
+  .phone img { display: block; width: 100%; height: auto; border-radius: 36px; }
+
+  /* Decorative arch, the landing page's shape */
+  .arch { position: absolute; border-radius: 999px 999px 0 0; background: var(--wood); }
+
+  .lede { font-size: 22px; line-height: 1.5; color: var(--mute); }
+  .meta { font-size: 16px; color: var(--mute); display: flex; gap: 10px; align-items: center; }
+  .meta b { width: 5px; height: 5px; border-radius: 50%; background: var(--orange); display: inline-block; }
+
+  .head { position: absolute; left: 100px; top: 84px; width: 620px; }
+  .head h2 { font-size: 52px; line-height: 1.05; margin-bottom: 14px; }
+  .head p { font-size: 20px; line-height: 1.5; color: var(--mute); }
+
+  .notes { list-style: none; border-top: 1px solid var(--line); }
+  .notes li { padding: 16px 0; border-bottom: 1px solid var(--line); font-size: 18px; line-height: 1.45; color: var(--mute); }
+  .notes li strong { display: block; color: var(--ink); font-weight: 600; font-size: 19px; margin-bottom: 2px; }
+
+  .cap { position: absolute; font-size: 17px; color: var(--mute); text-align: center; }
+  .cap strong { display: block; color: var(--ink); font-weight: 600; font-size: 18px; margin-bottom: 2px; }
+</style>
+</head>
+<body>
+
+<!-- 01 Cover: content kept inside y 160..840 so a 21:9 crop still works -->
+<section class="frame" id="f1">
+  <div class="arch" style="left: 1010px; top: 120px; width: 560px; height: 880px;"></div>
+  <div style="position:absolute; left:100px; top:250px; width:440px;">
+    <div class="logo" style="margin-bottom:44px;"><img src="../../public/icon.svg" alt="">Tably</div>
+    <h1 style="font-size:66px; line-height:1.02; margin-bottom:24px;">Put your menu on every table.</h1>
+    <p class="lede" style="margin-bottom:30px;">QR ordering for dine-in restaurants. Guests order from their phone and the kitchen sees it live.</p>
+    <div class="meta">Next.js <b></b> Supabase <b></b> English + Arabic</div>
+  </div>
+  <div class="win" style="left:700px; top:200px; width:820px;">
+    <div class="bar"><i></i><i></i><i></i><span>Owner dashboard</span></div>
+    <img src="raw/owner-home.png" alt="">
+  </div>
+  <div class="phone" style="left:590px; top:330px; width:240px;">
+    <img src="raw/guest-menu.png" alt="">
+  </div>
+</section>
+
+<!-- 02 Guest flow -->
+<section class="frame" id="f2">
+  <div class="arch" style="left: 0; top: 520px; width: 1600px; height: 600px; border-radius: 0; background: var(--wood);"></div>
+  <div class="head" style="width:900px;">
+    <h2>The guest side needs no app</h2>
+    <p>Scan the table code, add a name if you like, and order. English or Arabic, laid out right to left.</p>
+  </div>
+  <div class="phone" style="left:150px; top:270px; width:270px;"><img src="raw/guest-menu.png" alt=""></div>
+  <div class="phone" style="left:490px; top:270px; width:270px;"><img src="raw/guest-item-sheet.png" alt=""></div>
+  <div class="phone" style="left:830px; top:270px; width:270px;"><img src="raw/guest-tracker.png" alt=""></div>
+  <div class="phone" style="left:1170px; top:270px; width:270px;"><img src="raw/guest-menu-ar.png" alt=""></div>
+</section>
+
+<!-- 03 Owner home -->
+<section class="frame" id="f3">
+  <div class="arch" style="left: 1200px; top: 640px; width: 520px; height: 520px;"></div>
+  <div style="position:absolute; left:100px; top:150px; width:380px;">
+    <h2 style="font-size:52px; line-height:1.05; margin-bottom:16px;">The owner's day on one page</h2>
+    <p class="lede" style="font-size:20px; margin-bottom:34px;">Built from the orders themselves. Nothing to enter by hand.</p>
+    <ul class="notes">
+      <li><strong>Profit after food and wages</strong>Each dish has a cost. Each order line keeps the cost it sold at.</li>
+      <li><strong>Orders by hour</strong>Times follow the restaurant's timezone, not the browser.</li>
+      <li><strong>Floor at a glance</strong>Which tables are seated, asking for the bill, or free.</li>
+    </ul>
+  </div>
+  <div class="win" style="left:540px; top:180px; width:1000px;">
+    <div class="bar"><i></i><i></i><i></i><span>Home</span></div>
+    <img src="raw/owner-home.png" alt="">
+  </div>
+</section>
+
+<!-- 04 Order to kitchen -->
+<section class="frame" id="f4">
+  <div class="arch" style="left: 1060px; top: 140px; width: 460px; height: 860px;"></div>
+  <div class="head" style="width:860px;">
+    <h2>From the table to the kitchen, live</h2>
+    <p>Orders land on the staff board the moment the guest sends them. Staff move each ticket on, and the guest's tracker follows.</p>
+  </div>
+  <div class="win" style="left:100px; top:330px; width:900px;">
+    <div class="bar"><i></i><i></i><i></i><span>Staff board</span></div>
+    <img src="raw/staff-board-empty.png" alt="">
+  </div>
+  <div class="phone" style="left:1130px; top:200px; width:320px;"><img src="raw/guest-tracker.png" alt=""></div>
+</section>
+
+<!-- 05 Tables and QR -->
+<section class="frame" id="f5">
+  <div class="arch" style="left: 1100px; top: 160px; width: 440px; height: 840px;"></div>
+  <div class="head" style="width:860px;">
+    <h2>A private QR code for every table</h2>
+    <p>Each table gets a random link, not a table number. If a photo of a code gets shared, replace that link and reprint one card.</p>
+  </div>
+  <div class="win" style="left:100px; top:320px; width:960px;">
+    <div class="bar"><i></i><i></i><i></i><span>Tables &amp; QR</span></div>
+    <img src="raw/tables-qr.png" alt="">
+  </div>
+  <div class="phone" style="left:1150px; top:220px; width:320px;"><img src="raw/guest-welcome.png" alt=""></div>
+</section>
+
+<!-- 06 Thumbnail: work card. Everything inside y 170..830 so 21:9 and OG (1.91:1) crops keep it -->
+<section class="frame" id="f6" style="background: var(--olive);">
+  <div class="arch" style="left: 850px; top: 150px; width: 640px; height: 900px; background: #4C5B24;"></div>
+  <div style="position:absolute; left:110px; top:340px; width:560px; color: var(--paper);">
+    <div class="logo" style="font-size:132px; gap:28px; letter-spacing:-0.035em;"><img src="../../public/icon.svg" alt="" style="width:104px; height:104px;">Tably</div>
+    <p style="font-size:30px; line-height:1.4; margin-top:26px; color:#E4E8CC;">QR table ordering for dine-in restaurants</p>
+  </div>
+  <div class="phone" style="left:720px; top:250px; width:250px; background:#1B1E17;"><img src="raw/guest-welcome.png" alt=""></div>
+  <div class="phone" style="left:995px; top:200px; width:250px; background:#1B1E17;"><img src="raw/guest-menu.png" alt=""></div>
+  <div class="phone" style="left:1270px; top:250px; width:250px; background:#1B1E17;"><img src="raw/guest-tracker.png" alt=""></div>
+</section>
+
+</body>
+</html>

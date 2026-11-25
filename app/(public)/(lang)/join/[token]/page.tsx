@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader } from "@/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useLang, type Key } from "@/lib/i18n";
+import { errorText, useLang, type Key } from "@/lib/i18n";
 import { staffClient } from "@/lib/supabase/browser";
 
 type Info = { email: string; restaurant: string; logo_url: string | null };
@@ -34,7 +34,11 @@ export default function Join() {
 
   async function accept(sb: ReturnType<typeof staffClient>, venue: string, displayName?: string) {
     const { data, error: err } = await sb.rpc("accept_invite", { p_token: token, p_name: displayName || null });
-    if (err) return setView("invalid");
+    if (err) {
+      // A network blip or a coded refusal is not a dead link: say what happened, keep the form.
+      toast.error(errorText(lang, err));
+      return setView("form");
+    }
     const r = data as Result;
     if (r.status !== "joined") {
       setOther(r.restaurant ?? "");

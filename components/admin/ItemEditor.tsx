@@ -203,22 +203,24 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
   const cur = LANGS.find((x) => x.id === tab)!;
 
   return (
-    <ResponsiveSheet open onOpenChange={(o) => !o && !saving && tryClose()} title={t(isNew ? "newItem" : "editItem")} full footer={footer}>
+    <ResponsiveSheet open onOpenChange={(o) => !o && !saving && tryClose()} title={t(isNew ? "newItem" : "editItem")} full rail footer={footer}>
+      {/* Container queries: the editor lives in a ~360px rail on desktop, so viewport breakpoints would pick the wide layout. */}
+      <div className="@container">
       <form
         id="item-editor"
         noValidate
-        className="grid gap-8 md:grid-cols-[200px_minmax(0,1fr)]"
+        className="grid gap-8 @xl:grid-cols-[200px_minmax(0,1fr)]"
         onSubmit={(e) => {
           e.preventDefault();
           save();
         }}
       >
-        <div className="md:sticky md:top-0 md:self-start">
+        <div className="@xl:sticky @xl:top-0 @xl:self-start">
           <div className="flex flex-col gap-1.5">
             <label
               onDragOver={(e) => e.preventDefault()}
               onDrop={onDrop}
-              className="relative grid aspect-square w-32 cursor-pointer place-items-center md:w-full overflow-hidden rounded-lg border border-dashed border-input text-center text-xs text-muted-foreground transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
+              className="relative grid aspect-square w-32 cursor-pointer place-items-center @xl:w-full overflow-hidden rounded-lg border border-dashed border-input text-center text-xs text-muted-foreground transition-colors hover:bg-accent has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
             >
               <input
                 type="file"
@@ -299,7 +301,7 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
 
           <section aria-labelledby="ie-sec-price" className="flex flex-col gap-4 border-t pt-6">
             <h3 id="ie-sec-price" className="text-sm font-semibold">{t("secPrice")}</h3>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="grid gap-4 @sm:grid-cols-2">
               <Field data-invalid={!!errs.price}>
                 <FieldLabel htmlFor="ie-price">{t("basePrice")}</FieldLabel>
                 <div className="relative">
@@ -332,8 +334,8 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
             {opts.map((o, i) => {
               const nk = `o${i}${cur.ek}`;
               return (
-                <div key={o.id} className="grid grid-cols-[minmax(0,1fr)_6rem_6rem_auto] items-start gap-2 max-sm:grid-cols-[minmax(0,1fr)_5rem_5rem_auto]">
-                  <Field data-invalid={!!errs[nk]}>
+                <div key={o.id} className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] items-start gap-2 @sm:grid-cols-[minmax(0,1fr)_6rem_6rem_auto]">
+                  <Field data-invalid={!!errs[nk]} className="col-span-3 @sm:col-span-1">
                     <Input size="sm" dir={cur.dir} aria-label={`${t("optName")} ${i + 1} (${cur.label})`} placeholder={t("optName")} aria-invalid={!!errs[nk]} value={o[cur.opt]} onChange={(e) => setOpt(i, { [cur.opt]: e.target.value })} />
                     {err(nk)}
                   </Field>
@@ -367,6 +369,7 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
         </details>
         </div>
       </form>
+      </div>
       <AlertDialog open={confirmClose} onOpenChange={setConfirmClose}>
         <AlertDialogContent>
           <AlertDialogHeader>

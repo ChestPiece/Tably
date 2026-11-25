@@ -19,14 +19,14 @@ begin
   insert into public.staff_invites (restaurant_id, email) values (rid, 'newbie@invite.test') returning token into tok;
   assert tok is not null, 'invite has a token';
 
-  -- Anyone with the link sees the restaurant and the email; opening marks it
+  -- Anyone with the link sees the restaurant and the email. A link preview must not mark it opened.
   execute 'set local role anon';
   perform set_config('request.jwt.claims', '{"role":"anon"}', true);
   info := public.invite_info(tok);
   assert info->>'email' = 'newbie@invite.test', 'info shows email';
   assert public.invite_info(gen_random_uuid()) is null, 'unknown token is null';
   execute 'reset role';
-  assert (select opened_at is not null from public.staff_invites where token = tok), 'opened_at set';
+  assert (select opened_at is null from public.staff_invites where token = tok), 'preview does not mark opened';
 
   -- An invited email cannot start a restaurant
   perform set_config('request.jwt.claims', json_build_object('sub', newbie, 'role', 'authenticated', 'email', 'newbie@invite.test')::text, true);
@@ -39,6 +39,9 @@ begin
   perform set_config('request.jwt.claims', json_build_object('sub', stranger, 'role', 'authenticated', 'email', 'stranger@invite.test')::text, true);
   res := public.accept_invite(tok, 'Nope');
   assert res->>'status' = 'wrong_email', 'wrong email got ' || (res->>'status');
+  execute 'reset role';
+  assert (select opened_at is not null from public.staff_invites where token = tok), 'signed-in open marks it';
+  execute 'set local role authenticated';
 
   -- The invitee joins with a name; the invite is gone
   perform set_config('request.jwt.claims', json_build_object('sub', newbie, 'role', 'authenticated', 'email', 'newbie@invite.test')::text, true);

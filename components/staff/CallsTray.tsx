@@ -14,18 +14,18 @@ type Props = {
   lang: Lang;
   onCall: CallAction;
   now: number;
-  busyId?: string;
+  busy?: ReadonlySet<string>;
   fresh?: Set<string>;
 };
 
 /** One chip per open waiter/bill call, above the columns. Hidden when there are none. */
-export function CallsTray({ requests, lang, onCall, now, busyId, fresh }: Props) {
+export function CallsTray({ requests, lang, onCall, now, busy, fresh }: Props) {
   if (!requests.length) return null;
   return (
     <section aria-label={tr(lang, "callsTitle")} className="shrink-0 border-b bg-card">
       <ul className="flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]">
         {requests.map((r) => {
-          const busy = busyId === r.id;
+          const isBusy = !!busy?.has(r.id);
           const nudged = !!r.nudged_at && !r.acknowledged_at;
           const bill = r.kind === "bill";
           // The guest's pick goes first; the other method stays one tap away.
@@ -49,18 +49,18 @@ export function CallsTray({ requests, lang, onCall, now, busyId, fresh }: Props)
               </time>
               {r.acknowledged_at && r.ack_name && <span className="text-muted-foreground">{tr(lang, "ackBy").replace("{n}", r.ack_name)}</span>}
               {!r.acknowledged_at ? (
-                <Button size="xs" disabled={busy} onClick={() => onCall(r, "ack")}>
+                <Button disabled={isBusy} onClick={() => onCall(r, "ack")}>
                   {tr(lang, "onMyWay")}
                 </Button>
               ) : bill ? (
                 methods.map((m, i) => (
-                  <Button key={m} size="xs" variant={i === 0 ? "default" : "secondary"} disabled={busy} onClick={() => onCall(r, m)}>
+                  <Button key={m} variant={i === 0 ? "default" : "secondary"} disabled={isBusy} onClick={() => onCall(r, m)}>
                     {m === "cash" ? <Banknote aria-hidden /> : <CreditCard aria-hidden />}
                     {tr(lang, m === "cash" ? "paidCash" : "paidCard")}
                   </Button>
                 ))
               ) : (
-                <Button size="xs" disabled={busy} onClick={() => onCall(r, "done")}>
+                <Button disabled={isBusy} onClick={() => onCall(r, "done")}>
                   {tr(lang, "done")}
                 </Button>
               )}

@@ -1,13 +1,14 @@
 import type { Order, Visit } from "./types.ts";
+import { cached } from "./format.ts";
 
 const live = (orders: Order[]) => orders.filter((o) => o.status !== "cancelled");
 
 const parts = (d: Date, tz: string) => {
   const p = Object.fromEntries(
-    new Intl.DateTimeFormat("en-US", {
+    cached(`parts|${tz}`, () => new Intl.DateTimeFormat("en-US", {
       timeZone: tz, hourCycle: "h23", year: "numeric", month: "numeric", day: "numeric",
       hour: "numeric", minute: "numeric", second: "numeric",
-    }).formatToParts(d).map((x) => [x.type, +x.value]),
+    })).formatToParts(d).map((x) => [x.type, +x.value]),
   );
   return p as Record<"year" | "month" | "day" | "hour" | "minute" | "second", number>;
 };
@@ -62,4 +63,42 @@ export function topDishes(orders: Order[], n = 5) {
       m.set(l.name, d);
     }
   return [...m.values()].sort((a, b) => b.qty - a.qty || a.name.localeCompare(b.name)).slice(0, n);
+}
+
+/** An order line as the profit page reads it: `cost_fils` is null when the dish had no cost set. */
+export type CostLine = { name: string; name_ar: string; quantity: number; unit_price_fils: number; cost_fils: number | null };
+export type CostOrder = { created_at: string; order_lines: CostLine[] };
+
+/** Per dish: sold, order value, food cost; `missing` when any line had no cost (its margin is unknown). Biggest seller first. */
+export function dishMargins(orders: CostOrder[]) {
+  const m = new Map<string, { name: string; name_ar: string; qty: number; sales: number; cost: number; missing: boolean }>();
+  for (const o of orders)
+    for (const l of o.order_lines) {
+      const d = m.get(l.name) ?? { name: l.name, name_ar: l.name_ar, qty: 0, sales: 0, cost: 0, missing: false };
+      d.qty += l.quantity;
+      d.sales += l.unit_price_fils * l.quantity;
+      if (l.cost_fils === null) d.missing = true;
+      else d.cost += l.cost_fils;
+      m.set(l.name, d);
+    }
+  return [...m.values()].sort((a, b) => b.sales - a.sales || a.name.localeCompare(b.name));
+}
+
+/** Order value and food cost per venue day for the last `days` days (per hour when days = 1), oldest first, empty buckets kept. */
+export function salesCostSeries(orders: CostOrder[], tz: string, days: number, now = Date.now()) {
+  const key = (t: number) => {
+    const p = parts(new Date(t), tz);
+    return days === 1 ? String(p.hour) : `${p.year}-${p.month}-${p.day}`;
+  };
+  const keys = days === 1 ? Array.from({ length: 24 }, (_, h) => String(h)) : Array.from({ length: days }, (_, i) => key(now - (days - 1 - i) * 864e5));
+  const out = new Map(keys.map((k) => [k, { key: k, sales: 0, cost: 0 }]));
+  for (const o of orders) {
+    const b = out.get(key(Date.parse(o.created_at)));
+    if (!b) continue;
+    for (const l of o.order_lines) {
+      b.sales += l.unit_price_fils * l.quantity;
+      b.cost += l.cost_fils ?? 0;
+    }
+  }
+  return [...out.values()];
 }

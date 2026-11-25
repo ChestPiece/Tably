@@ -86,6 +86,7 @@ export function MenuAdmin({ sb, mutate, run, restaurant, categories, menu, editi
         <ItemsTable
           items={items}
           busyId={busyId}
+          selected={editing?.id}
           catName={(id) => {
             const c = categories.find((x) => x.id === id);
             return c ? pick(lang, c.name, c.name_ar) : "—";

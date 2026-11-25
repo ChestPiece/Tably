@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ArrowDown, Inbox, Loader2 } from "lucide-react";
+import { ArrowDown, Inbox, Loader2, WifiOff } from "lucide-react";
 import { EmptyState } from "@/components/app/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,11 +16,13 @@ type Props = {
   lang: Lang;
   now: number;
   loaded: boolean;
+  failed: boolean;
+  onRetry: () => void;
   orders: Order[];
   recent: Order[];
   requests: ServiceRequest[];
   fresh: Set<string>;
-  busyId: string;
+  busy: ReadonlySet<string>;
   onAdvance: (o: Order) => void;
   onCancel: (o: Order) => void;
   onCall: CallAction;
@@ -70,7 +72,7 @@ function totals(list: Order[], lang: Lang) {
   return [...m].sort((a, b) => b[1].q - a[1].q);
 }
 
-export function Board({ lang, now, loaded, orders, recent, requests, fresh, busyId, onAdvance, onCancel, onCall }: Props) {
+export function Board({ lang, now, loaded, failed, onRetry, orders, recent, requests, fresh, busy, onAdvance, onCancel, onCall }: Props) {
   const line = orders.filter((o) => o.status === "received" || o.status === "preparing");
   const pass = orders.filter((o) => o.status === "ready").sort((a, b) => (a.ready_at ?? "").localeCompare(b.ready_at ?? ""));
   const late = line.filter((o) => ageTone(now - new Date(o.created_at).getTime()) === "late").length;
@@ -100,7 +102,7 @@ export function Board({ lang, now, loaded, orders, recent, requests, fresh, busy
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <CallsTray requests={requests} lang={lang} now={now} busyId={busyId} fresh={fresh} onCall={onCall} />
+      <CallsTray requests={requests} lang={lang} now={now} busy={busy} fresh={fresh} onCall={onCall} />
 
       {/* Phone / narrow: one pane at a time. */}
       <div role="tablist" aria-label={tr(lang, "jumpTo")} className="flex shrink-0 gap-1 border-b p-2 lg:hidden">
@@ -122,6 +124,19 @@ export function Board({ lang, now, loaded, orders, recent, requests, fresh, busy
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-44 rounded-lg" />
           ))}
+        </div>
+      ) : failed && orders.length === 0 ? (
+        <div className="grid flex-1 place-items-center">
+          <EmptyState
+            icon={WifiOff}
+            title={tr(lang, "boardFailed")}
+            body={tr(lang, "boardFailedBody")}
+            action={
+              <Button variant="secondary" onClick={onRetry}>
+                {tr(lang, "tryAgain")}
+              </Button>
+            }
+          />
         </div>
       ) : orders.length === 0 ? (
         <div className="grid flex-1 place-items-center">
@@ -165,7 +180,6 @@ export function Board({ lang, now, loaded, orders, recent, requests, fresh, busy
                 {line.length > 0 && (
                   <Button
                     variant={showTotals ? "default" : "secondary"}
-                    size="xs"
                     aria-pressed={showTotals}
                     className="ms-auto max-lg:hidden"
                     onClick={() => (setShowTotals((v) => !v), setHighlight(null))}
@@ -176,12 +190,12 @@ export function Board({ lang, now, loaded, orders, recent, requests, fresh, busy
               </div>
               <div ref={setGrid} className="flex items-start gap-3 px-4 pb-24">
                 {line.length === 0 ? (
-                  <p className="py-6 text-sm text-text-2">{tr(lang, "emptyPrep")}</p>
+                  <p className="w-full rounded-lg border border-dashed py-10 text-center text-sm text-text-2">{tr(lang, "emptyPrep")}</p>
                 ) : (
                   deal(line, cols).map((list, i) => (
                     <div key={i} className="flex min-w-0 flex-1 flex-col gap-3">
                       {list.map((o) => (
-                        <OrderCard key={o.id} order={o} now={now} lang={lang} busy={busyId === o.id} fresh={fresh.has(o.id)} highlight={hi} onAdvance={onAdvance} onCancel={onCancel} />
+                        <OrderCard key={o.id} order={o} now={now} lang={lang} busy={!!busy?.has(o.id)} fresh={fresh.has(o.id)} highlight={hi} onAdvance={onAdvance} onCancel={onCancel} />
                       ))}
                     </div>
                   ))
@@ -204,7 +218,7 @@ export function Board({ lang, now, loaded, orders, recent, requests, fresh, busy
               {tr(lang, "atPass")} <span className="text-sm font-medium text-muted-foreground tabular-nums">{pass.length}</span>
             </h2>
             {pass.length === 0 ? (
-              <p className="px-4 py-2 text-sm text-text-2">{tr(lang, "emptyReady")}</p>
+              <p className="mx-2.5 rounded-lg border border-dashed px-4 py-10 text-center text-sm text-text-2">{tr(lang, "emptyReady")}</p>
             ) : (
               <ul className="grid min-h-0 content-start gap-1.5 overflow-y-auto px-2.5 pb-6">
                 {pass.map((o) => {
@@ -225,8 +239,8 @@ export function Board({ lang, now, loaded, orders, recent, requests, fresh, busy
                           <bdi dir="ltr">{formatAge(ms, lang)}</bdi>
                         </span>
                       </span>
-                      <Button variant="secondary" disabled={busyId === o.id} onClick={() => onAdvance(o)} aria-label={`${tr(lang, "actServed")}: ${tableLabel(lang, o.table_number)} #${o.number}`}>
-                        {busyId === o.id && <Loader2 aria-hidden className="animate-spin" />}
+                      <Button variant="secondary" disabled={!!busy?.has(o.id)} onClick={() => onAdvance(o)} aria-label={`${tr(lang, "actServed")}: ${tableLabel(lang, o.table_number)} #${o.number}`}>
+                        {!!busy?.has(o.id) && <Loader2 aria-hidden className="animate-spin" />}
                         {tr(lang, "actServed")}
                       </Button>
                     </li>

@@ -1,4 +1,4 @@
-# ChestBest — remaining tasks
+# Tably — remaining tasks
 
 Updated 2026-11-17. Tick items here as they land. Plan: `docs/superpowers/specs/2026-11-16-qr-ordering-design.md`.
 
@@ -38,7 +38,7 @@ Skills: `web-design-engineer` (lead), `no-ai-design-slop` (gate), `localization-
 - [x] Guest: welcome, menu, item sheet, cart, order tracker, table bill, ended/paused states
 - [x] Staff: login, live board, calls panel, tables & bills
 - [x] Owner: menu admin, tables, QR sheet, settings, staff invites
-- [ ] Loading, empty and error states on every screen
+- [x] Loading, empty and error states on every screen (2026-11-25: `loading.tsx` + `error.tsx` for admin, staff, guest; root `not-found` + `global-error`)
 - [x] Roles merged to Owner + Staff 2026-11-17 (`20261119000001_two_roles.sql`)
 - [ ] Automatic profit 2026-11-17: dish costs, hourly rates, shifts, Profit page (`20261119000002_profit.sql`). Code done; apply both migrations, run `staff_roles.sql` + `costs.sql`, browser check
 - [ ] Live E2E with a real staff login (invite, sign up, Shift mode creates a shift, owner sees wages)
@@ -58,11 +58,16 @@ Skills: `web-design-engineer` (lead), `no-ai-design-slop` (gate), `localization-
 - [ ] Supabase Auth: Site URL + redirect URLs = production domain; min password length 8
 - [ ] Apply `supabase/migrations/20261118000003_home_table.sql` (home QR fallback to first table; SQL editor)
 - [x] Owner dashboard card layout (Reztro feel, Sufra colors) + phone bottom tab bar (2026-11-17)
+- [x] Ops dashboards fit-to-screen redesign (2026-11-25): collapsible sidebar, right detail rail, Home bento, Profit chart + margins, Settings sections, staff `?tab=` + failed/empty states. Spec `docs/superpowers/specs/2026-11-25-ops-dashboard-layout-design.md`
+- [x] Ops rail leftovers (2026-11-25): Team rail (rate, shifts, remove), undo/cancel in order rail, live visit in tables rail
 - [ ] Apply `supabase/migrations/20261118000002_accept_invites_confirmed.sql` (SQL editor; MCP apply was blocked) and keep "Confirm email" on
 - [ ] Custom SMTP (e.g. Resend) before inviting staff: built-in email only reaches project team members, ~2/hour
 - [x] Invites send no email from the app: Team page shows a share link (`/login?invite=<email>`, copy / email / WhatsApp) that opens sign-up with the email filled in
 - [ ] Before real guests: home page back to "scan your table" (drop `HOME_TABLE_SLUG`), scheduled cleanup of old anonymous users
 - [ ] Optional: Turnstile captcha on anonymous sign-in
+
+- [ ] Full review fixes 2026-11-25: apply `20261125000001_review_fixes.sql` then `20261125000002_margin_report.sql` (SQL editor; MCP apply was declined), run `supabase/tests/*.sql` incl. `review_fixes.sql`, `get_advisors`, browser E2E. Do not deploy the client before both are applied
+- [ ] Supabase Auth: turn on leaked-password protection (advisor warning)
 
 ## 6. Cleanup
 - [x] Delete `_legacy/` (2026-11-17)

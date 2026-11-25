@@ -1,3 +1,12 @@
+# Tably — agent instructions
+
+Tably is a QR table ordering SaaS (Next.js 16 + Supabase, Vercel). "ChestBest" is only the demo venue in seed data and demos, never the product name.
+
+- Project context, data rules, UI rules and gotchas: `CLAUDE.md`. Read it first.
+- Which skill to use for which task: `docs/WORKING-DIRECTION.md`.
+- Remaining work: `docs/TASKS.md`. Design system: `design.md`.
+- Public repo: never commit passwords, keys or `.env*` (only `.env.example`). Commit only when the user asks.
+
 <!-- BEGIN:nextjs-agent-rules -->
 
 ## This is NOT the Next.js you know

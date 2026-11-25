@@ -36,6 +36,8 @@ export default function ResetPassword() {
       }
       // getUser waits for the client to finish reading a ?code= and checks the session with the server.
       const { data } = await sb.auth.getUser();
+      // The link is spent: keep its token out of history, screenshots and Referer headers.
+      history.replaceState(null, "", location.pathname);
       setReady(!!data.user);
     })();
   }, []);

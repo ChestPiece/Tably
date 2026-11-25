@@ -1,12 +1,11 @@
 "use client";
-import Link from "next/link";
 import { ChefHat, House, Languages, ListOrdered, LogOut, MonitorPlay, Moon, QrCode, Settings, Sun, TrendingUp, UsersRound, UtensilsCrossed, type LucideIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { useTheme } from "next-themes";
-import { BrandMark } from "@/components/brand";
+import { SidebarBrand, SidebarUserMenu } from "@/components/ops/SidebarChrome";
 import {
-  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuBadge,
+  Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarMenu, SidebarMenuBadge,
   SidebarMenuButton, SidebarMenuItem, SidebarRail, useSidebar,
 } from "@/components/ui/sidebar";
 import { useLang, type Key } from "@/lib/i18n";
@@ -88,15 +87,7 @@ export function AdminSidebar({ page, onPage, venue, me, liveCount }: Props) {
   );
   return (
     <Sidebar collapsible="icon" aria-label={t("adminSections")}>
-      <SidebarHeader className="px-3 pt-4 pb-5">
-        <div className="flex items-center gap-3 px-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-          <BrandMark className="size-7 text-primary" />
-          <div className="min-w-0 group-data-[collapsible=icon]:hidden">
-            <b className="block truncate font-semibold">{venue}</b>
-            <small className="text-sm text-muted-foreground">{t("roleOwner")}</small>
-          </div>
-        </div>
-      </SidebarHeader>
+      <SidebarBrand venue={venue} role={t("roleOwner")} />
       <SidebarContent>
         <SidebarGroup className="py-0">
           <SidebarGroupContent>
@@ -111,34 +102,7 @@ export function AdminSidebar({ page, onPage, venue, me, liveCount }: Props) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter className="border-t">
-        <SidebarMenu>
-          {actions.map((a) => (
-            <SidebarMenuItem key={a.id}>
-              {a.href ? (
-                <SidebarMenuButton asChild tooltip={a.label}>
-                  <Link href={a.href}>
-                    {a.icon}
-                    <span>{a.label}</span>
-                  </Link>
-                </SidebarMenuButton>
-              ) : (
-                <SidebarMenuButton tooltip={a.label} lang={a.lang} onClick={a.onClick}>
-                  {a.icon}
-                  <span>{a.label}</span>
-                </SidebarMenuButton>
-              )}
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-        <div className="flex items-center gap-3 px-2 pt-2 group-data-[collapsible=icon]:hidden">
-          <i aria-hidden className="grid size-8 shrink-0 place-items-center rounded-full bg-muted text-sm font-semibold not-italic">
-            {me.trim().charAt(0).toUpperCase() || "?"}
-          </i>
-          <div className="min-w-0 text-sm">
-            <span className="block truncate">{me}</span>
-            <small className="text-muted-foreground">{t("roleOwner")}</small>
-          </div>
-        </div>
+        <SidebarUserMenu name={me} role={t("roleOwner")} actions={actions} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

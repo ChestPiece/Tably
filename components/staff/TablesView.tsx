@@ -16,12 +16,12 @@ type Props = {
   visits: Visit[];
   orders: Order[];
   now: number;
-  busyId: string;
+  busy: ReadonlySet<string>;
   onPay: (v: Visit, method: "cash" | "card") => Promise<unknown>;
   onClose: (v: Visit) => Promise<unknown>;
 };
 
-export function TablesView({ visits, orders, now, busyId, onPay, onClose }: Props) {
+export function TablesView({ visits, orders, now, busy, onPay, onClose }: Props) {
   const { lang, t } = useLang();
   const venue = useVenue();
   const guests = (n: number) =>
@@ -38,7 +38,7 @@ export function TablesView({ visits, orders, now, busyId, onPay, onClose }: Prop
           const vo = orders.filter((o) => o.visit_id === v.id);
           const kitchen = vo.some((o) => LIVE.includes(o.status));
           const total = vo.filter((o) => o.status !== "cancelled").reduce((n, o) => n + o.total_fils, 0);
-          const busy = busyId === v.id;
+          const isBusy = !!busy?.has(v.id);
           const unpaid = total > 0 && !v.paid_at;
           const reason = kitchen ? t("reasonKitchen") : unpaid ? t("reasonUnpaid") : "";
           const money = venue.money(total);
@@ -50,7 +50,7 @@ export function TablesView({ visits, orders, now, busyId, onPay, onClose }: Prop
               cancelLabel={t("cancel")}
               onConfirm={async () => void (await onPay(v, m))}
               trigger={
-                <Button variant="secondary" disabled={kitchen || busy}>
+                <Button variant="secondary" disabled={kitchen || isBusy}>
                   {icon}
                   {label}
                 </Button>
@@ -87,7 +87,7 @@ export function TablesView({ visits, orders, now, busyId, onPay, onClose }: Prop
                     {pay("card", t("card"), <CreditCard aria-hidden />)}
                   </>
                 )}
-                {reason || busy ? (
+                {reason || isBusy ? (
                   <Button className="col-span-2" disabled>
                     {t("closeTable")}
                   </Button>

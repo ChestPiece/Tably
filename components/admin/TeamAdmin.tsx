@@ -3,12 +3,14 @@ import { Check, Copy, Loader2, Mail, MessageCircle, Send } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { ConfirmAction } from "@/components/app/confirm-action";
+import { ResponsiveSheet } from "@/components/app/responsive-sheet";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { MAX_MINOR, minorToInput, parseMinor } from "@/lib/format";
 import { useLang, type Key } from "@/lib/i18n";
 import { useVenue } from "@/lib/venue";
+import { cn } from "@/lib/utils";
 import type { AdminProps } from "./AdminApp";
 import { Qr } from "./TablesAdmin";
 
@@ -30,7 +32,9 @@ const shiftMs = (s: Shift) => (s.ended_at ? Date.parse(s.ended_at) : Math.min(Da
 
 export function TeamAdmin({ sb, me, rid, venue, team, invites, mutate, run }: AdminProps & { me: string; rid: string; venue: string; team: Member[]; invites: Invite[] }) {
   const { lang, t } = useLang();
-  const { digits, currency } = useVenue();
+  const { digits, currency, money } = useVenue();
+  const [selId, setSelId] = useState<string | null>(null);
+  const sel = team.find((m) => m.user_id === selId) ?? null;
   // Pay and shifts are owner-only tables, loaded here (and reloaded after each change).
   const [rates, setRates] = useState<Record<string, string>>({});
   const [shifts, setShifts] = useState<Shift[]>([]);
@@ -48,6 +52,10 @@ export function TeamAdmin({ sb, me, rid, venue, team, invites, mutate, run }: Ad
     const f = parseMinor(rates[uid] ?? "", digits);
     if (f === null || f > MAX_MINOR) return toast.error(t("badPrice"));
     if (await mutate(() => sb.from("staff_pay").upsert({ restaurant_id: rid, user_id: uid, hourly_rate_fils: f }), t("rateSaved"))) setTick((x) => x + 1);
+  }
+  async function fixHours(s: Shift, hours: number) {
+    const ended = new Date(Date.parse(s.started_at) + hours * 3600e3).toISOString();
+    if (await mutate(() => sb.from("shifts").update({ ended_at: ended }).eq("id", s.id), t("hoursSaved"))) setTick((x) => x + 1);
   }
   const [sharing, setSharing] = useState<Invite | null>(null);
   const [email, setEmail] = useState("");
@@ -76,52 +84,28 @@ export function TeamAdmin({ sb, me, rid, venue, team, invites, mutate, run }: Ad
       <ul className="border-t">
         {team.map((m) => {
           const name = m.display_name ?? t("staffMember");
+          const rate = parseMinor(rates[m.user_id] ?? "", digits);
+          const hrs = shifts.filter((x) => x.user_id === m.user_id).reduce((a, x) => a + shiftMs(x), 0) / 3600e3;
           return (
-            <li key={m.user_id} className="flex items-center gap-4 border-b py-3">
+            // Row opens the member in the right rail (rate, shifts, remove).
+            <li key={m.user_id} className={cn("relative flex items-center gap-4 border-b py-3 hover:bg-muted/50", sel?.user_id === m.user_id && "bg-muted")}>
               <Avatar c={name[0]} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate font-medium">
+                <button
+                  type="button"
+                  aria-current={sel?.user_id === m.user_id || undefined}
+                  onClick={() => setSelId(sel?.user_id === m.user_id ? null : m.user_id)}
+                  className="block max-w-full truncate text-start font-medium outline-none after:absolute after:inset-0 after:content-[''] focus-visible:after:ring-2 focus-visible:after:ring-ring focus-visible:after:ring-inset"
+                >
                   {name}
                   {m.user_id === me && <span className="font-normal text-muted-foreground"> ({t("you")})</span>}
-                </span>
+                </button>
                 <span className="block text-sm text-muted-foreground">{t(roleKey(m.role))}</span>
               </span>
-              <form
-                className="relative w-32 shrink-0"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  saveRate(m.user_id);
-                }}
-              >
-                <Input
-                  size="sm"
-                  inputMode="decimal"
-                  dir="ltr"
-                  autoComplete="off"
-                  placeholder="0.00"
-                  aria-label={n(t("hourlyRateN"), name).replace("{c}", currency)}
-                  className="pe-16 text-start tabular-nums"
-                  value={rates[m.user_id] ?? ""}
-                  onChange={(e) => setRates((p) => ({ ...p, [m.user_id]: e.target.value }))}
-                  onBlur={(e) => e.target.value.trim() && saveRate(m.user_id)}
-                />
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-xs text-muted-foreground">{t("perHour").replace("{c}", currency)}</span>
-              </form>
-              {m.user_id !== me && (
-                <ConfirmAction
-                  tone="destructive"
-                  title={n(t("removeMemberTitle"), name)}
-                  description={t("removeMemberBody")}
-                  confirmLabel={t("remove")}
-                  cancelLabel={t("cancel")}
-                  onConfirm={() => run(() => sb.from("staff_members").delete().eq("restaurant_id", rid).eq("user_id", m.user_id), t("memberRemoved"))}
-                  trigger={
-                    <Button variant="link" size="sm" aria-label={n(t("removeMemberN"), name)}>
-                      {t("remove")}
-                    </Button>
-                  }
-                />
-              )}
+              <span className="text-end text-sm tabular-nums">
+                <span className="block">{rate ? `${money(rate)} / ${t("hShort")}` : <span className="text-muted-foreground">{t("rateNone")}</span>}</span>
+                <span className="block text-muted-foreground">{t("hours14").replace("{h}", hrs.toFixed(1))}</span>
+              </span>
             </li>
           );
         })}
@@ -150,10 +134,54 @@ export function TeamAdmin({ sb, me, rid, venue, team, invites, mutate, run }: Ad
         ))}
       </ul>
 
-      <Shifts shifts={shifts} team={team} lang={lang} onFix={async (s, hours) => {
-        const ended = new Date(Date.parse(s.started_at) + hours * 3600e3).toISOString();
-        if (await mutate(() => sb.from("shifts").update({ ended_at: ended }).eq("id", s.id), t("hoursSaved"))) setTick((x) => x + 1);
-      }} />
+      <Shifts hid="shifts-h" shifts={shifts} team={team} lang={lang} onFix={fixHours} />
+
+      <ResponsiveSheet open={!!sel} onOpenChange={(o) => !o && setSelId(null)} title={sel?.display_name ?? t("staffMember")} description={sel ? t(roleKey(sel.role)) : undefined} full rail>
+        {sel && (
+          <div className="flex flex-col gap-6">
+            <form
+              className="flex flex-col gap-1.5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                saveRate(sel.user_id);
+              }}
+            >
+              <label htmlFor="rail-rate" className="text-sm font-medium">{n(t("hourlyRateN"), sel.display_name ?? t("staffMember")).replace("{c}", currency)}</label>
+              <div className="relative w-40">
+                <Input
+                  id="rail-rate"
+                  size="sm"
+                  inputMode="decimal"
+                  dir="ltr"
+                  autoComplete="off"
+                  placeholder="0.00"
+                  className="pe-16 text-start tabular-nums"
+                  value={rates[sel.user_id] ?? ""}
+                  onChange={(e) => setRates((p) => ({ ...p, [sel.user_id]: e.target.value }))}
+                  onBlur={(e) => e.target.value.trim() && saveRate(sel.user_id)}
+                />
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 end-3 grid place-items-center text-xs text-muted-foreground">{t("perHour").replace("{c}", currency)}</span>
+              </div>
+            </form>
+            <Shifts hid="rail-shifts-h" compact shifts={shifts.filter((x) => x.user_id === sel.user_id)} team={team} lang={lang} onFix={fixHours} />
+            {sel.user_id !== me && (
+              <ConfirmAction
+                tone="destructive"
+                title={n(t("removeMemberTitle"), sel.display_name ?? t("staffMember"))}
+                description={t("removeMemberBody")}
+                confirmLabel={t("remove")}
+                cancelLabel={t("cancel")}
+                onConfirm={() => run(() => sb.from("staff_members").delete().eq("restaurant_id", rid).eq("user_id", sel.user_id), t("memberRemoved")).then(() => setSelId(null))}
+                trigger={
+                  <Button variant="ghost" size="sm" className="self-start text-destructive hover:text-destructive">
+                    {n(t("removeMemberN"), sel.display_name ?? t("staffMember"))}
+                  </Button>
+                }
+              />
+            )}
+          </div>
+        )}
+      </ResponsiveSheet>
 
       <form
         noValidate
@@ -254,14 +282,14 @@ ${link}`;
 }
 
 /** Last 14 days of clock-ins. The owner can correct hours (e.g. a forgotten clock-out, capped at 14 h). */
-function Shifts({ shifts, team, lang, onFix }: { shifts: Shift[]; team: Member[]; lang: "en" | "ar"; onFix: (s: Shift, hours: number) => void }) {
+function Shifts({ hid, compact, shifts, team, lang, onFix }: { hid: string; compact?: boolean; shifts: Shift[]; team: Member[]; lang: "en" | "ar"; onFix: (s: Shift, hours: number) => void }) {
   const { t } = useLang();
   const { money, tz } = useVenue();
   const when = new Intl.DateTimeFormat(lang === "ar" ? "ar-AE-u-nu-latn" : "en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", timeZone: tz });
   return (
-    <section aria-labelledby="shifts-h">
-      <h2 id="shifts-h" className="text-xl font-semibold">{t("shifts")}</h2>
-      <p className="mt-1 mb-4 text-sm text-muted-foreground">{t("shiftsDesc")}</p>
+    <section aria-labelledby={hid}>
+      <h2 id={hid} className={compact ? "mb-2 text-sm font-medium" : "text-xl font-semibold"}>{t("shifts")}</h2>
+      {!compact && <p className="mt-1 mb-4 text-sm text-muted-foreground">{t("shiftsDesc")}</p>}
       {shifts.length === 0 ? (
         <p className="border-t py-6 text-sm text-muted-foreground">{t("noShifts")}</p>
       ) : (
@@ -273,8 +301,8 @@ function Shifts({ shifts, team, lang, onFix }: { shifts: Shift[]; team: Member[]
             return (
               <li key={s.id} className="flex items-center gap-4 border-b py-3 text-sm">
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate font-medium">{name}</span>
-                  <span className="block text-muted-foreground">
+                  {!compact && <span className="block truncate font-medium">{name}</span>}
+                  <span className={compact ? "block" : "block text-muted-foreground"}>
                     {when.format(new Date(s.started_at))}
                     {!s.ended_at && ` · ${t("onShiftNow")}`}
                   </span>

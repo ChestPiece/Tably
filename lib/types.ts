@@ -3,7 +3,7 @@ export type OrderStatus = "received" | "preparing" | "ready" | "served" | "cance
 
 export type Restaurant = {
   id: string; slug: string; name: string; name_ar: string; tagline: string; tagline_ar: string;
-  currency: string; timezone: string; second_lang: "ar" | null; accent: string; service_mode: "table" | "counter"; ordering_paused: boolean; pin_required: boolean; order_counter: number;
+  currency: string; timezone: string; second_lang: "ar" | null; accent: string; service_mode: "table" | "counter"; ordering_paused: boolean; pin_required: boolean;
   logo_url: string | null;
 };
 export type Category = { id: string; restaurant_id: string; name: string; name_ar: string; position: number };

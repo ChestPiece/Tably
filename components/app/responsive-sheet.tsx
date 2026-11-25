@@ -1,9 +1,13 @@
 "use client";
-import type { KeyboardEvent, ReactNode } from "react";
+import { X } from "lucide-react";
+import { createContext, useContext, useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useLang } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -21,7 +25,23 @@ type Props = {
   media?: ReactNode;
   /** Guest sheets: Beiruti 28 title. */
   displayTitle?: boolean;
+  /** From 1280px: render inline in the page's right rail (needs a RailSlot), not over the page. */
+  rail?: boolean;
 };
+
+// The right rail is an <aside> the shell renders; sheets with `rail` portal into it.
+const RailCtx = createContext<{ el: HTMLElement | null; set: (el: HTMLElement | null) => void }>({ el: null, set: () => {} });
+
+export function RailProvider({ children }: { children: ReactNode }) {
+  const [el, set] = useState<HTMLElement | null>(null);
+  return <RailCtx value={{ el, set }}>{children}</RailCtx>;
+}
+
+/** Empty = hidden; below 1280px rails fall back to sheets, so the slot hides there too. */
+export function RailSlot({ label }: { label: string }) {
+  const { set } = useContext(RailCtx);
+  return <aside ref={set} aria-label={label} className="w-[400px] shrink-0 border-s bg-card empty:hidden max-xl:hidden" />;
+}
 
 const body = "relative min-h-0 flex-1 overflow-y-auto px-5 py-4";
 const titleCls = "font-display text-[28px] leading-[1.15] font-semibold";
@@ -37,8 +57,12 @@ function submitOnModEnter(e: KeyboardEvent<HTMLElement>) {
 }
 
 // Drawer below 768px; Dialog from 768px up. Radix wires title/description via aria-labelledby/describedby.
-export function ResponsiveSheet({ open, onOpenChange, title, description, children, footer, full, grid, media, displayTitle }: Props) {
+export function ResponsiveSheet({ open, onOpenChange, title, description, children, footer, full, grid, media, displayTitle, rail }: Props) {
   const wide = useMediaQuery("(min-width: 768px)");
+  const xl = useMediaQuery("(min-width: 1280px)");
+  const slot = useContext(RailCtx).el;
+
+  if (rail && xl && slot) return open ? createPortal(<RailPanel {...{ onOpenChange, title, description, footer }}>{children}</RailPanel>, slot) : null;
   const desc = (D: typeof DialogDescription | typeof DrawerDescription) =>
     description ? <D>{description}</D> : <D className="sr-only">{title}</D>;
 
@@ -88,5 +112,45 @@ export function ResponsiveSheet({ open, onOpenChange, title, description, childr
         {footer && <div className="shrink-0 border-t px-6 py-4">{footer}</div>}
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Non-modal: the list beside it stays usable. Esc closes unless focus is in a portaled popover (select, menu).
+function RailPanel({ onOpenChange, title, description, footer, children }: Pick<Props, "onOpenChange" | "title" | "description" | "footer" | "children">) {
+  const { t } = useLang();
+  const ref = useRef<HTMLElement>(null);
+  // Focus moves in on open and back to the row that opened it on close.
+  useEffect(() => {
+    const back = document.activeElement as HTMLElement | null;
+    ref.current?.focus();
+    return () => {
+      if (back?.isConnected) back.focus();
+    };
+  }, []);
+  return (
+    <section
+      ref={ref}
+      tabIndex={-1}
+      aria-label={title}
+      onKeyDown={(e) => {
+        if (e.key === "Escape" && e.currentTarget.contains(e.target as Node)) {
+          e.preventDefault();
+          onOpenChange(false);
+        } else submitOnModEnter(e);
+      }}
+      className="flex h-full flex-col outline-none"
+    >
+      <header className="flex shrink-0 items-start gap-3 border-b px-6 py-4">
+        <div className="min-w-0 flex-1">
+          <h2 className="truncate text-lg leading-tight font-semibold">{title}</h2>
+          {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
+        </div>
+        <Button variant="ghost" size="icon-sm" className="-me-2 text-muted-foreground" onClick={() => onOpenChange(false)} aria-label={t("close")}>
+          <X aria-hidden />
+        </Button>
+      </header>
+      <div className="relative min-h-0 flex-1 overflow-y-auto px-6 py-5">{children}</div>
+      {footer && <div className="shrink-0 border-t px-6 py-4">{footer}</div>}
+    </section>
   );
 }

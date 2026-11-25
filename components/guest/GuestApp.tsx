@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ensureGuestSession, guestClient } from "@/lib/supabase/guest";
 import { errorText, useLang } from "@/lib/i18n";
-import { ORDER_SELECT, type Category, type MenuItem, type Order, type Restaurant, type ServiceRequest, type Visit } from "@/lib/types";
+import { MENU_SELECT, ORDER_SELECT, type Category, type MenuItem, type Order, type Restaurant, type ServiceRequest, type Visit } from "@/lib/types";
 import { Welcome, ClosedVisit } from "./Welcome";
 import { MenuView } from "./MenuView";
 import { TableView } from "./TableView";
@@ -10,6 +10,7 @@ import { ItemSheet } from "./ItemSheet";
 import { CartSheet } from "./CartSheet";
 import { GuestHeader, CartBar } from "./Chrome";
 import { useVenue } from "@/lib/venue";
+import { applyChange, type Change } from "@/lib/live";
 
 export type CartLine = { key: string; itemId: string; optionId: string | null; quantity: number; unit: number };
 export type Me = { guest_id: string; seq: number; display_name: string | null };
@@ -67,6 +68,8 @@ export function GuestApp(props: {
   const [openItem, setOpenItem] = useState<MenuItem | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [busy, setBusy] = useState(false);
+  // Waiter / bill taps have their own busy flag: they must not freeze the cart, nor the cart them.
+  const [asking, setAsking] = useState(false);
   const [error, setError] = useState("");
   const [online, setOnline] = useState(true);
   const visitId = useRef<string | null>(null);
@@ -146,21 +149,43 @@ export function GuestApp(props: {
     if (phase !== "in" || !visit) return;
     const id = visit.id;
     const refresh = () => loadVisit(id);
+    let first = true;
     const ch = sb
       .channel(`visit-${id}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "orders", filter: `visit_id=eq.${id}` }, refresh)
-      .on("postgres_changes", { event: "*", schema: "public", table: "service_requests", filter: `visit_id=eq.${id}` }, refresh)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "visits", filter: `id=eq.${id}` }, refresh)
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "menu_items", filter: `restaurant_id=eq.${restaurant.id}` }, (p) =>
-        setMenu((m) => m.map((i) => (i.id === p.new.id ? { ...i, ...(p.new as Partial<MenuItem>), item_options: i.item_options } : i))),
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "orders", filter: `visit_id=eq.${id}` }, async (p) => {
+        // The payload has no lines; they commit with the order, so one row fetch gets them.
+        const { data } = await sb.from("orders").select(ORDER_SELECT).eq("id", p.new.id).order("position", { referencedTable: "order_lines" }).maybeSingle();
+        if (data) setOrders((l) => applyChange(l, { eventType: "INSERT", new: data as Order, old: {} }));
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders", filter: `visit_id=eq.${id}` }, (p) =>
+        setOrders((l) => applyChange(l, p as unknown as Change<Order>)),
+      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "service_requests", filter: `visit_id=eq.${id}` }, (p) =>
+        setRequests((l) => applyChange(l, p as unknown as Change<ServiceRequest>)),
+      )
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "visits", filter: `id=eq.${id}` }, (p) =>
+        setVisit((v) => (v ? { ...v, ...(p.new as Partial<Visit>) } : v)),
+      )
+      // New dishes need their options and show on the next visit; edits, sell-outs and removals apply now.
+      .on("postgres_changes", { event: "*", schema: "public", table: "menu_items", filter: `restaurant_id=eq.${restaurant.id}` }, (p) =>
+        p.eventType !== "INSERT" && setMenu((m) => (p.eventType === "DELETE" || m.some((i) => i.id === p.new.id) ? applyChange(m, p as unknown as Change<MenuItem>) : m)),
       )
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "restaurants", filter: `id=eq.${restaurant.id}` }, (p) =>
         setRestaurant((r) => ({ ...r, ...(p.new as Partial<Restaurant>) })),
       )
-      .subscribe((status) => setOnline(status === "SUBSCRIBED"));
+      .subscribe((status) => {
+        setOnline(status === "SUBSCRIBED");
+        // A rejoin after a drop may have missed status changes: catch up once.
+        if (status === "SUBSCRIBED" && !first) refresh();
+        if (status === "SUBSCRIBED") first = false;
+      });
     // A closed visit stops matching RLS, so realtime can't tell us. Poll as a fallback,
     // faster while the bill is asked for so "Paid, thank you" shows soon after staff settle it.
-    const poll = window.setInterval(refresh, visit.bill_requested_at ? 5000 : 15000);
+    // One cheap RPC per tick; the full reload runs only once the visit has ended.
+    const poll = window.setInterval(async () => {
+      const { data: s } = await sb.rpc("guest_session", { p_slug: slug });
+      if (s && s.visit_id !== id) refresh();
+    }, visit.bill_requested_at ? 5000 : 15000);
     const onVisible = () => document.visibilityState === "visible" && refresh();
     document.addEventListener("visibilitychange", onVisible);
     return () => {
@@ -168,7 +193,7 @@ export function GuestApp(props: {
       window.clearInterval(poll);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [phase, visit?.id, visit?.bill_requested_at, restaurant.id, sb, loadVisit]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [phase, visit?.id, visit?.bill_requested_at, restaurant.id, sb, loadVisit, slug]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function join(name: string, pin: string) {
     setBusy(true);
@@ -177,6 +202,7 @@ export function GuestApp(props: {
       await ensureGuestSession();
       const { data, error: e } = await sb.rpc("join_table", { p_slug: slug, p_name: name, p_pin: pin || null });
       if (e) throw e;
+      if (data?.error) throw { message: data.error }; // BAD_PIN / PIN_LOCKED return, not raise, so the miss count sticks
       try {
         localStorage.setItem("cb-name", name);
       } catch {}
@@ -220,6 +246,7 @@ export function GuestApp(props: {
         p_request_id: attempt.requestId,
         p_lines: attempt.lines.map((l) => ({ item_id: l.itemId, option_id: l.optionId, quantity: l.quantity, expected_price: l.unit })),
         p_note: attempt.note || null,
+        p_visit: visitId.current,
       });
       if (e) throw e;
       setPending(null);
@@ -238,17 +265,48 @@ export function GuestApp(props: {
         store.set(`cb-pending-${slug}`, null);
       }
       if (code === "VISIT_CLOSED") setPhase("closed");
+      if (code === "PRICE_CHANGED" || code === "UNAVAILABLE") await refreshCart();
       setError(errorText(lang, e));
     } finally {
       setBusy(false);
     }
   }
 
+  // The server refused the cart's prices: reload the menu, re-price lines, drop what is gone.
+  async function refreshCart() {
+    const { data } = await sb
+      .from("menu_items")
+      .select(MENU_SELECT)
+      .eq("restaurant_id", restaurant.id)
+      .order("position")
+      .order("position", { referencedTable: "item_options" });
+    if (!data) return;
+    const fresh = data as MenuItem[];
+    setMenu(fresh);
+    setCart((c) => {
+      // Re-priced lines can land on a key the cart already has: merge them (max 20, like addToCart).
+      const out = new Map<string, CartLine>();
+      for (const l of c) {
+        const item = fresh.find((i) => i.id === l.itemId);
+        if (!item?.available) continue;
+        const opt = item.item_options.find((o) => o.id === l.optionId);
+        if (l.optionId ? !opt : item.item_options.length > 0) continue;
+        const unit = item.price_fils + (opt?.price_fils ?? 0);
+        const key = `${l.itemId}:${l.optionId ?? "-"}:${unit}`;
+        const hit = out.get(key);
+        out.set(key, { ...l, unit, key, quantity: Math.min(20, (hit?.quantity ?? 0) + l.quantity) });
+      }
+      return [...out.values()];
+    });
+  }
+
   async function request(kind: "waiter" | "bill", method?: "cash" | "card") {
-    setBusy(true);
+    if (asking) return;
+    setAsking(true);
     setError("");
-    const { error: e } = kind === "waiter" ? await sb.rpc("call_waiter") : await sb.rpc("request_bill", { p_method: method ?? null });
-    setBusy(false);
+    const p_visit = visitId.current;
+    const { error: e } = kind === "waiter" ? await sb.rpc("call_waiter", { p_visit }) : await sb.rpc("request_bill", { p_method: method ?? null, p_visit });
+    setAsking(false);
     if (e) {
       if (e.message === "VISIT_CLOSED") setPhase("closed");
       return setError(errorText(lang, e));
@@ -342,7 +400,7 @@ export function GuestApp(props: {
           menu={menu}
           requests={requests}
           serviceMode={restaurant.service_mode}
-          busy={busy}
+          busy={asking}
           onRequest={request}
           onNudge={nudge}
           onOrderMore={() => {

@@ -1,10 +1,13 @@
 "use client";
-import { HourChart } from "@/components/admin/HourChart";
-import { PANEL, StatusDonut } from "@/components/admin/OwnerHome";
+import dynamic from "next/dynamic";
+import { PANEL } from "@/components/admin/OwnerHome";
 import { useLang, type Key } from "@/lib/i18n";
 import { dayStats, ordersByHour, topDishes } from "@/lib/stats";
 import { pick, type Order } from "@/lib/types";
 import { useVenue } from "@/lib/venue";
+
+const HourChart = dynamic(() => import("@/components/admin/HourChart").then((m) => m.HourChart), { ssr: false, loading: () => <div className="h-full min-h-40" /> });
+const StatusDonut = dynamic(() => import("@/components/admin/StatusDonut").then((m) => m.StatusDonut), { ssr: false, loading: () => <div className="h-28" /> });
 
 const NO_WEEK = new Array<number>(24).fill(0);
 
