@@ -39,6 +39,7 @@ export function SidebarBrand({ venue, role }: { venue: string; role: string }) {
 /** One user row; theme, language, links and sign out live in its menu. */
 export function SidebarUserMenu({ name, role, actions, tall }: { name: string; role: string; actions: OwnerAction[]; tall?: boolean }) {
   const { isMobile } = useSidebar();
+  const { lang } = useLang();
   const initial = name.trim().charAt(0).toUpperCase() || "?";
   const last = actions.length - 1;
   return (
@@ -57,7 +58,7 @@ export function SidebarUserMenu({ name, role, actions, tall }: { name: string; r
               <ChevronsUpDown aria-hidden className="ms-auto size-4 text-muted-foreground" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent side={isMobile ? "top" : "right"} align="end" className="min-w-56">
+          <DropdownMenuContent side={isMobile ? "top" : lang === "ar" ? "left" : "right"} align="end" className="min-w-56">
             <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{name}</DropdownMenuLabel>
             <DropdownMenuSeparator />
             {actions.map((a, i) => (

@@ -17,8 +17,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { MAX_MINOR, minorToInput, parseMinor } from "@/lib/format";
 import { useVenue } from "@/lib/venue";
 import { errorText, useLang } from "@/lib/i18n";
-import { pick, type Category, type ItemOption, type MenuItem } from "@/lib/types";
+import { pick, type Category, type ItemAddon, type ItemOption, type MenuItem } from "@/lib/types";
 import type { AdminProps } from "./AdminApp";
+import { Switch } from "@/components/ui/switch";
+import { AddonsField, PairingsField, TagsField, type AddonRow } from "./ItemExtras";
 
 type Props = AdminProps & {
   rid: string;
@@ -26,6 +28,8 @@ type Props = AdminProps & {
   item: MenuItem | null;
   isNew: boolean;
   categories: Category[];
+  /** Whole menu, for picking pairings. */
+  menu: MenuItem[];
   onClose: () => void;
   onSaved: () => void;
   onDeleted: () => void;
@@ -46,7 +50,9 @@ const MAX_PHOTO = 5 * 1024 * 1024;
 const toRows = (m: MenuItem, digits: number, costs: Map<string | null, number> = new Map()): OptRow[] =>
   m.item_options.map((o) => ({ ...o, aed: minorToInput(o.price_fils, digits), cost: costs.has(o.id) ? minorToInput(costs.get(o.id)!, digits) : "" }));
 
-function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSaved, onDeleted }: Props & { item: MenuItem }) {
+const toAddons = (m: MenuItem, digits: number): AddonRow[] => (m.item_addons ?? []).map((a) => ({ ...a, aed: minorToInput(a.price_fils, digits) }));
+
+function Editor({ sb, mutate, run, rid, item, isNew, categories, menu, onClose, onSaved, onDeleted }: Props & { item: MenuItem }) {
   const { lang, t } = useLang();
   const { digits, currency, secondLang } = useVenue();
   // Arabic fields exist only when the restaurant has an Arabic menu.
@@ -57,7 +63,11 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
   const [price, setPrice] = useState(filsToInput(item.price_fils));
   const [opts, setOpts] = useState(() => toRows(item, digits));
   const [cost, setCost] = useState("");
-  const [initial, setInitial] = useState(() => JSON.stringify([item, filsToInput(item.price_fils), toRows(item, digits), ""]));
+  const [addons, setAddons] = useState(() => toAddons(item, digits));
+  const [pairs, setPairs] = useState<string[]>([]);
+  // null until this dish's pairings have loaded: saving earlier must not wipe them.
+  const [pairsInit, setPairsInit] = useState<string | null>(isNew ? "[]" : null);
+  const [initial, setInitial] = useState(() => JSON.stringify([item, filsToInput(item.price_fils), toRows(item, digits), "", toAddons(item, digits)]));
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [photoErr, setPhotoErr] = useState("");
@@ -65,8 +75,14 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
   const [errs, setErrs] = useState<Record<string, string>>({});
   const [tab, setTab] = useState<LangId>(lang === "ar" && secondLang ? "ar" : "en");
   const [optsOpen, setOptsOpen] = useState(item.item_options.length > 0);
+  const [addonsOpen, setAddonsOpen] = useState((item.item_addons ?? []).length > 0);
   const set = <K extends keyof MenuItem>(k: K, v: MenuItem[K]) => setD((p) => ({ ...p, [k]: v }));
-  const dirty = JSON.stringify([d, price, opts, cost]) !== initial;
+  const dirty = JSON.stringify([d, price, opts, cost, addons]) !== initial || (pairsInit !== null && JSON.stringify(pairs) !== pairsInit);
+  // A max that meant "all of them" keeps meaning that as rows come and go.
+  const setAddonRows = (rows: AddonRow[]) => {
+    if (d.addon_max >= addons.length) set("addon_max", Math.min(10, rows.length));
+    setAddons(rows);
+  };
 
   // Costs are owner-only (item_costs), so they load here rather than with the guest-readable menu.
   useEffect(() => {
@@ -78,7 +94,13 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
       const rows = toRows(item, digits, m);
       setCost(base);
       setOpts(rows);
-      setInitial(JSON.stringify([item, filsToInput(item.price_fils), rows, base]));
+      setInitial(JSON.stringify([item, filsToInput(item.price_fils), rows, base, toAddons(item, digits)]));
+    });
+    sb.from("item_pairings").select("pairs_with_id").eq("item_id", item.id).then(({ data, error }) => {
+      if (error) return;
+      const ids = (data ?? []).map((p) => p.pairs_with_id as string);
+      setPairs(ids);
+      setPairsInit(JSON.stringify(ids));
     });
   }, [sb, item, isNew]); // eslint-disable-line react-hooks/exhaustive-deps -- digits is fixed per restaurant
   // Esc, overlay, X and Cancel all land here: ask before throwing away edits.
@@ -120,6 +142,11 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
       if (badPrice(optFils[i])) e[`o${i}p`] = badPrice(optFils[i]);
       if (o.cost.trim() && badPrice(optCost[i])) e[`o${i}c`] = badPrice(optCost[i]);
     });
+    const addonFils = addons.map((a) => parseFils(a.aed));
+    addons.forEach((a, i) => {
+      if (!a.name.trim()) e[`a${i}n`] = t("required");
+      if (badPrice(addonFils[i])) e[`a${i}p`] = badPrice(addonFils[i]);
+    });
     setErrs(e);
     const keys = Object.keys(e);
     if (keys.length) {
@@ -129,14 +156,18 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
       const next: LangId = en && (tab === "en" || !ar) ? "en" : ar ? "ar" : tab;
       setTab(next);
       if (keys.some((k) => k.startsWith("o"))) setOptsOpen(true);
+      if (keys.some((k) => /^a\d/.test(k))) setAddonsOpen(true);
       requestAnimationFrame(() => document.querySelector<HTMLElement>(`#ie-${next} [aria-invalid=true], #ie-price[aria-invalid=true], #ie-cost[aria-invalid=true], #item-editor details [aria-invalid=true]`)?.focus());
       return;
     }
     setSaving(true);
-    const { item_options: _ignored, ...row } = d;
+    const { item_options: _ignored, item_addons: _ignored2, ...row } = d;
     void _ignored;
+    void _ignored2;
     const ok = await mutate(async () => {
-      const r1 = await sb.from("menu_items").upsert({ ...row, price_fils: fils ?? 0, badge: row.badge || null, badge_ar: row.badge_ar || null });
+      const r1 = await sb.from("menu_items").upsert({
+        ...row, price_fils: fils ?? 0, badge: row.badge || null, badge_ar: row.badge_ar || null, addon_max: Math.min(row.addon_max, addons.length),
+      });
       if (r1.error) return r1;
       const keep = opts.map((o) => o.id);
       const r2 = await sb.from("item_options").delete().eq("item_id", d.id).not("id", "in", `(${keep.length ? keep.join(",") : "00000000-0000-0000-0000-000000000000"})`);
@@ -146,6 +177,23 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
           opts.map((o, i): ItemOption => ({ id: o.id, item_id: d.id, restaurant_id: rid, name: o.name, name_ar: o.name_ar, price_fils: optFils[i] ?? 0, position: i + 1 })),
         );
         if (r3.error) return r3;
+      }
+      const keepA = addons.map((a) => a.id);
+      const r5 = await sb.from("item_addons").delete().eq("item_id", d.id).not("id", "in", `(${keepA.length ? keepA.join(",") : "00000000-0000-0000-0000-000000000000"})`);
+      if (r5.error) return r5;
+      if (addons.length) {
+        const r6 = await sb.from("item_addons").upsert(
+          addons.map((a, i): ItemAddon => ({ id: a.id, item_id: d.id, restaurant_id: rid, name: a.name.trim(), name_ar: a.name_ar.trim(), price_fils: addonFils[i] ?? 0, position: i + 1 })),
+        );
+        if (r6.error) return r6;
+      }
+      if (pairsInit !== null && JSON.stringify(pairs) !== pairsInit) {
+        const r7 = await sb.from("item_pairings").delete().eq("item_id", d.id);
+        if (r7.error) return r7;
+        if (pairs.length) {
+          const r8 = await sb.from("item_pairings").insert(pairs.map((p) => ({ item_id: d.id, pairs_with_id: p, restaurant_id: rid })));
+          if (r8.error) return r8;
+        }
       }
       // Replace this dish's costs; past orders keep their own snapshot.
       const r4 = await sb.from("item_costs").delete().eq("item_id", d.id);
@@ -323,6 +371,19 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
             </div>
           </section>
 
+          <section aria-labelledby="ie-sec-sell" className="flex flex-col gap-5 border-t pt-6">
+            <h3 id="ie-sec-sell" className="text-sm font-semibold">{t("secSelling")}</h3>
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <label htmlFor="ie-featured" className="text-sm font-medium">{t("featuredLabel")}</label>
+                <p className="text-sm text-muted-foreground">{t("featuredHint")}</p>
+              </div>
+              <Switch id="ie-featured" checked={d.featured} onCheckedChange={(v) => set("featured", v)} />
+            </div>
+            <TagsField value={d.tags ?? []} onChange={(v) => set("tags", v)} />
+            {pairsInit !== null && <PairingsField itemId={d.id} menu={menu} value={pairs} onChange={setPairs} />}
+          </section>
+
         <details open={optsOpen} onToggle={(e) => setOptsOpen(e.currentTarget.open)} className="group border-t pt-6">
           <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 font-medium [&::-webkit-details-marker]:hidden">
             <ChevronRight aria-hidden className="size-4 text-muted-foreground transition-transform group-open:rotate-90 rtl:-scale-x-100" />
@@ -365,6 +426,26 @@ function Editor({ sb, mutate, run, rid, item, isNew, categories, onClose, onSave
             >
               <Plus aria-hidden /> {t("addOption")}
             </Button>
+          </div>
+        </details>
+
+        <details open={addonsOpen} onToggle={(e) => setAddonsOpen(e.currentTarget.open)} className="group border-t pt-6">
+          <summary className="flex min-h-10 cursor-pointer list-none items-center gap-2 font-medium [&::-webkit-details-marker]:hidden">
+            <ChevronRight aria-hidden className="size-4 text-muted-foreground transition-transform group-open:rotate-90 rtl:-scale-x-100" />
+            {t("addOns")}
+            {addons.length > 0 && <span className="font-normal text-muted-foreground tabular-nums">{addons.length}</span>}
+          </summary>
+          <div className="pt-2">
+            <AddonsField
+              rows={addons}
+              max={d.addon_max}
+              langField={cur.opt}
+              dir={cur.dir}
+              errs={errs}
+              onRows={setAddonRows}
+              onMax={(n) => set("addon_max", n)}
+              newRow={() => ({ id: crypto.randomUUID(), item_id: d.id, restaurant_id: rid, name: "", name_ar: "", price_fils: 0, position: addons.length + 1, aed: filsToInput(0) })}
+            />
           </div>
         </details>
         </div>

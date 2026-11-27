@@ -2,7 +2,8 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import QRCode from "qrcode";
 import { getStaff, serverClient } from "@/lib/supabase/server";
-import { BrandMark } from "@/components/brand";
+import { BrandMark, VenueMark } from "@/components/brand";
+import { brandTokens } from "@/lib/brand";
 import { QrToolbar } from "./PrintButton";
 
 export const dynamic = "force-dynamic";
@@ -17,11 +18,12 @@ export default async function QrSheet() {
   if (!staff || staff.role !== "owner") redirect("/login");
   const sb = await serverClient();
   const [{ data: r }, { data: tables }] = await Promise.all([
-    sb.from("restaurants").select("name, name_ar, pin_required").eq("id", staff.restaurantId).single(),
+    sb.from("restaurants").select("name, name_ar, pin_required, accent, logo_url").eq("id", staff.restaurantId).single(),
     sb.from("tables").select("number, qr_slug, pin").eq("restaurant_id", staff.restaurantId).order("number"),
   ]);
   const h = await headers();
   const origin = process.env.NEXT_PUBLIC_SITE_URL ?? `${h.get("x-forwarded-proto") ?? "http"}://${h.get("host")}`;
+  const brand = brandTokens(r?.accent ?? "", "sufra");
   const cards = await Promise.all(
     (tables ?? []).map(async (t) => ({
       ...t,
@@ -35,11 +37,11 @@ export default async function QrSheet() {
     <main
       className="mx-auto max-w-[340mm] p-4 sm:p-6 print:max-w-none print:p-0"
       // Printed cards are guest-facing: keep the editorial type, not the owner UI's Inter.
-      style={{ "--font-display": "var(--nf-display), ui-serif, Georgia, serif", "--font-sans": "var(--nf-sans), system-ui, sans-serif" } as React.CSSProperties}
+      style={{ "--font-display": "var(--nf-display), ui-serif, Georgia, serif", "--font-sans": "var(--nf-sans), system-ui, sans-serif", "--brand": brand["--brand"], "--on-brand": brand["--on-brand"] } as React.CSSProperties}
     >
       <style>{`@media print { @page { size: A4 landscape; margin: 5mm; } html, body { background: #fff !important; } }`}</style>
       <QrToolbar origin={origin} />
-      <div className="flex flex-wrap justify-center gap-6 print:gap-[3mm] print:[zoom:0.93]">
+      <div className="flex flex-wrap justify-center gap-6 print:gap-[3mm] print:[zoom:0.93] max-[440px]:[zoom:0.75]">
         {cards.map((c) => (
           <div
             key={c.qr_slug}
@@ -59,7 +61,8 @@ export default async function QrSheet() {
                 Table code {c.pin} · <span lang="ar" dir="rtl">رمز الطاولة {c.pin}</span>
               </span>
             )}
-            <span className="mt-auto font-display text-[5mm] leading-[1.2] font-semibold">{r?.name}</span>
+            {r?.logo_url && <VenueMark name={r.name} logo={r.logo_url} className="mt-auto mb-[2mm] size-[14mm]" />}
+            <span className={`${r?.logo_url ? "" : "mt-auto "}font-display text-[5mm] leading-[1.2] font-semibold`}>{r?.name}</span>
             {r?.name_ar && (
               <span lang="ar" dir="rtl" className="font-display text-[4.6mm] leading-[1.4] font-semibold">
                 {r.name_ar}

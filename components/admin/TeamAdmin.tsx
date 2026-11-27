@@ -258,7 +258,7 @@ ${link}`;
             </Button>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid gap-2 sm:grid-cols-2">
           <Button variant="secondary" size="sm" asChild>
             <a href={`https://wa.me/?text=${encodeURIComponent(msg)}`} target="_blank" rel="noreferrer">
               <MessageCircle aria-hidden />

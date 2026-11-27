@@ -57,7 +57,7 @@ export function ProfitPage({ sb, onMenu }: Pick<AdminProps, "sb"> & { onMenu: ()
 
   return (
     // From 1280px the page fits the screen: KPIs on top, chart and dish table share the rest and scroll inside.
-    <div className="flex flex-col gap-4 max-sm:gap-3 xl:min-h-0 xl:flex-1">
+    <div className="@container flex flex-col gap-4 max-sm:gap-3 fit:min-h-0 fit:flex-1">
       <div className="flex shrink-0 flex-wrap items-center gap-x-4 gap-y-2">
         <ToggleGroup type="single" variant="segmented" value={String(days)} onValueChange={(v) => v && setDays(Number(v) as Span)} aria-label={t("pRange")}>
           {SPANS.map(([d, k]) => (
@@ -76,14 +76,14 @@ export function ProfitPage({ sb, onMenu }: Pick<AdminProps, "sb"> & { onMenu: ()
         )}
       </div>
 
-      <dl className="grid shrink-0 grid-cols-4 rounded-2xl bg-card ring-1 ring-border max-[1100px]:grid-cols-2" aria-busy={!r}>
+      <dl className="grid shrink-0 grid-cols-2 rounded-2xl bg-card ring-1 ring-border @3xl:grid-cols-4" aria-busy={!r}>
         {cards.map(([label, k, note]) => {
           const v = r?.[k] ?? null;
           const d = v !== null && p ? v - p[k] : null;
           return (
-            <div key={k} className="flex min-w-0 flex-col border-border px-5 py-4 not-first:border-s max-[1100px]:nth-3:border-s-0 max-[1100px]:nth-[n+3]:border-t max-sm:px-4">
+            <div key={k} className="flex min-w-0 flex-col border-border px-5 py-4 not-first:border-s @max-3xl:nth-3:border-s-0 @max-3xl:nth-[n+3]:border-t max-sm:px-4">
               <dt className="order-2 mt-1.5 text-sm font-medium">{t(label)}</dt>
-              <dd className={`order-1 font-display text-[30px] leading-none font-semibold tracking-tight whitespace-nowrap tabular-nums max-sm:text-[24px] ${k === "profit_fils" && v !== null && v < 0 ? "text-destructive" : ""}`}>
+              <dd className={`order-1 truncate font-display text-[clamp(20px,4cqi,30px)] leading-none font-semibold tracking-tight tabular-nums ${k === "profit_fils" && v !== null && v < 0 ? "text-destructive" : ""}`}>
                 {v === null ? "—" : money(v)}
               </dd>
               <dd className="order-3 text-[13px] text-muted-foreground">{note}</dd>
@@ -101,7 +101,7 @@ export function ProfitPage({ sb, onMenu }: Pick<AdminProps, "sb"> & { onMenu: ()
         })}
       </dl>
 
-      <div className="grid gap-4 max-sm:gap-3 xl:min-h-0 xl:flex-1 xl:grid-cols-2 2xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="grid gap-4 max-sm:gap-3 fit:min-h-0 fit:flex-1 xl:grid-cols-2 2xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
         <SalesCostChart orders={orders} days={days} />
         <DishMargins orders={orders} />
       </div>
@@ -141,7 +141,7 @@ function SalesCostChart({ orders, days }: { orders: CostOrder[] | null; days: nu
         </div>
       </div>
       <div className="relative min-h-0 flex-1" dir="ltr">
-        <ChartContainer config={config} className="aspect-[640/240] w-full xl:aspect-auto xl:h-full">
+        <ChartContainer config={config} className="aspect-[640/240] w-full fit:aspect-auto fit:h-full">
           <BarChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -12 }} barGap={2} accessibilityLayer>
             <CartesianGrid vertical={false} />
             <XAxis dataKey="key" tickLine={false} axisLine={false} tickMargin={8} minTickGap={12} tickFormatter={label} />

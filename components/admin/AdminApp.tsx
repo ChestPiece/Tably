@@ -16,6 +16,7 @@ import { useVenue } from "@/lib/venue";
 import { staffClient } from "@/lib/supabase/browser";
 import { pick, type Category, type MenuItem, type Restaurant, type TableRow } from "@/lib/types";
 import { AdminSidebar, OWNER_PAGES, type OwnerPage } from "./AdminSidebar";
+import { FeedbackPage } from "./FeedbackPage";
 import { BottomNav } from "./BottomNav";
 import { BulkDishes } from "./BulkDishes";
 import { MenuAdmin, blankItem } from "./MenuAdmin";
@@ -123,6 +124,7 @@ export function AdminApp(props: {
     board: { sub: t("boardSub") },
     orders: { sub: t("ordersSub") },
     profit: { sub: t("profitSub") },
+    feedback: { sub: t("fbSub") },
     menu: {
       sub: `${props.menu.length} ${t(props.menu.length === 1 ? "dishOne" : "dishes")}`,
       acts: (
@@ -170,7 +172,7 @@ export function AdminApp(props: {
         <div className="flex min-w-0 flex-1 flex-col">
         <div className="relative min-h-0 flex-1 overflow-y-auto">
         {/* Home (once the first-run steps are done) and Profit fit the screen from 1280px; other pages flow and scroll here. */}
-        <div className={cn("mx-auto w-full max-w-[1320px] px-8 pt-8 pb-12 max-lg:pb-32 max-[900px]:px-4 max-[900px]:pt-5", fit && "xl:flex xl:h-full xl:flex-col xl:pb-8")}>
+        <div className={cn("mx-auto w-full max-w-[1320px] px-8 pt-8 pb-12 max-lg:pb-32 max-[900px]:px-4 max-[900px]:pt-5", fit && "fit:flex fit:h-full fit:flex-col fit:pb-8", page === "board" && "flex h-full flex-col")}>
           <div className="mb-5 flex items-center gap-2.5 lg:hidden">
             <BrandMark className="size-6 text-primary" />
             <span className="truncate font-semibold">{venue}</span>
@@ -189,12 +191,13 @@ export function AdminApp(props: {
             </>
           )}
           {page === "profit" && <ProfitPage sb={sb} onMenu={() => setPage("menu")} />}
+          {page === "feedback" && <FeedbackPage sb={sb} />}
           {page === "board" && (
-            <div className="h-[calc(100dvh-12rem)] min-h-[480px] overflow-hidden rounded-2xl bg-card ring-1 ring-border max-lg:h-[calc(100dvh-17rem)]">
+            <div className="min-h-[480px] flex-1 overflow-hidden rounded-2xl bg-card ring-1 ring-border short:min-h-[320px]">
               <StaffBoard restaurant={r} role="owner" embedded />
             </div>
           )}
-          {page !== "home" && page !== "board" && page !== "profit" && (
+          {page !== "home" && page !== "board" && page !== "profit" && page !== "feedback" && (
             <div className={`${PANEL} ${page === "team" ? "max-w-3xl" : page === "settings" ? "max-w-4xl" : ""}`}>
               {page === "orders" && <OwnerOrders {...common} orders={today.orders} filter={filter} onFilter={(f) => go({ filter: f === "all" ? null : f })} selected={params.get("sel")} onSelect={(id) => go({ sel: id })} />}
               {page === "menu" && <MenuAdmin {...common} restaurant={r} categories={props.categories} menu={props.menu} editing={editing} onEdit={setEditing} />}

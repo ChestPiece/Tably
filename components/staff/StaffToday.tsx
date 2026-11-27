@@ -26,8 +26,8 @@ export function StaffToday({ orders }: { orders: Order[] }) {
     ["kKitchen", s.kitchenMedianMin === null ? "—" : `${s.kitchenMedianMin} ${t("minShort")}`],
   ];
   return (
-    <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 p-5 max-sm:p-3">
-      <dl className="grid grid-cols-5 gap-4 max-[1000px]:grid-cols-3 max-sm:grid-cols-2 max-sm:gap-3">
+    <div className="@container mx-auto flex w-full max-w-[1200px] flex-col gap-4 p-5 max-sm:p-3">
+      <dl className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @xl:gap-4 @4xl:grid-cols-5">
         {kpis.map(([k, v]) => (
           <div key={k} className={`${PANEL} flex flex-col`}>
             <dt className="order-2 mt-2 text-sm text-muted-foreground">{t(k)}</dt>
@@ -35,8 +35,8 @@ export function StaffToday({ orders }: { orders: Order[] }) {
           </div>
         ))}
       </dl>
-      <div className="grid grid-cols-3 gap-4 max-[1000px]:grid-cols-1">
-        <div className={`${PANEL} col-span-2 max-[1000px]:col-span-1`}>
+      <div className="grid gap-4 @4xl:grid-cols-3">
+        <div className={`${PANEL} @4xl:col-span-2`}>
           <HourChart today={ordersByHour(orders, tz)} lastWeek={NO_WEEK} />
         </div>
         <div className="flex flex-col gap-4">

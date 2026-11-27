@@ -3,7 +3,8 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { Plus } from "lucide-react";
 import { useLang } from "@/lib/i18n";
-import { pick, type Category, type MenuItem } from "@/lib/types";
+import { pick, type Category, type MenuItem, type MenuTag } from "@/lib/types";
+import { isSimple, rankSection, type Signals, type Via } from "@/lib/menu";
 import { Arch } from "@/components/app/arch";
 import { QuantityStepper } from "@/components/app/quantity-stepper";
 import { Button } from "@/components/ui/button";
@@ -18,18 +19,26 @@ export function MenuView({
   onOpen,
   onQuickAdd,
   onSetQty,
+  signals,
+  top,
 }: {
   categories: Category[];
+  signals: Signals;
+  /** Shown above Quick picks (the returning guest's usual). */
+  top?: React.ReactNode;
   menu: MenuItem[];
   disabled: boolean;
   /** Quantity of an item already in the cart (all options summed). */
   inCart: (itemId: string) => number;
-  onOpen: (i: MenuItem) => void;
-  onQuickAdd: (i: MenuItem) => void;
+  onOpen: (i: MenuItem, via?: Via) => void;
+  onQuickAdd: (i: MenuItem, via?: Via) => void;
   onSetQty: (i: MenuItem, qty: number) => void;
 }) {
   const { lang, t } = useLang();
   const { money } = useVenue();
+  const popular = new Set(signals.popular);
+  // Hick's law: a short row of real best-sellers, only once there is enough data to mean something.
+  const quick = signals.quick.map((id) => menu.find((i) => i.id === id)).filter((i): i is MenuItem => !!i?.available);
   const sections = categories.map((c) => ({ c, items: menu.filter((i) => i.category_id === c.id) })).filter((s) => s.items.length);
   const [cat, setCat] = useState(sections[0]?.c.id ?? "");
 
@@ -62,7 +71,7 @@ export function MenuView({
 
   return (
     <>
-      <nav aria-label={t("menu")} className="sticky top-16 z-20 overflow-x-auto border-b bg-background px-3 [scrollbar-width:none]">
+      <nav aria-label={t("menu")} className="sticky top-[calc(4rem+env(safe-area-inset-top))] z-20 overflow-x-auto scroll-cue border-b bg-background px-3 [scrollbar-width:none]">
         <ul className="flex h-12 items-stretch gap-1">
           {sections.map(({ c }) => (
             <li key={c.id} className="flex">
@@ -82,11 +91,39 @@ export function MenuView({
         </ul>
       </nav>
 
+      {top}
+      {quick.length >= 3 && (
+        <section aria-labelledby="quick-h" className="pt-6">
+          <h2 id="quick-h" className="px-5 text-[15px] font-medium">{t("quickPicks")}</h2>
+          <ul className="mt-2 flex snap-x gap-2 overflow-x-auto scroll-cue px-5 pb-1 [scrollbar-width:none]">
+            {quick.map((i) => {
+              const name = pick(lang, i.name, i.name_ar);
+              return (
+                <li key={i.id} className="shrink-0 snap-start">
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    aria-label={`${t("add")} ${name}`}
+                    onClick={() => (isSimple(i) ? onQuickAdd(i, "quick") : onOpen(i, "quick"))}
+                    className="flex min-h-12 max-w-56 items-center gap-2 rounded-full border bg-card py-1.5 ps-4 pe-1.5 text-start outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+                  >
+                    <span className="truncate text-[15px] font-medium">{name}</span>
+                    <span className="text-sm whitespace-nowrap text-text-2 tabular-nums">{money(i.price_fils)}</span>
+                    <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                      <Plus className="size-4" />
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
+
       {sections.map(({ c, items }) => {
-        const featured = items.find((i) => i.badge && i.image_url);
-        const rest = items.filter((i) => i !== featured);
+        const { hero: featured, rest } = rankSection(items);
         return (
-          <section key={c.id} id={`cat-${c.id}`} aria-labelledby={`cat-h-${c.id}`} className="scroll-mt-28 px-5 pt-8">
+          <section key={c.id} id={`cat-${c.id}`} aria-labelledby={`cat-h-${c.id}`} className="scroll-mt-[calc(7rem+env(safe-area-inset-top))] px-5 pt-8">
             <h2 id={`cat-h-${c.id}`} className="border-b border-foreground pb-2 font-display text-[28px] leading-[1.1] font-semibold">
               {pick(lang, c.name, c.name_ar)}
             </h2>
@@ -105,6 +142,7 @@ export function MenuView({
                   sizes="(max-width: 560px) 100vw, 560px"
                   className={cn("object-cover transition-transform duration-slow ease-sufra [@media(hover:hover)]:group-hover:scale-[1.02]", !featured.available && "grayscale")}
                 />
+                <Tags item={featured} popular={popular.has(featured.id)} className="absolute start-3 top-3" onPhoto />
                 <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-3 bg-photo-scrim px-4 py-3 text-on-photo">
                   <b className="font-display text-[22px] leading-[1.15] font-semibold">{pick(lang, featured.name, featured.name_ar)}</b>
                   <span className="font-medium whitespace-nowrap tabular-nums">
@@ -115,7 +153,7 @@ export function MenuView({
             )}
             <ul>
               {rest.map((i) => (
-                <DishRow key={i.id} item={i} qty={inCart(i.id)} disabled={disabled} onOpen={onOpen} onQuickAdd={onQuickAdd} onSetQty={onSetQty} />
+                <DishRow key={i.id} item={i} popular={popular.has(i.id)} qty={inCart(i.id)} disabled={disabled} onOpen={onOpen} onQuickAdd={onQuickAdd} onSetQty={onSetQty} />
               ))}
             </ul>
           </section>
@@ -126,8 +164,29 @@ export function MenuView({
   );
 }
 
+const TAG_KEY = { chef: "tagChef", new: "tagNew", spicy: "tagSpicy", veg: "tagVeg", signature: "tagSignature" } as const;
+
+// Text chips only (no emoji). "Popular" is computed from real orders, never typed.
+function Tags({ item, popular, className, onPhoto }: { item: MenuItem; popular: boolean; className?: string; onPhoto?: boolean }) {
+  const { lang, t } = useLang();
+  const badge = item.badge ? pick(lang, item.badge, item.badge_ar) : "";
+  const tags = (item.tags ?? []) as MenuTag[];
+  if (!popular && !badge && !tags.length) return null;
+  const chip = onPhoto ? "bg-background/90 text-foreground" : "border text-text-2";
+  return (
+    <span className={cn("flex flex-wrap gap-1.5", className)}>
+      {popular && <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">{t("tagPopular")}</span>}
+      {badge && <span className={cn("rounded-full px-2 py-0.5 text-xs font-medium", chip)}>{badge}</span>}
+      {tags.map((g) => (
+        <span key={g} className={cn("rounded-full px-2 py-0.5 text-xs", chip)}>{t(TAG_KEY[g])}</span>
+      ))}
+    </span>
+  );
+}
+
 function DishRow({
   item: i,
+  popular,
   qty,
   disabled,
   onOpen,
@@ -135,6 +194,7 @@ function DishRow({
   onSetQty,
 }: {
   item: MenuItem;
+  popular: boolean;
   qty: number;
   disabled: boolean;
   onOpen: (i: MenuItem) => void;
@@ -144,7 +204,7 @@ function DishRow({
   const { lang, t } = useLang();
   const { money } = useVenue();
   const name = pick(lang, i.name, i.name_ar);
-  const simple = i.item_options.length === 0;
+  const simple = isSimple(i);
   const out = !i.available;
 
   let control;
@@ -185,6 +245,7 @@ function DishRow({
           </span>
           <span className="line-clamp-2 text-sm leading-[1.45] text-text-2">{pick(lang, i.description, i.description_ar)}</span>
         </button>
+        <Tags item={i} popular={popular} className="mt-2" />
         <div className="mt-3 flex min-h-10 items-center justify-end">{control}</div>
       </div>
       <Arch src={i.image_url} alt="" width={80} height={96} className={cn(out && "[&_img]:opacity-60 [&_img]:grayscale")} />

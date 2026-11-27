@@ -21,7 +21,7 @@ export function HourChart({ today, lastWeek, fill }: { today: number[]; lastWeek
   const hasLastWeek = lastWeek.some(Boolean);
 
   return (
-    <section aria-labelledby="hour-h" className={fill ? "xl:flex xl:h-full xl:flex-col" : undefined}>
+    <section aria-labelledby="hour-h" className={fill ? "fit:flex fit:h-full fit:flex-col" : undefined}>
       <div className="mb-4 flex flex-wrap items-baseline justify-between gap-3">
         <h2 id="hour-h" className="text-[15px] font-semibold">
           {t("byHour")}
@@ -37,8 +37,8 @@ export function HourChart({ today, lastWeek, fill }: { today: number[]; lastWeek
           </span>}
         </div>
       </div>
-      <div className={fill ? "relative xl:min-h-0 xl:flex-1" : "relative"} dir="ltr">
-        <ChartContainer config={config} className={fill ? "aspect-[640/240] w-full xl:aspect-auto xl:h-full" : "aspect-[640/240] w-full"}>
+      <div className={fill ? "relative fit:min-h-0 fit:flex-1" : "relative"} dir="ltr">
+        <ChartContainer config={config} className={fill ? "aspect-[640/240] w-full fit:aspect-auto fit:h-full" : "aspect-[640/240] w-full"}>
           <ComposedChart data={data} margin={{ top: 8, right: 8, bottom: 0, left: -20 }} accessibilityLayer>
             <CartesianGrid vertical={false} strokeDasharray="0" />
             <XAxis dataKey="hour" tick={{ fill: "var(--muted-foreground)" }} tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(h: number) => String(h).padStart(2, "0")} />

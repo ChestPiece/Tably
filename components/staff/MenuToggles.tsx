@@ -41,7 +41,7 @@ export function MenuToggles({ categories, menu, busy, onToggle }: Props) {
                     disabled={!!busy?.has(i.id)}
                     onCheckedChange={() => onToggle(i)}
                     aria-label={`${name} ${t("availableSuffix")}`}
-                    label={<span className="w-20 text-sm text-text-2">{t(i.available ? "available" : "soldOut")}</span>}
+                    label={<span className="min-w-20 text-sm text-text-2">{t(i.available ? "available" : "soldOut")}</span>}
                   />
                 </li>
               );

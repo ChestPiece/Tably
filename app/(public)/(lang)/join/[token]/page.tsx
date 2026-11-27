@@ -106,7 +106,7 @@ export default function Join() {
   const deadCopy = dead[view];
 
   return (
-    <main className="relative grid min-h-dvh place-items-center bg-background p-4">
+    <main className="relative grid min-h-dvh place-items-center bg-background p-4 short:pt-16">
       <Button type="button" variant="ghost" size="sm" onClick={toggle} className="absolute end-4 top-4">
         <Languages aria-hidden />
         <span lang={lang === "ar" ? "en" : "ar"}>{t("switchLang")}</span>

@@ -9,6 +9,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { tableLabel } from "@/lib/format";
 import { useLang, type Key } from "@/lib/i18n";
 import { pick, type Order } from "@/lib/types";
+import { lineExtras } from "@/lib/menu";
 import { useVenue } from "@/lib/venue";
 import type { AdminProps } from "./AdminApp";
 import { OrdersTable } from "./OrdersTable";
@@ -46,7 +47,7 @@ export function OwnerOrders({ sb, mutate, orders, filter, onFilter, selected, on
         value={filter}
         onValueChange={(v) => v && onFilter(v as OrderFilter)}
         aria-label={t("navOrders")}
-        className="mb-6 max-w-full overflow-x-auto"
+        className="mb-6 max-w-full overflow-x-auto scroll-cue max-sm:grid max-sm:w-full max-sm:grid-cols-2 max-sm:[mask-image:none]"
       >
         {FILTERS.map(([id, label]) => (
           <ToggleGroupItem key={id} value={id} className="h-9 px-4 whitespace-nowrap">
@@ -115,7 +116,7 @@ function OrderDetail({ o, busy, onUndo, onCancel }: { o: Order; busy: boolean; o
             <span className="w-6 shrink-0 text-muted-foreground tabular-nums">{l.quantity}×</span>
             <span className="min-w-0 flex-1">
               <span className="block">{pick(lang, l.name, l.name_ar)}</span>
-              {l.option_name && <span className="block text-sm text-muted-foreground">{pick(lang, l.option_name, l.option_name_ar ?? "")}</span>}
+              {lineExtras(lang, l) && <span className="block text-sm text-muted-foreground">{lineExtras(lang, l)}</span>}
             </span>
             <span className="whitespace-nowrap tabular-nums">{money(l.unit_price_fils * l.quantity)}</span>
           </li>

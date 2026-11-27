@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { formatAge, tableLabel } from "@/lib/format";
 import { tr } from "@/lib/i18n";
 import { pick, type Lang, type Order } from "@/lib/types";
+import { lineExtras } from "@/lib/menu";
 import { cn } from "@/lib/utils";
 
 type Props = {
@@ -63,7 +64,7 @@ export function OrderCard({ order: o, now, lang, onAdvance, onCancel, busy, fres
             <b className="font-semibold tabular-nums">{l.quantity}</b>
             <span>
               {pick(lang, l.name, l.name_ar)}
-              {l.option_name && <small className="text-sm text-text-2"> · {pick(lang, l.option_name, l.option_name_ar)}</small>}
+              {lineExtras(lang, l) && <small className="text-sm text-text-2"> · {lineExtras(lang, l)}</small>}
             </span>
           </li>
         ))}

@@ -12,7 +12,10 @@ import { Switch } from "@/components/ui/switch";
 import { currencyDigits, formatMoney } from "@/lib/format";
 import { errorText, useLang, type Key } from "@/lib/i18n";
 import { staffClient } from "@/lib/supabase/browser";
+import { SUFRA_BRAND } from "@/lib/brand";
+import type { Vibe } from "@/lib/types";
 import { isCurrency, timeZones } from "@/lib/venue";
+import { BrandPreview, ColorField, HEX, VibeField, logoColors } from "./BrandFields";
 import { LogoField, logoProblem, uploadLogo } from "./LogoField";
 
 // Best guess from the browser's region; the owner can change it before saving.
@@ -45,7 +48,10 @@ export function SetupWizard({ email }: { email: string }) {
   const [tz, setTz] = useState(zones.includes(g.tz) ? g.tz : "UTC");
   const [arabic, setArabic] = useState(g.arabic);
   const [tables, setTables] = useState("5");
-  const [errs, setErrs] = useState<{ name?: Key; currency?: Key; tables?: Key }>({});
+  const [errs, setErrs] = useState<{ name?: Key; currency?: Key; tables?: Key; accent?: Key }>({});
+  const [accent, setAccent] = useState(SUFRA_BRAND);
+  const [vibe, setVibe] = useState<Vibe>("sufra");
+  const [swatches, setSwatches] = useState<string[]>([]);
   const [formErr, setFormErr] = useState("");
   const [busy, setBusy] = useState(false);
   // The logo waits on this device until the restaurant exists (its folder is the restaurant id).
@@ -63,17 +69,18 @@ export function SetupWizard({ email }: { email: string }) {
       name: name.trim() ? undefined : ("required" as const),
       currency: okCurrency ? undefined : ("badCurrency" as const),
       tables: Number.isInteger(n) && n >= 1 && n <= 50 ? undefined : ("tablesRange" as const),
+      accent: HEX.test(accent) ? undefined : ("badHex" as const),
     };
     setErrs(e);
     setFormErr("");
-    if (e.name || e.currency || e.tables) return void document.querySelector<HTMLElement>("#setup-form [aria-invalid=true]")?.focus();
+    if (e.name || e.currency || e.tables || e.accent) return void document.querySelector<HTMLElement>("#setup-form [aria-invalid=true]")?.focus();
     setBusy(true);
     const sb = staffClient();
     const { data: rid, error } = await sb.rpc("create_restaurant", { p_name: name.trim(), p_currency: currency, p_timezone: tz, p_second_lang: arabic ? "ar" : null, p_tables: n });
     // A failed logo upload never blocks setup: it can be added again in Settings.
-    if (!error && logo) {
-      const r = await uploadLogo(sb, rid as string, logo, lang);
-      if (r.url) await sb.from("restaurants").update({ logo_url: r.url }).eq("id", rid as string);
+    if (!error) {
+      const r = logo ? await uploadLogo(sb, rid as string, logo, lang) : null;
+      await sb.from("restaurants").update({ accent: accent.toUpperCase(), vibe, ...(r?.url ? { logo_url: r.url } : {}) }).eq("id", rid as string);
     }
     if (!error || error.message === "ALREADY_OWNER") {
       router.replace("/admin");
@@ -89,7 +96,7 @@ export function SetupWizard({ email }: { email: string }) {
   }
 
   return (
-    <main className="grid min-h-dvh place-items-center bg-background p-4">
+    <main className="flex min-h-dvh items-center justify-center gap-10 bg-background p-4">
       <Card className="w-full max-w-md rounded-lg shadow-none">
         <CardHeader className="gap-4">
           <BrandLockup />
@@ -121,10 +128,20 @@ export function SetupWizard({ email }: { email: string }) {
                 onPick={(f) => {
                   const bad = logoProblem(f);
                   setLogoErr(bad ? t(bad) : "");
-                  if (!bad) setLogo(f);
+                  if (bad) return;
+                  setLogo(f);
+                  logoColors(f).then((c) => {
+                    setSwatches(c);
+                    if (c[0]) setAccent(c[0]);
+                  });
                 }}
-                onRemove={() => setLogo(null)}
+                onRemove={() => {
+                  setLogo(null);
+                  setSwatches([]);
+                }}
               />
+              <ColorField value={accent} swatches={swatches} error={errs.accent && t(errs.accent)} onChange={setAccent} />
+              <VibeField value={vibe} name={name} onChange={setVibe} />
               <div className="grid gap-4 sm:grid-cols-[8rem_minmax(0,1fr)]">
                 <Field data-invalid={!!errs.currency}>
                   <FieldLabel htmlFor="su-currency">{t("currencyLabel")}</FieldLabel>
@@ -187,6 +204,16 @@ export function SetupWizard({ email }: { email: string }) {
           </form>
         </CardContent>
       </Card>
+      {/* Live guest welcome screen with what the owner has picked so far. */}
+      <div className="sticky top-4 hidden self-start lg:block">
+        <BrandPreview
+          restaurant={{
+            id: "", slug: "", name: name || "Tably", name_ar: "", tagline: "", tagline_ar: "", currency, timezone: tz,
+            second_lang: null, accent, service_mode: "table", ordering_paused: false, pin_required: false,
+            logo_url: preview, cover_url: null, vibe, welcome_note: "", welcome_note_ar: "", instagram: "", google_review_url: null,
+          }}
+        />
+      </div>
     </main>
   );
 }

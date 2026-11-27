@@ -21,7 +21,7 @@ export default async function AdminPage() {
   const [r, c, m, t, team, invites, orders, prev, open, paid, any] = await Promise.all([
     sb.from("restaurants").select("*").eq("id", rid).single(),
     sb.from("categories").select("*").eq("restaurant_id", rid).order("position"),
-    sb.from("menu_items").select(MENU_SELECT).eq("restaurant_id", rid).order("position").order("position", { referencedTable: "item_options" }),
+    sb.from("menu_items").select(MENU_SELECT).eq("restaurant_id", rid).order("position").order("position", { referencedTable: "item_options" }).order("position", { referencedTable: "item_addons" }),
     sb.from("tables").select("*").eq("restaurant_id", rid).order("number"),
     sb.from("staff_members").select("user_id, role, display_name").eq("restaurant_id", rid),
     sb.from("staff_invites").select("email, role, token, opened_at").eq("restaurant_id", rid).order("created_at"),

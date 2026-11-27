@@ -17,7 +17,7 @@ export default async function TablePage({ params }: { params: Promise<{ slug: st
   const [{ data: restaurant }, { data: categories }, { data: menu }] = await Promise.all([
     sb.from("restaurants").select("*").eq("id", rid).single(),
     sb.from("categories").select("*").eq("restaurant_id", rid).order("position"),
-    sb.from("menu_items").select(MENU_SELECT).eq("restaurant_id", rid).order("position").order("position", { referencedTable: "item_options" }),
+    sb.from("menu_items").select(MENU_SELECT).eq("restaurant_id", rid).order("position").order("position", { referencedTable: "item_options" }).order("position", { referencedTable: "item_addons" }),
   ]);
   if (!restaurant) notFound();
   return (

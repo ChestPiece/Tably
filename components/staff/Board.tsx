@@ -101,11 +101,11 @@ export function Board({ lang, now, loaded, failed, onRetry, orders, recent, requ
   const hi = highlight && toCook.some(([k]) => k === highlight) ? highlight : null;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="@container flex min-h-0 flex-1 flex-col">
       <CallsTray requests={requests} lang={lang} now={now} busy={busy} fresh={fresh} onCall={onCall} />
 
       {/* Phone / narrow: one pane at a time. */}
-      <div role="tablist" aria-label={tr(lang, "jumpTo")} className="flex shrink-0 gap-1 border-b p-2 lg:hidden">
+      <div role="tablist" aria-label={tr(lang, "jumpTo")} className="flex shrink-0 gap-1 border-b p-2 @min-[800px]:hidden">
         {(["line", "pass"] as const).map((p) => (
           <button
             key={p}
@@ -120,7 +120,7 @@ export function Board({ lang, now, loaded, failed, onRetry, orders, recent, requ
       </div>
 
       {!loaded ? (
-        <div aria-hidden className="grid flex-1 grid-cols-[repeat(auto-fill,minmax(232px,1fr))] content-start gap-3 p-4">
+        <div aria-hidden className="grid flex-1 grid-cols-[repeat(auto-fill,minmax(248px,1fr))] content-start gap-3 p-4">
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} className="h-44 rounded-lg" />
           ))}
@@ -143,9 +143,9 @@ export function Board({ lang, now, loaded, failed, onRetry, orders, recent, requ
           <EmptyState icon={Inbox} title={tr(lang, "allClear")} body={tr(lang, "allClearBody")} />
         </div>
       ) : (
-        <div className={cn("grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)] lg:grid-cols-[minmax(0,1fr)_256px]", showTotals && "lg:grid-cols-[232px_minmax(0,1fr)_256px]")}>
+        <div className={cn("grid min-h-0 flex-1 grid-cols-[minmax(0,1fr)] grid-rows-[minmax(0,1fr)] @min-[800px]:grid-cols-[minmax(0,1fr)_256px]", showTotals && "@min-[1040px]:grid-cols-[232px_minmax(0,1fr)_256px]")}>
           {showTotals && (
-            <aside aria-label={tr(lang, "toCook")} className="hidden min-h-0 overflow-y-auto border-e px-3 pt-3 pb-6 lg:block">
+            <aside aria-label={tr(lang, "toCook")} className="hidden min-h-0 overflow-y-auto border-e px-3 pt-3 pb-6 @min-[1040px]:block">
               <h2 className="px-2 text-[15px] font-semibold">{tr(lang, "toCook")}</h2>
               <p className="px-2 pb-2 text-sm text-muted-foreground">{tr(lang, "toCookHint")}</p>
               {toCook.map(([k, e]) => (
@@ -169,7 +169,7 @@ export function Board({ lang, now, loaded, failed, onRetry, orders, recent, requ
             </aside>
           )}
 
-          <section aria-label={tr(lang, "lineTitle")} className={cn("relative min-h-0 flex-col", pane === "line" ? "flex" : "hidden lg:flex")}>
+          <section aria-label={tr(lang, "lineTitle")} className={cn("relative min-h-0 flex-col", pane === "line" ? "flex" : "hidden @min-[800px]:flex")}>
             <div ref={scroller} onScroll={countBelow} className="relative min-h-0 flex-1 overflow-y-auto">
               <div className="sticky top-0 z-10 flex items-center gap-3 bg-background px-4 pt-3 pb-2">
                 <h2 className="text-[15px] font-semibold">{tr(lang, "lineTitle")}</h2>
@@ -181,7 +181,7 @@ export function Board({ lang, now, loaded, failed, onRetry, orders, recent, requ
                   <Button
                     variant={showTotals ? "default" : "secondary"}
                     aria-pressed={showTotals}
-                    className="ms-auto max-lg:hidden"
+                    className="ms-auto @max-[1040px]:hidden"
                     onClick={() => (setShowTotals((v) => !v), setHighlight(null))}
                   >
                     {tr(lang, "toCook")}
@@ -213,7 +213,7 @@ export function Board({ lang, now, loaded, failed, onRetry, orders, recent, requ
             )}
           </section>
 
-          <section aria-label={tr(lang, "atPass")} className={cn("min-h-0 flex-col border-s max-lg:border-s-0", pane === "pass" ? "flex" : "hidden lg:flex")}>
+          <section aria-label={tr(lang, "atPass")} className={cn("min-h-0 flex-col border-s @max-[800px]:border-s-0", pane === "pass" ? "flex" : "hidden @min-[800px]:flex")}>
             <h2 className="flex items-baseline gap-2 px-4 pt-3 pb-2 text-[15px] font-semibold">
               {tr(lang, "atPass")} <span className="text-sm font-medium text-muted-foreground tabular-nums">{pass.length}</span>
             </h2>

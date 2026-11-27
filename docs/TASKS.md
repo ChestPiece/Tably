@@ -15,6 +15,11 @@ Updated 2026-11-17. Tick items here as they land. Plan: `docs/superpowers/specs/
 - [x] Kitchen board redesign 2026-11-17 ("Line + pass", mockups in `brand-demos/kds/`): oldest-first line dealt into columns, pass list, "To cook" totals, "N more below" pill, 6 s undo toast (`revert_order`, `20261117000003`); stress-tested with 40 tickets at 1280 / 390, light + dark, EN + AR
 - [x] Partial live E2E 2026-11-17: guest T1 order → staff start/ready/served → call waiter resolved → cancel with reason → owner Orders view; fixed guest clock using browser timezone instead of `VENUE_TZ`
 
+- [x] Brand kit phase 1 2026-11-27 (spec `docs/superpowers/specs/2026-11-27-brand-kit-menu-psychology-design.md`, plan `docs/superpowers/plans/2026-11-27-brand-kit.md`): brand colour with contrast guard, logo swatches, 4 vibes, cover, welcome note, Instagram, live preview in Settings + setup, branded QR cards
+- [x] Applied `20261127000001_brand_kit.sql` on the live DB 2026-11-27; `brand_kit.sql` passes; browser-checked Settings, guest page, AR fonts, QR cards
+- [x] Brand kit phase 2 2026-11-28 (plan `docs/superpowers/plans/2026-11-28-menu-psychology.md`): tags + auto Popular, featured hero, quick picks, add-ons in `place_order`, owner pairings + co-order fallback, one pairing nudge (toast after add, cart row), owner home avg order + suggestion share
+- [x] Brand kit phase 3 2026-11-28 (plan `docs/superpowers/plans/2026-11-28-return-loop.md`): thank-you screen with 1-5 rating + note, Google review link and Instagram for every rater, owner Feedback page (low ratings flagged), device memory (welcome back, order your usual, forget me)
+
 ## 1. End-to-end test (live Playwright, guest 390x844, staff 1280x800)
 - [ ] Guest "Sara" at T6 orders 2× Signature + Hotshots + Cola = AED 81
 - [ ] Staff board chimes, ticket shows "Sara" + "New table"

@@ -82,9 +82,9 @@ type BarProps = { title: string; online: boolean; shift: boolean; onToggleShift:
 export function StaffTopBar({ title, online, shift, onToggleShift }: BarProps) {
   const { t } = useLang();
   return (
-    <header className="z-20 flex h-15 shrink-0 items-center gap-3 border-b bg-card px-3">
+    <header className="z-20 flex h-15 shrink-0 items-center gap-3 border-b bg-card px-3 short:h-12">
       <SidebarTrigger className="size-10 text-muted-foreground lg:hidden" />
-      <h1 className="truncate text-lg font-semibold">{title}</h1>
+      <h1 className="min-w-0 truncate text-lg font-semibold">{title}</h1>
       <div className="ms-auto flex shrink-0 items-center gap-5 max-[600px]:gap-3">
         {/* A chip, not a lone dot: reconnecting must be noticed (new orders may be missing until it recovers). */}
         <span

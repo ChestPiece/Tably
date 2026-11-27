@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Beiruti, Fraunces, IBM_Plex_Sans, IBM_Plex_Sans_Arabic } from "next/font/google";
+import { Alexandria, Amiri, Beiruti, Bricolage_Grotesque, Cormorant, Figtree, Fraunces, IBM_Plex_Sans, IBM_Plex_Sans_Arabic, Readex_Pro } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import { LangProvider } from "@/lib/i18n";
 import "./globals.css";
@@ -9,6 +9,14 @@ const display = Fraunces({ subsets: ["latin"], axes: ["opsz"], variable: "--nf-d
 const displayAr = Beiruti({ subsets: ["arabic", "latin"], weight: ["500", "700"], variable: "--nf-display-ar", preload: false });
 const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--nf-sans" });
 const arabic = IBM_Plex_Sans_Arabic({ subsets: ["arabic", "latin"], weight: ["400", "500", "600", "700"], variable: "--nf-arabic", preload: false });
+// Venue vibes (lib/brand.ts VIBES): display pairs only, body stays Plex. None preload: only venues that pick them load them.
+const bold = Bricolage_Grotesque({ subsets: ["latin"], variable: "--nf-bold", preload: false });
+const boldAr = Alexandria({ subsets: ["arabic"], variable: "--nf-bold-ar", preload: false });
+const clean = Figtree({ subsets: ["latin"], variable: "--nf-clean", preload: false });
+const cleanAr = Readex_Pro({ subsets: ["arabic"], variable: "--nf-clean-ar", preload: false });
+const classic = Cormorant({ subsets: ["latin"], variable: "--nf-classic", preload: false });
+const classicAr = Amiri({ subsets: ["arabic"], weight: ["400", "700"], variable: "--nf-classic-ar", preload: false });
+const VIBE_FONTS = [bold, boldAr, clean, cleanAr, classic, classicAr].map((f) => f.variable).join(" ");
 
 export const metadata: Metadata = {
   title: { default: "Tably", template: "%s · Tably" },
@@ -24,13 +32,13 @@ const LANG_SCRIPT = `try{if(/(?:^|; )lang=ar(?:;|$)/.test(document.cookie)){var 
 // No cookies() here: it would make every route dynamic. Per-request routes wrap themselves in <CookieLang>.
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html suppressHydrationWarning lang="en" dir="ltr" className={`${display.variable} ${displayAr.variable} ${sans.variable} ${arabic.variable}`}>
+    <html suppressHydrationWarning lang="en" dir="ltr" className={`${display.variable} ${displayAr.variable} ${sans.variable} ${arabic.variable} ${VIBE_FONTS}`}>
       <head>
         <script dangerouslySetInnerHTML={{ __html: LANG_SCRIPT }} />
       </head>
       <body>
         <LangProvider initial="en">{children}</LangProvider>
-        <Toaster richColors={false} position="bottom-center" />
+        <Toaster richColors={false} position="bottom-center" mobileOffset={{ bottom: 96 }} />
       </body>
     </html>
   );

@@ -1,9 +1,11 @@
 "use client";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ensureGuestSession, guestClient } from "@/lib/supabase/guest";
 import { errorText, useLang } from "@/lib/i18n";
+import { brandTokens } from "@/lib/brand";
 import { MENU_SELECT, ORDER_SELECT, type Category, type MenuItem, type Order, type Restaurant, type ServiceRequest, type Visit } from "@/lib/types";
 import { Welcome, ClosedVisit } from "./Welcome";
+import { loadUsual, saveUsual, toUsual, usualCart } from "@/lib/memory";
 import { MenuView } from "./MenuView";
 import { TableView } from "./TableView";
 import { ItemSheet } from "./ItemSheet";
@@ -11,10 +13,16 @@ import { CartSheet } from "./CartSheet";
 import { GuestHeader, CartBar } from "./Chrome";
 import { useVenue } from "@/lib/venue";
 import { applyChange, type Change } from "@/lib/live";
+import { toast } from "sonner";
+import { NO_SIGNALS, isSimple, lineKey, pickNudge, reconcileCart, unitPrice, type CartLine, type Signals, type Via } from "@/lib/menu";
+import { pick } from "@/lib/types";
+import { Button } from "@/components/ui/button";
 
-export type CartLine = { key: string; itemId: string; optionId: string | null; quantity: number; unit: number };
+export type { CartLine };
 export type Me = { guest_id: string; seq: number; display_name: string | null };
 type Phase = "boot" | "welcome" | "in" | "closed";
+type Closed = { paid_method: "cash" | "card" | null; last_visit: string | null; rating: number | null };
+const NOT_CLOSED: Closed = { paid_method: null, last_visit: null, rating: null };
 type Pending = { requestId: string; lines: CartLine[]; note: string };
 
 const store = {
@@ -44,7 +52,7 @@ export function GuestApp(props: {
 }) {
   const { slug, tableNumber } = props;
   const { lang, t, toggle } = useLang();
-  const { secondLang } = useVenue();
+  const { secondLang, money } = useVenue();
   const sb = guestClient();
 
   // English-only restaurant: a guest whose last venue was in Arabic switches back to English.
@@ -54,7 +62,7 @@ export function GuestApp(props: {
 
   const [phase, setPhase] = useState<Phase>("boot");
   const [ended, setEnded] = useState(false);
-  const [paidMethod, setPaidMethod] = useState<"cash" | "card" | null>(null);
+  const [closed, setClosed] = useState<Closed>(NOT_CLOSED);
   const [me, setMe] = useState<Me | null>(null);
   const [visit, setVisit] = useState<Visit | null>(null);
   const [orders, setOrders] = useState<Order[]>([]);
@@ -65,7 +73,11 @@ export function GuestApp(props: {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [note, setNote] = useState("");
   const [pending, setPending] = useState<Pending | null>(null);
-  const [openItem, setOpenItem] = useState<MenuItem | null>(null);
+  const [openItem, setOpenItem] = useState<{ item: MenuItem; via?: Via } | null>(null);
+  const [signals, setSignals] = useState<Signals>(NO_SIGNALS);
+  const [pairings, setPairings] = useState<Map<string, string[]>>(new Map());
+  // One "goes well with" per dish per page load: a nudge, never a nag.
+  const nudged = useRef(new Set<string>());
   const [cartOpen, setCartOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   // Waiter / bill taps have their own busy flag: they must not freeze the cart, nor the cart them.
@@ -73,6 +85,16 @@ export function GuestApp(props: {
   const [error, setError] = useState("");
   const [online, setOnline] = useState(true);
   const visitId = useRef<string | null>(null);
+
+  // Ranking from real orders plus the owner's pairings. Failure just means no nudges.
+  useEffect(() => {
+    sb.rpc("menu_signals", { p_restaurant: restaurant.id }).then(({ data }) => data && setSignals(data as Signals));
+    sb.from("item_pairings").select("item_id, pairs_with_id").eq("restaurant_id", restaurant.id).then(({ data }) => {
+      const m = new Map<string, string[]>();
+      for (const p of data ?? []) m.set(p.item_id, [...(m.get(p.item_id) ?? []), p.pairs_with_id]);
+      setPairings(m);
+    });
+  }, [sb, restaurant.id]);
 
   // Restore device-local cart + uncertain submission.
   useEffect(() => {
@@ -102,7 +124,7 @@ export function GuestApp(props: {
         visitId.current = null;
         setPhase("closed");
         const { data: s } = await sb.rpc("guest_session", { p_slug: slug });
-        setPaidMethod(s?.paid_method ?? null);
+        setClosed({ ...NOT_CLOSED, ...s });
         return;
       }
       setVisit(v.data as Visit);
@@ -134,7 +156,7 @@ export function GuestApp(props: {
       }
       if (s?.visit_id) await enter(s);
       else if (s?.paid_method) {
-        setPaidMethod(s.paid_method);
+        setClosed({ ...NOT_CLOSED, ...s });
         setPhase("closed");
       } else {
         setEnded(!!s?.ended);
@@ -216,21 +238,40 @@ export function GuestApp(props: {
     }
   }
 
-  function addToCart(item: MenuItem, optionId: string | null, quantity: number) {
-    const opt = item.item_options.find((o) => o.id === optionId);
-    const unit = item.price_fils + (opt?.price_fils ?? 0);
-    const key = `${item.id}:${optionId ?? "-"}:${unit}`;
+  function addToCart(item: MenuItem, optionId: string | null, addonIds: string[], quantity: number, via?: Via) {
+    const unit = unitPrice(item, optionId, addonIds);
+    const key = lineKey(item.id, optionId, addonIds);
     setCart((c) => {
       const hit = c.find((l) => l.key === key);
       if (hit) return c.map((l) => (l.key === key ? { ...l, quantity: Math.min(20, l.quantity + quantity) } : l));
-      return [...c, { key, itemId: item.id, optionId, quantity, unit }];
+      return [...c, { key, itemId: item.id, optionId, addonIds, quantity, unit, ...(via ? { via } : {}) }];
     });
     setOpenItem(null);
+    if (via !== "pairing") offerPairing(item);
   }
 
-  // Simple (no-option) items: the menu row stepper edits their single cart line.
+  function offerPairing(item: MenuItem) {
+    if (nudged.current.has(item.id)) return;
+    const next = pickNudge([item.id], new Set([...cart.map((l) => l.itemId), item.id]), pairings, signals, menu);
+    if (!next) return;
+    nudged.current.add(item.id);
+    addSuggested(next, true);
+  }
+
+  // Simple dishes go straight in; dishes with choices open their sheet, which carries the "via".
+  function addSuggested(next: MenuItem, asToast = false) {
+    const go = () => (isSimple(next) ? addToCart(next, null, [], 1, "pairing") : setOpenItem({ item: next, via: "pairing" }));
+    if (!asToast) return go();
+    toast(t("goesWell"), {
+      id: "pairing",
+      description: pick(lang, next.name, next.name_ar),
+      action: { label: `${t("add")} · ${money(next.price_fils)}`, onClick: go },
+    });
+  }
+
+  // Simple items: the menu row stepper edits their single cart line.
   function setItemQty(item: MenuItem, quantity: number) {
-    const key = `${item.id}:-:${item.price_fils}`;
+    const key = lineKey(item.id, null, []);
     setCart((c) => (quantity <= 0 ? c.filter((l) => l.key !== key) : c.map((l) => (l.key === key ? { ...l, quantity: Math.min(20, quantity) } : l))));
   }
 
@@ -244,13 +285,16 @@ export function GuestApp(props: {
     try {
       const { error: e } = await sb.rpc("place_order", {
         p_request_id: attempt.requestId,
-        p_lines: attempt.lines.map((l) => ({ item_id: l.itemId, option_id: l.optionId, quantity: l.quantity, expected_price: l.unit })),
+        p_lines: attempt.lines.map((l) => ({
+          item_id: l.itemId, option_id: l.optionId, addon_ids: l.addonIds ?? [], via: l.via ?? null, quantity: l.quantity, expected_price: l.unit,
+        })),
         p_note: attempt.note || null,
         p_visit: visitId.current,
       });
       if (e) throw e;
       setPending(null);
       store.set(`cb-pending-${slug}`, null);
+      saveUsual(restaurant.slug, toUsual(attempt.lines));
       setCart([]);
       setNote("");
       setCartOpen(false);
@@ -279,25 +323,12 @@ export function GuestApp(props: {
       .select(MENU_SELECT)
       .eq("restaurant_id", restaurant.id)
       .order("position")
-      .order("position", { referencedTable: "item_options" });
+      .order("position", { referencedTable: "item_options" })
+      .order("position", { referencedTable: "item_addons" });
     if (!data) return;
     const fresh = data as MenuItem[];
     setMenu(fresh);
-    setCart((c) => {
-      // Re-priced lines can land on a key the cart already has: merge them (max 20, like addToCart).
-      const out = new Map<string, CartLine>();
-      for (const l of c) {
-        const item = fresh.find((i) => i.id === l.itemId);
-        if (!item?.available) continue;
-        const opt = item.item_options.find((o) => o.id === l.optionId);
-        if (l.optionId ? !opt : item.item_options.length > 0) continue;
-        const unit = item.price_fils + (opt?.price_fils ?? 0);
-        const key = `${l.itemId}:${l.optionId ?? "-"}:${unit}`;
-        const hit = out.get(key);
-        out.set(key, { ...l, unit, key, quantity: Math.min(20, (hit?.quantity ?? 0) + l.quantity) });
-      }
-      return [...out.values()];
-    });
+    setCart((c) => reconcileCart(c, fresh));
   }
 
   async function request(kind: "waiter" | "bill", method?: "cash" | "card") {
@@ -326,12 +357,25 @@ export function GuestApp(props: {
   const cartCount = cart.reduce((n, l) => n + l.quantity, 0);
   const cartTotal = cart.reduce((n, l) => n + l.unit * l.quantity, 0);
   const locked = !!pending;
+  // Recognition over recall: last time's order, re-priced against today's menu. Only before anything is ordered.
+  const usual = useMemo(() => (phase === "in" ? usualCart(loadUsual(restaurant.slug), menu) : []), [phase, menu, restaurant.slug]);
+  const showUsual = usual.length > 0 && !cart.length && !orders.length && !restaurant.ordering_paused && !locked;
+
+  const tokens = useMemo(() => brandTokens(restaurant.accent, restaurant.vibe), [restaurant.accent, restaurant.vibe]);
+  // Portalled sheets, drawers and toasts render in <body>, outside the root below: put the brand on <html> too.
+  useEffect(() => {
+    const st = document.documentElement.style;
+    for (const [k, v] of Object.entries(tokens)) st.setProperty(k, v);
+    return () => Object.keys(tokens).forEach((k) => st.removeProperty(k));
+  }, [tokens]);
+  // Inline on the root as well, so the first server paint already wears the brand (no indigo flash).
+  const branded = (node: React.ReactNode) => <div className="contents" style={tokens as React.CSSProperties}>{node}</div>;
 
   if (phase === "boot") {
-    return <div className="grid min-h-dvh place-items-center text-text-2">{t("joining")}</div>;
+    return branded(<div className="grid min-h-dvh place-items-center text-text-2">{t("joining")}</div>);
   }
   if (phase === "welcome") {
-    return (
+    return branded(
       <Welcome
         restaurant={restaurant}
         tableNumber={tableNumber}
@@ -344,9 +388,16 @@ export function GuestApp(props: {
     );
   }
   if (phase === "closed") {
-    return (
+    return branded(
       <ClosedVisit
-        paidMethod={paidMethod}
+        restaurant={restaurant}
+        paidMethod={closed.paid_method}
+        rating={closed.last_visit ? closed.rating ?? 0 : null}
+        onRate={async (rating, note) => {
+          const { error: e } = await sb.rpc("leave_feedback", { p_visit: closed.last_visit, p_rating: rating, p_note: note });
+          if (e) toast.error(t("rateFailed"));
+          return !e;
+        }}
         onNew={() => {
           setCart([]);
           setPending(null);
@@ -360,7 +411,7 @@ export function GuestApp(props: {
     );
   }
 
-  return (
+  return branded(
     <div className="mx-auto flex min-h-dvh max-w-[560px] flex-col bg-background">
       <GuestHeader
         restaurant={restaurant}
@@ -387,9 +438,34 @@ export function GuestApp(props: {
             menu={menu}
             disabled={restaurant.ordering_paused || locked}
             inCart={(id) => cart.reduce((n, l) => (l.itemId === id ? n + l.quantity : n), 0)}
-            onOpen={setOpenItem}
-            onQuickAdd={(i) => addToCart(i, null, 1)}
+            signals={signals}
+            onOpen={(item, via) => setOpenItem({ item, via })}
+            onQuickAdd={(i, via) => addToCart(i, null, [], 1, via)}
             onSetQty={setItemQty}
+            top={
+              showUsual && (
+                <section aria-labelledby="usual-h" className="mx-5 mt-6 rounded-xl border bg-card p-4">
+                  <h2 id="usual-h" className="text-[15px] font-medium">{t("yourUsual")}</h2>
+                  <p className="mt-1 text-sm text-text-2">
+                    {usual
+                      .map((l) => {
+                        const i = menu.find((m) => m.id === l.itemId)!; // usualCart keeps only dishes on the menu
+                        return `${l.quantity > 1 ? `${l.quantity}× ` : ""}${pick(lang, i.name, i.name_ar)}`;
+                      })
+                      .join(" · ")}
+                  </p>
+                  <Button
+                    className="mt-3 w-full"
+                    onClick={() => {
+                      setCart(usual);
+                      setCartOpen(true);
+                    }}
+                  >
+                    {t("orderUsual")} · <span className="tabular-nums">{money(usual.reduce((n, l) => n + l.unit * l.quantity, 0))}</span>
+                  </Button>
+                </section>
+              )
+            }
           />
         </div>
       ) : (
@@ -409,15 +485,38 @@ export function GuestApp(props: {
           }}
         />
       )}
+      {view === "table" && restaurant.instagram && (
+        <a
+          href={`https://instagram.com/${restaurant.instagram}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mx-auto mb-[max(20px,env(safe-area-inset-bottom))] inline-flex min-h-12 items-center gap-1.5 px-4 text-sm text-text-2 underline-offset-4 hover:underline"
+        >
+          {t("followUs")} <span dir="ltr">@{restaurant.instagram}</span>
+        </a>
+      )}
 
-      {view === "menu" && <CartBar count={cartCount} total={cartTotal} onOpen={() => setCartOpen(true)} />}
+      {view === "menu" && <CartBar count={cartCount} total={cartTotal} onOpen={() => { toast.dismiss("pairing"); setCartOpen(true); }} />}
 
-      {openItem && <ItemSheet item={openItem} disabled={restaurant.ordering_paused || locked} onClose={() => setOpenItem(null)} onAdd={addToCart} />}
+      {openItem && (
+        <ItemSheet
+          key={openItem.item.id}
+          item={openItem.item}
+          disabled={restaurant.ordering_paused || locked}
+          onClose={() => setOpenItem(null)}
+          onAdd={(item, optionId, addonIds, qty) => addToCart(item, optionId, addonIds, qty, openItem.via)}
+        />
+      )}
       {cartOpen && (
         <CartSheet
           cart={pending?.lines ?? cart}
           setCart={setCart}
           menu={menu}
+          suggestion={pending || locked ? null : pickNudge(cart.map((l) => l.itemId), new Set(cart.map((l) => l.itemId)), pairings, signals, menu)}
+          onSuggest={(i) => {
+            if (!isSimple(i)) setCartOpen(false);
+            addSuggested(i);
+          }}
           note={pending?.note ?? note}
           setNote={setNote}
           total={(pending?.lines ?? cart).reduce((n, l) => n + l.unit * l.quantity, 0)}

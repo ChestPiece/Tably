@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+/* Height-aware gates (design.md "Responsive"). fit = ops pages fill the screen; short = landscape phones, tiny windows. */
+@custom-variant fit (@media (min-width: 1280px) and (min-height: 760px));
+@custom-variant short (@media (max-height: 520px));
 
 /* Hallmark · genre: editorial · tone: warm · macrostructure: Long Document (guest) / Workbench (staff, owner)
  * design-system: design.md · designed-as-app · paper oklch(96.4% 0.011 85) · accent ochre oklch(66% 0.12 81)
@@ -11,7 +14,8 @@
   Ochre goes into --ochre / --ochre-text, never --accent (shadcn hover fill).
   Contrast measured, see design.md § Contrast.
 */
-:root {
+/* .light re-applies these inside a dark page (owner brand preview of the always-light guest app). */
+:root, .light {
   color-scheme: light;
   --radius: 12px;
   --background: oklch(96.4% 0.011 85);
@@ -190,8 +194,17 @@
   padding-inline-end: 0.5rem;
 }
 
+/* Horizontal chip rail: fade the trailing edge so hidden chips read as "more this way". */
+@utility scroll-cue {
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, #000 calc(100% - 2rem), transparent);
+  &:where(:dir(rtl), [dir="rtl"] *) { mask-image: linear-gradient(to left, #000 calc(100% - 2rem), transparent); }
+}
+
 @layer base {
   *, ::before, ::after { border-color: var(--border); }
+  /* A long dish or guest name with no spaces breaks instead of pushing the layout wider. */
+  body { overflow-wrap: break-word; }
   /* Arabic picks its stacks by language, not by glyph fallback: next/font's "<Latin font> Fallback"
      face is local Arial over the full Unicode range and would otherwise render Arabic in Arial.
      :where() keeps specificity 0 so font-display / font-sans utilities still apply (with these stacks). */

@@ -3,6 +3,7 @@ import { ReceiptText } from "lucide-react";
 import { useLang } from "@/lib/i18n";
 import { pick, type Restaurant } from "@/lib/types";
 import { Button } from "@/components/ui/button";
+import { VenueMark } from "@/components/brand";
 import { cn } from "@/lib/utils";
 import { useVenue } from "@/lib/venue";
 
@@ -35,7 +36,8 @@ export function GuestHeader({
 }) {
   const { lang, t } = useLang();
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center gap-3 bg-background px-5">
+    <header className="sticky top-0 z-30 box-content flex h-16 items-center gap-3 bg-background px-5 pt-[env(safe-area-inset-top)]">
+      <VenueMark name={pick(lang, restaurant.name, restaurant.name_ar)} logo={restaurant.logo_url} className="size-8 shrink-0 text-sm" />
       <span className="min-w-0 flex-1 truncate font-display text-[22px] leading-[1.15] font-semibold">{pick(lang, restaurant.name, restaurant.name_ar)}</span>
       {online ? (
         <span className="text-sm whitespace-nowrap text-text-2">

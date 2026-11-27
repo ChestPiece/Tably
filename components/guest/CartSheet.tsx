@@ -13,6 +13,8 @@ export function CartSheet({
   cart,
   setCart,
   menu,
+  suggestion,
+  onSuggest,
   note,
   setNote,
   total,
@@ -26,6 +28,9 @@ export function CartSheet({
   cart: CartLine[];
   setCart: Dispatch<SetStateAction<CartLine[]>>;
   menu: MenuItem[];
+  /** One "complete your meal" dish (owner pairing or co-ordered), or null. */
+  suggestion: MenuItem | null;
+  onSuggest: (i: MenuItem) => void;
   note: string;
   setNote: (n: string) => void;
   total: number;
@@ -68,6 +73,7 @@ export function CartSheet({
             {cart.map((l) => {
               const item = menu.find((i) => i.id === l.itemId);
               const opt = item?.item_options.find((o) => o.id === l.optionId);
+              const extras = [opt && pick(lang, opt.name, opt.name_ar), ...(item?.item_addons ?? []).filter((a) => l.addonIds?.includes(a.id)).map((a) => pick(lang, a.name, a.name_ar))].filter(Boolean);
               return (
                 <li key={l.key} className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-2 border-b py-4">
                   <div className="col-span-2 min-w-0">
@@ -76,7 +82,7 @@ export function CartSheet({
                       <span aria-hidden className="leader" />
                       <span className="font-medium whitespace-nowrap tabular-nums">{money(l.unit * l.quantity)}</span>
                     </p>
-                    {opt && <small className="text-sm text-text-2">{pick(lang, opt.name, opt.name_ar)}</small>}
+                    {extras.length > 0 && <small className="text-sm text-text-2">{extras.join(", ")}</small>}
                   </div>
                   {locked ? (
                     <span className="text-sm text-text-2 tabular-nums">× {l.quantity}</span>
@@ -94,6 +100,20 @@ export function CartSheet({
               );
             })}
           </ul>
+
+          {suggestion && (
+            <div className="mt-4 flex items-center gap-3 rounded-md border bg-card px-4 py-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm text-text-2">{t("completeMeal")}</p>
+                <p className="truncate font-medium">
+                  {pick(lang, suggestion.name, suggestion.name_ar)} <span className="font-normal text-text-2 tabular-nums">· {money(suggestion.price_fils)}</span>
+                </p>
+              </div>
+              <Button variant="secondary" size="xs" onClick={() => onSuggest(suggestion)} aria-label={`${t("add")} ${pick(lang, suggestion.name, suggestion.name_ar)}`}>
+                {t("add")}
+              </Button>
+            </div>
+          )}
 
           <label className="mt-4 grid gap-2">
             <span className="text-sm font-medium">{t("noteLabel")}</span>

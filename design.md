@@ -66,9 +66,18 @@ Silent success. Toasts only for failures and async effects the guest cannot see.
 ## Themes per surface
 Guest `/t/*`: always light, no ThemeProvider. Staff: dark default, key `sufra-staff-theme`. Owner: light default, key `sufra-owner-theme`. `enableSystem={false}` everywhere.
 
+## Venue brand (2026-11-27)
+Guest pages and printed QR cards take the owner's brand; owner, staff, `/login` and `/join` never do. `brandTokens(accent, vibe)` (`lib/brand.ts`) sets `--brand`/`--primary`/`--ring`, `--on-brand`, `--brand-field`, `--brand-rule`, `--radius` and the vibe's display font. Any colour is darkened in OKLab until brand on cream >= 3:1 and text on brand >= 4.5:1. Vibes: Sufra (Fraunces/Beiruti, 12px), Bold (Bricolage Grotesque/Alexandria, 6px), Clean (Figtree/Readex Pro, 16px), Classic (Cormorant/Amiri, 4px). Ochre stays shape-only. Tokens go on the guest root and on `<html>` (portals). QR cards keep Fraunces/Plex and take only the colour + logo.
+
+## Menu signals (2026-11-28)
+- Chips on a dish: Popular (`bg-primary`, from real orders only), then the owner badge, then preset tags. Max 3 preset tags. No fake scarcity, no counts, no countdowns.
+- Category hero = featured dish with a photo, else badge + photo. Signature dishes lead the rest of the section.
+- Quick picks rail shows only with 3+ available picks.
+- One nudge per step: a "Goes well with" toast after an add (once per dish per load, dismissed when the cart opens) and one "Complete your meal" row in the cart. Never a modal.
+
 ## Ops shell (owner + staff, 2026-11-25)
 Spec: `docs/superpowers/specs/2026-11-25-ops-dashboard-layout-design.md`.
-- **Fit the screen.** The shell is `h-dvh overflow-hidden`: sidebar, main, right rail. Only panels scroll, never the page. Owner Home (once first-run steps are done) and Profit fill the height from 1280px (`fit` in `AdminApp.tsx`); other pages flow inside main. Below 1280px pages stack and scroll inside main. Check: `document.documentElement.scrollHeight === innerHeight` at 1280x800 and 1440x900.
+- **Fit the screen.** The shell is `h-dvh overflow-hidden`: sidebar, main, right rail. Only panels scroll, never the page. Owner Home (once first-run steps are done) and Profit fill the height under the `fit:` variant (1280px wide **and** 760px tall; `fit` in `AdminApp.tsx`). Never gate fill-the-height layout on width alone: 1280x720 and 1366x768 laptops are below the gate and their pages stack and scroll inside main, like everything under 1280px. The owner Board page fills main with `flex-1` (no `100dvh` maths). Check with `scripts/responsive-check.js`.
 - **Sidebar.** Icon-collapsible. The collapse button sits in the header beside the venue name (`components/ops/SidebarChrome.tsx`); collapsed, the mark expands it. Ctrl/Cmd+B and the edge rail also toggle. The footer is one user row with a menu (theme, Arabic, switch app, sign out). Owner below `lg` uses `BottomNav`.
 - **Right rail = selected item's detail.** 400px `<aside>` (`RailSlot`), hidden while empty. Sheets opt in with `ResponsiveSheet rail` and portal into it from 1280px; below that they stay sheets/drawers. Used by Orders (detail, undo last step within 2 min, cancel; `?sel=`), Menu (`ItemEditor`), Tables (live visit, QR, actions) and Team (rate, shifts, remove). Home and Profit have no rail.
 - **URL state.** Owner: `?page=`, `?filter=`, `?sel=`. Staff: `?tab=` (`STAFF_TABS`; Board is bare `/staff`). Reload and back land on the same view.
@@ -77,6 +86,16 @@ Spec: `docs/superpowers/specs/2026-11-25-ops-dashboard-layout-design.md`.
 - **Empty, loading, failed are three different states.** Skeletons only before the first load. Empty = an `EmptyState` or a dashed block saying what fills it. Failed first load = `EmptyState` with a WifiOff icon and Try again, never a false "All clear".
 - **Connection status** is a pill in the staff top bar: neutral "Live", ochre "Reconnecting" with a pulsing dot (reduced motion: no pulse).
 - **Counts** use singular and plural keys (`dishOne` / `dishes`), never "1 dishes".
+
+## Responsive (2026-11-27)
+Every screen ratio must hold: 320x568, 375x667, 390x844, 844x390 landscape, 768x1024, 1024x768, 1024x1366, 1280x720, 1366x768, 1440x900, 1920x1080, 2560x1440, plus RTL at 390 and 1280.
+- **Height-aware gates** (custom variants in `app/globals.css`): `fit:` = min-width 1280 and min-height 760, the only gate for fill-the-screen layouts. `short:` = max-height 520 (landscape phones, tiny windows): shrink chrome and media, never hide actions.
+- **Sheets.** `ResponsiveSheet` is a Drawer below 768px wide **or** 600px tall, so landscape phones never get a squeezed dialog. Side sheets open from the inline end (left in Arabic). Bottom sheets cap at 85dvh and scroll. Every sheet footer pads `env(safe-area-inset-bottom)`.
+- **Container queries for anything inside the ops shell.** The sidebar (248px) and rail (400px) eat width, so the viewport lies about the space a component has. KPI rows (`@3xl` = 4 columns), the kitchen board (pass column from `@min-[800px]`, to-cook totals from `@min-[1040px]`) and Staff Today use `@container`. KPI figures are `truncate` with `clamp(20px,4cqi,30px)`.
+- **Horizontal rails** (category tabs, filter chips, calls strip, settings nav below `lg`) get `scroll-cue`: the trailing inline edge fades, so hidden chips read as "more this way".
+- **Safe areas.** `viewportFit: cover` is on, so sticky or fixed chrome pads its `env(safe-area-inset-*)` edge: guest header (top), cart bar and sheet footers (bottom).
+- **Long words** break (`overflow-wrap: break-word` on `body`); give flex text `min-w-0`.
+- Check: paste `scripts/responsive-check.js` in the console at each size. It lists elements past the viewport edge, page scroll on fit pages, and primary buttons outside the viewport.
 
 ## Exports
 ### tokens.css (canonical: `app/globals.css` `:root`)

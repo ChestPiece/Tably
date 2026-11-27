@@ -23,7 +23,7 @@ export function CallsTray({ requests, lang, onCall, now, busy, fresh }: Props) {
   if (!requests.length) return null;
   return (
     <section aria-label={tr(lang, "callsTitle")} className="shrink-0 border-b bg-card">
-      <ul className="flex gap-2 overflow-x-auto px-4 py-2 [scrollbar-width:none]">
+      <ul className="flex gap-2 overflow-x-auto px-4 py-2 scroll-cue [scrollbar-width:none]">
         {requests.map((r) => {
           const isBusy = !!busy?.has(r.id);
           const nudged = !!r.nudged_at && !r.acknowledged_at;

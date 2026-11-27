@@ -13,8 +13,8 @@ export const logoProblem = (file: File): Key | null =>
   !/^image\/(jpeg|png|webp)$/.test(file.type) ? "photoType" : file.size > MAX_LOGO ? "logoTooBig" : null;
 
 // Uploads into the owner's own folder (storage policies check the first path part).
-export async function uploadLogo(sb: ReturnType<typeof staffClient>, rid: string, file: File, lang: "en" | "ar") {
-  const path = `${rid}/logo-${crypto.randomUUID()}.${file.name.split(".").pop()?.toLowerCase() || "png"}`;
+export async function uploadLogo(sb: ReturnType<typeof staffClient>, rid: string, file: File, lang: "en" | "ar", kind: "logo" | "cover" = "logo") {
+  const path = `${rid}/${kind}-${crypto.randomUUID()}.${file.name.split(".").pop()?.toLowerCase() || "png"}`;
   const { error } = await sb.storage.from("menu-images").upload(path, file, { contentType: file.type });
   if (error) return { error: errorText(lang, error) };
   return { url: sb.storage.from("menu-images").getPublicUrl(path).data.publicUrl };

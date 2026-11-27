@@ -42,7 +42,7 @@ export function FloorPlan({ tables, visits }: { tables: TableRow[]; visits: Visi
       {tables.length === 0 ? (
         <p className="py-12 text-center text-sm text-text-2">—</p>
       ) : (
-        <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t("floor")} className="mx-auto block w-full max-w-[360px] xl:min-h-0 xl:flex-1" direction="ltr">
+        <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={t("floor")} className="mx-auto block w-full max-w-[360px] fit:min-h-0 fit:flex-1" direction="ltr">
           {tables.map((tb, i) => {
             const x = 12 + (i % COLS) * GAP_X;
             const y = 4 + Math.floor(i / COLS) * GAP_Y;

@@ -1,5 +1,6 @@
 "use client";
 import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
 import { Arch } from "@/components/app/arch";
 import { Button } from "@/components/ui/button";
 import { useVenue } from "@/lib/venue";
@@ -10,7 +11,7 @@ import { pick, type MenuItem, type Order, type TableRow, type Visit } from "@/li
 import { FloorPlan } from "./FloorPlan";
 import type { AdminProps } from "./AdminApp";
 import { OrdersTable } from "./OrdersTable";
-import { useProfit } from "./use-profit";
+import { spanRange, useProfit } from "./use-profit";
 
 // Charts (recharts) load in their own chunk, after the numbers are on screen.
 const HourChart = dynamic(() => import("./HourChart").then((m) => m.HourChart), { ssr: false, loading: () => <div className="h-full min-h-40" /> });
@@ -29,6 +30,7 @@ export function OwnerHome({ sb, today, menu, tables, onOrders, onProfit }: Pick<
   const s = dayStats(today.orders, today.paidVisits);
   const profit = useProfit(sb, 1).rep;
   const top = topDishes(today.orders);
+  const menuStats = useMenuStats(sb, today.orders.length);
   const max = top[0]?.qty ?? 1;
   const money = (fils: number | null) => (fils === null ? "—" : venue.money(fils));
   const kpis: [string, string, React.ReactNode][] = [
@@ -44,19 +46,19 @@ export function OwnerHome({ sb, today, menu, tables, onOrders, onProfit }: Pick<
 
   return (
     // From 1280px the bento fills the screen: two equal rows, each panel scrolls inside itself.
-    <div className="flex flex-col gap-4 max-sm:gap-3 xl:min-h-0 xl:flex-1">
+    <div className="@container flex flex-col gap-4 max-sm:gap-3 fit:min-h-0 fit:flex-1">
       {/* One panel, figures lead, hairlines between them (no icon tiles). */}
-      <dl className="grid shrink-0 grid-cols-4 rounded-2xl bg-card ring-1 ring-border max-[1100px]:grid-cols-2">
+      <dl className="grid shrink-0 grid-cols-2 rounded-2xl bg-card ring-1 ring-border @3xl:grid-cols-4">
         {kpis.map(([label, value, note]) => (
-          <div key={label} className="flex min-w-0 flex-col border-border px-5 py-4 not-first:border-s max-[1100px]:nth-3:border-s-0 max-[1100px]:nth-[n+3]:border-t max-sm:px-4">
+          <div key={label} className="flex min-w-0 flex-col border-border px-5 py-4 not-first:border-s @max-3xl:nth-3:border-s-0 @max-3xl:nth-[n+3]:border-t max-sm:px-4">
             <dt className="order-2 mt-1.5 text-sm font-medium">{label}</dt>
-            <dd className="order-1 font-display text-[30px] leading-none font-semibold tracking-tight whitespace-nowrap tabular-nums max-sm:text-[26px]">{value}</dd>
+            <dd className="order-1 truncate font-display text-[clamp(20px,4cqi,30px)] leading-none font-semibold tracking-tight tabular-nums">{value}</dd>
             <dd className="order-3 text-[13px] text-muted-foreground">{note}</dd>
           </div>
         ))}
       </dl>
 
-      <div className="grid gap-4 max-sm:gap-3 md:grid-cols-2 xl:min-h-0 xl:flex-1 xl:grid-cols-12 xl:grid-rows-[minmax(0,1fr)_minmax(0,1fr)]">
+      <div className="grid gap-4 max-sm:gap-3 md:grid-cols-2 fit:min-h-0 fit:flex-1 xl:grid-cols-12 fit:grid-rows-[minmax(0,1fr)_minmax(0,1fr)]">
         <div className={cn(BOX, "md:col-span-2 xl:col-span-8")}>
           <HourChart fill today={ordersByHour(today.orders, venue.tz)} lastWeek={ordersByHour(today.lastWeek, venue.tz)} />
         </div>
@@ -105,8 +107,40 @@ export function OwnerHome({ sb, today, menu, tables, onOrders, onProfit }: Pick<
               })}
             </ul>
           )}
+          {menuStats && menuStats.orders > 0 && (
+            <dl className="mt-3 grid shrink-0 grid-cols-2 gap-3 border-t pt-3 text-sm">
+              <div>
+                <dt className="text-muted-foreground">{t("avgOrder")}</dt>
+                <dd className="font-semibold tabular-nums">{venue.money(menuStats.avg_basket_fils)}</dd>
+              </div>
+              <div>
+                <dt className="text-muted-foreground">{t("fromSuggestions")}</dt>
+                <dd className="font-semibold tabular-nums">
+                  {menuStats.lines ? Math.round((menuStats.suggested_lines / menuStats.lines) * 100) : 0}%
+                  <span className="ms-1 font-normal text-muted-foreground">({menuStats.suggested_lines})</span>
+                </dd>
+              </div>
+            </dl>
+          )}
         </section>
       </div>
     </div>
   );
+}
+
+type MenuStats = { orders: number; avg_basket_fils: number; lines: number; suggested_lines: number };
+
+/** Today's menu_stats; refetches when today's order count changes. */
+function useMenuStats(sb: AdminProps["sb"], orderCount: number) {
+  const { tz } = useVenue();
+  const [stats, setStats] = useState<MenuStats | null>(null);
+  useEffect(() => {
+    const { from, to } = spanRange(1, tz);
+    let live = true;
+    sb.rpc("menu_stats", { p_from: from, p_to: to }).then(({ data, error }) => {
+      if (live && !error) setStats(data as MenuStats);
+    });
+    return () => void (live = false);
+  }, [sb, tz, orderCount]);
+  return stats;
 }

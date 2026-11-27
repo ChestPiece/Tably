@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, Banknote, Bell, Check, CreditCard, ReceiptText } from "lucide-react";
 import { useLang, type Key } from "@/lib/i18n";
 import { pick, type MenuItem, type Order, type OrderLine, type ServiceRequest, type Visit } from "@/lib/types";
+import { lineExtras } from "@/lib/menu";
 import { Arch } from "@/components/app/arch";
 import { StatusTag } from "@/components/app/status-badge";
 import { Button } from "@/components/ui/button";
@@ -206,7 +207,7 @@ function Lines({ lines, menu, className }: { lines: OrderLine[]; menu: MenuItem[
                 <span aria-hidden className="leader" />
                 <span className="whitespace-nowrap text-text-2 tabular-nums">{money(l.unit_price_fils * l.quantity)}</span>
               </span>
-              {l.option_name && <small className="block text-sm text-text-2">{pick(lang, l.option_name, l.option_name_ar)}</small>}
+              {lineExtras(lang, l) && <small className="block text-sm text-text-2">{lineExtras(lang, l)}</small>}
             </span>
           </li>
         );

@@ -1,16 +1,20 @@
 "use client";
-import { Check, Loader2 } from "lucide-react";
+import { Check, Eye, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Textarea } from "@/components/ui/textarea";
+import { ResponsiveSheet } from "@/components/app/responsive-sheet";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { useLang, type Key } from "@/lib/i18n";
 import type { Restaurant } from "@/lib/types";
 import { isCurrency, timeZones } from "@/lib/venue";
 import type { AdminProps } from "./AdminApp";
 import { LogoField, logoProblem, uploadLogo } from "./LogoField";
+import { BrandPreview, CoverField, ColorField, HANDLE, HEX, VibeField, cleanHandle, logoColors } from "./BrandFields";
 
 // A whole row is the tap target for its switch.
 function SwitchRow({ title, desc, checked, onChange }: { title: string; desc: string; checked: boolean; onChange: (v: boolean) => void }) {
@@ -100,10 +104,23 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
   const [sec, setSec] = useState<Section>("general");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [errs, setErrs] = useState<{ name?: string; name_ar?: string; currency?: string }>({});
+  const [errs, setErrs] = useState<{ name?: string; name_ar?: string; currency?: string; accent?: string; instagram?: string; review?: string }>({});
+  const [swatches, setSwatches] = useState<string[]>([]);
+  const [coverBusy, setCoverBusy] = useState(false);
+  const [coverErr, setCoverErr] = useState("");
+  // Preview sits in the right rail from 1280px; below that the owner opens it on demand.
+  const xl = useMediaQuery("(min-width: 1280px)");
+  const [previewPick, setPreviewPick] = useState<boolean | null>(null);
+  const previewOpen = sec === "branding" && (previewPick ?? xl);
   const [zones] = useState(timeZones);
   const ar = d.second_lang === "ar";
   const set = <K extends keyof Restaurant>(k: K, v: Restaurant[K]) => setD((p) => ({ ...p, [k]: v }));
+
+  // Swatches for a logo saved earlier (storage serves public files with CORS).
+  useEffect(() => {
+    if (!restaurant.logo_url) return;
+    fetch(restaurant.logo_url).then((r) => r.blob()).then(logoColors).then(setSwatches, () => {});
+  }, [restaurant.logo_url]);
 
   useEffect(() => {
     if (!saved) return;
@@ -137,10 +154,22 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
     setLogoErr(bad ? t(bad) : "");
     if (bad) return;
     setLogoBusy(true);
+    logoColors(file).then(setSwatches);
     const r = await uploadLogo(sb, d.id, file, lang);
     setLogoBusy(false);
     if (r.error) return setLogoErr(r.error);
     set("logo_url", r.url!);
+  }
+
+  async function pickCover(file: File) {
+    const bad = logoProblem(file);
+    setCoverErr(bad ? t(bad) : "");
+    if (bad) return;
+    setCoverBusy(true);
+    const r = await uploadLogo(sb, d.id, file, lang, "cover");
+    setCoverBusy(false);
+    if (r.error) return setCoverErr(r.error);
+    set("cover_url", r.url!);
   }
 
   async function submit() {
@@ -148,10 +177,13 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
       name: d.name.trim() ? undefined : t("required"),
       // Arabic stays optional: an empty Arabic name falls back to English for guests.
       currency: isCurrency(d.currency) ? undefined : t("badCurrency"),
+      accent: HEX.test(d.accent) ? undefined : t("badHex"),
+      instagram: HANDLE.test(d.instagram) ? undefined : t("badHandle"),
+      review: !d.google_review_url?.trim() || /^https:\/\/\S+$/.test(d.google_review_url.trim()) ? undefined : t("badReviewUrl"),
     };
     setErrs(e);
-    if (e.name || e.currency) {
-      setSec("general");
+    if (e.name || e.currency || e.accent || e.instagram || e.review) {
+      setSec(e.name || e.currency ? "general" : "branding");
       return void setTimeout(() => document.querySelector<HTMLElement>("#settings-form [aria-invalid=true]")?.focus());
     }
     setSaving(true);
@@ -171,6 +203,13 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
           service_mode: d.service_mode,
           ordering_paused: d.ordering_paused,
           pin_required: d.pin_required,
+          accent: d.accent.toUpperCase(),
+          vibe: d.vibe,
+          cover_url: d.cover_url,
+          welcome_note: d.welcome_note.trim(),
+          welcome_note_ar: d.welcome_note_ar.trim(),
+          instagram: d.instagram,
+          google_review_url: d.google_review_url?.trim() || null,
         })
         .eq("id", d.id),
     );
@@ -181,9 +220,9 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
   const show = (id: Section) => (sec === id ? undefined : true);
   return (
     // One section at a time. All sections share one draft, so switching never loses edits; Save writes them all.
-    <div className="grid gap-8 md:grid-cols-[176px_minmax(0,1fr)]">
-      <nav aria-label={t("settingsSections")} className="max-md:-mx-1 max-md:overflow-x-auto">
-        <ul className="flex gap-1 md:flex-col">
+    <div className="grid gap-8 lg:grid-cols-[176px_minmax(0,1fr)]">
+      <nav aria-label={t("settingsSections")} className="max-lg:-mx-1 max-lg:overflow-x-auto max-lg:scroll-cue">
+        <ul className="flex gap-1 lg:flex-col">
           {SECTIONS.map(([id, label]) => (
             <li key={id}>
               <button
@@ -261,8 +300,63 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
               <SwitchRow title={t("requireCode")} desc={t("requireCodeDesc")} checked={d.pin_required} onChange={(v) => set("pin_required", v)} />
             </div>
           </div>
-          <div hidden={show("branding")} className="sm:col-span-2">
+          <div hidden={show("branding")} className="grid gap-6 sm:col-span-2">
             <LogoField name={d.name} src={d.logo_url} busy={logoBusy} error={logoErr} onPick={pickLogo} onRemove={() => set("logo_url", null)} />
+            <ColorField value={d.accent} swatches={swatches} error={errs.accent} onChange={(v) => set("accent", v)} />
+            <VibeField value={d.vibe} name={d.name} onChange={(v) => set("vibe", v)} />
+            <CoverField src={d.cover_url} busy={coverBusy} error={coverErr} onPick={pickCover} onRemove={() => set("cover_url", null)} />
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="st-note" className="text-sm font-medium">{t("welcomeNote")}</label>
+              <Textarea id="st-note" maxLength={280} rows={2} value={d.welcome_note} aria-describedby="st-note-h" onChange={(e) => set("welcome_note", e.target.value)} />
+              <p id="st-note-h" className="text-sm text-muted-foreground">{t("welcomeNoteHint")} {d.welcome_note.length}/280</p>
+            </div>
+            {ar && (
+              <div className="flex flex-col gap-1.5">
+                <label htmlFor="st-note-ar" className="text-sm font-medium">{t("welcomeNoteAr")}</label>
+                <Textarea id="st-note-ar" dir="rtl" lang="ar" maxLength={280} rows={2} value={d.welcome_note_ar} onChange={(e) => set("welcome_note_ar", e.target.value)} />
+              </div>
+            )}
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="st-ig" className="text-sm font-medium">{t("instagramLabel")}</label>
+              <Input
+                id="st-ig"
+                size="sm"
+                dir="ltr"
+                spellCheck={false}
+                autoCapitalize="none"
+                className="max-w-64"
+                placeholder="yourplace"
+                value={d.instagram}
+                aria-invalid={!!errs.instagram}
+                aria-describedby="st-ig-h"
+                onChange={(e) => set("instagram", cleanHandle(e.target.value))}
+              />
+              <p id="st-ig-h" className={errs.instagram ? "text-sm text-destructive" : "text-sm text-muted-foreground"}>{errs.instagram ?? t("instagramHint")}</p>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="st-review" className="text-sm font-medium">{t("googleReviewLabel")}</label>
+              <Input
+                id="st-review"
+                size="sm"
+                type="url"
+                dir="ltr"
+                spellCheck={false}
+                autoCapitalize="none"
+                maxLength={500}
+                placeholder="https://g.page/r/…"
+                value={d.google_review_url ?? ""}
+                aria-invalid={!!errs.review}
+                aria-describedby="st-review-h"
+                onChange={(e) => set("google_review_url", e.target.value)}
+              />
+              <p id="st-review-h" className={errs.review ? "text-sm text-destructive" : "text-sm text-muted-foreground"}>{errs.review ?? t("googleReviewHint")}</p>
+            </div>
+            {!previewOpen && (
+              <Button type="button" variant="outline" size="sm" className="justify-self-start" onClick={() => setPreviewPick(true)}>
+                <Eye aria-hidden />
+                {t("showPreview")}
+              </Button>
+            )}
           </div>
           <div hidden={show("language")} className="contents">
             <div className="border-t sm:col-span-2">
@@ -284,6 +378,11 @@ export function SettingsForm({ sb, restaurant, mutate, email }: AdminProps & { r
           </div>
         </form>
         {sec === "account" && <PasswordForm sb={sb} email={email} />}
+        <ResponsiveSheet rail open={previewOpen} onOpenChange={setPreviewPick} title={t("guestPreview")}>
+          <div className="py-4">
+            <BrandPreview restaurant={d} />
+          </div>
+        </ResponsiveSheet>
       </div>
     </div>
   );

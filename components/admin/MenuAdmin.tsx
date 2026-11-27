@@ -6,6 +6,7 @@ import { EmptyState } from "@/components/app/empty-state";
 import { ResponsiveSheet } from "@/components/app/responsive-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { tr, useLang } from "@/lib/i18n";
 import { useVenue } from "@/lib/venue";
@@ -38,6 +39,10 @@ export function blankItem(rid: string, categories: Category[], menu: MenuItem[])
     badge_ar: null,
     position: menu.length + 1,
     item_options: [],
+    item_addons: [],
+    tags: [],
+    featured: false,
+    addon_max: 0,
   };
 }
 
@@ -58,18 +63,34 @@ export function MenuAdmin({ sb, mutate, run, restaurant, categories, menu, editi
     setBusyId("");
   };
 
+  const cats = [{ id: "all", label: t("allItems"), n: menu.length }, ...categories.map((c) => ({ id: c.id, label: pick(lang, c.name, c.name_ar), n: count(c.id) }))];
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center gap-3">
+        {/* Phones: one select, so any number of categories stays one row. */}
+        <Select value={current} onValueChange={setCat}>
+          <SelectTrigger size="sm" aria-label={t("categories")} className="min-w-0 flex-1 sm:hidden">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {cats.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.label}
+                <span className="text-muted-foreground tabular-nums">{c.n}</span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <ToggleGroup
           type="single"
           variant="segmented"
           value={current}
           onValueChange={(v) => v && setCat(v)}
           aria-label={t("categories")}
-          className="max-w-full overflow-x-auto"
+          className="max-w-full overflow-x-auto scroll-cue max-sm:hidden"
         >
-          {[{ id: "all", label: t("allItems"), n: menu.length }, ...categories.map((c) => ({ id: c.id, label: pick(lang, c.name, c.name_ar), n: count(c.id) }))].map((c) => (
+          {cats.map((c) => (
             <ToggleGroupItem key={c.id} value={c.id} className="h-9 px-4 whitespace-nowrap">
               {c.label}
               <span className="ms-1.5 text-muted-foreground tabular-nums">{c.n}</span>
@@ -107,6 +128,7 @@ export function MenuAdmin({ sb, mutate, run, restaurant, categories, menu, editi
         rid={rid}
         item={editing}
         categories={categories}
+        menu={menu}
         isNew={!!editing && !menu.some((m) => m.id === editing.id)}
         onClose={() => onEdit(null)}
         onSaved={() => onEdit(null)}

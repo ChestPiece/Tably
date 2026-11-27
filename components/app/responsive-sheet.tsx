@@ -43,7 +43,6 @@ export function RailSlot({ label }: { label: string }) {
   return <aside ref={set} aria-label={label} className="w-[400px] shrink-0 border-s bg-card empty:hidden max-xl:hidden" />;
 }
 
-const body = "relative min-h-0 flex-1 overflow-y-auto px-5 py-4";
 const titleCls = "font-display text-[28px] leading-[1.15] font-semibold";
 const foot = "shrink-0 border-t px-5 pt-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]";
 
@@ -56,9 +55,10 @@ function submitOnModEnter(e: KeyboardEvent<HTMLElement>) {
   b.click();
 }
 
-// Drawer below 768px; Dialog from 768px up. Radix wires title/description via aria-labelledby/describedby.
+// Drawer below 768px wide or 600px tall (landscape phones); Dialog/Sheet above. Radix wires title/description via aria-labelledby/describedby.
 export function ResponsiveSheet({ open, onOpenChange, title, description, children, footer, full, grid, media, displayTitle, rail }: Props) {
-  const wide = useMediaQuery("(min-width: 768px)");
+  const { lang } = useLang();
+  const wide = useMediaQuery("(min-width: 768px) and (min-height: 600px)");
   const xl = useMediaQuery("(min-width: 1280px)");
   const slot = useContext(RailCtx).el;
 
@@ -70,12 +70,15 @@ export function ResponsiveSheet({ open, onOpenChange, title, description, childr
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className={cn(full && "mt-0 h-dvh data-[vaul-drawer-direction=bottom]:max-h-dvh data-[vaul-drawer-direction=bottom]:rounded-none")}>
-          <DrawerHeader className="px-5">
-            {media}
-            <DrawerTitle className={cn(displayTitle && titleCls)}>{title}</DrawerTitle>
-            {desc(DrawerDescription)}
-          </DrawerHeader>
-          <div className={body}>{children}</div>
+          {/* Header scrolls with the body, so a photo never squeezes the content on short screens; the footer stays put. */}
+          <div className="relative min-h-0 flex-1 overflow-y-auto">
+            <DrawerHeader className="px-5">
+              {media}
+              <DrawerTitle className={cn(displayTitle && titleCls)}>{title}</DrawerTitle>
+              {desc(DrawerDescription)}
+            </DrawerHeader>
+            <div className="px-5 py-4">{children}</div>
+          </div>
           {footer && <div className={foot}>{footer}</div>}
         </DrawerContent>
       </Drawer>
@@ -86,7 +89,7 @@ export function ResponsiveSheet({ open, onOpenChange, title, description, childr
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent
-          side="right"
+          side={lang === "ar" ? "left" : "right"}
           onKeyDown={submitOnModEnter}
           className={cn("gap-0 bg-card p-0 data-[state=open]:duration-base sm:max-w-[720px]", grid && "sm:max-w-[min(1040px,calc(100vw-4rem))]")}
         >
@@ -95,7 +98,7 @@ export function ResponsiveSheet({ open, onOpenChange, title, description, childr
             {desc(SheetDescription)}
           </SheetHeader>
           <div className="relative min-h-0 flex-1 overflow-y-auto px-6 py-6">{children}</div>
-          {footer && <div className="shrink-0 border-t px-6 py-4">{footer}</div>}
+          {footer && <div className="shrink-0 border-t px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{footer}</div>}
         </SheetContent>
       </Sheet>
     );
@@ -109,7 +112,7 @@ export function ResponsiveSheet({ open, onOpenChange, title, description, childr
           {desc(DialogDescription)}
         </DialogHeader>
         <div className="relative min-h-0 flex-1 overflow-y-auto px-6 pb-6">{children}</div>
-        {footer && <div className="shrink-0 border-t px-6 py-4">{footer}</div>}
+        {footer && <div className="shrink-0 border-t px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{footer}</div>}
       </DialogContent>
     </Dialog>
   );
@@ -150,7 +153,7 @@ function RailPanel({ onOpenChange, title, description, footer, children }: Pick<
         </Button>
       </header>
       <div className="relative min-h-0 flex-1 overflow-y-auto px-6 py-5">{children}</div>
-      {footer && <div className="shrink-0 border-t px-6 py-4">{footer}</div>}
+      {footer && <div className="shrink-0 border-t px-6 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">{footer}</div>}
     </section>
   );
 }
